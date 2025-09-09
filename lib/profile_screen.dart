@@ -8,13 +8,9 @@ import 'services/theme_service.dart';
 import 'theme/app_theme.dart';
 import 'login_screen.dart';
 import 'l10n/app_localizations.dart';
-import 'search_history_screen.dart';
-// import 'tutorial_screen.dart';
 import 'terms_of_service_content.dart';
-// import 'package:showcaseview/showcaseview.dart';
 import 'main.dart';
 import 'services/tutorial_service.dart';
-import 'pro_upgrade_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
