@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'services/search_history_service.dart';
 import 'services/language_service.dart';
 import 'services/auth_service.dart';
 import 'services/theme_service.dart';
@@ -10,7 +9,6 @@ import 'login_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'terms_of_service_content.dart';
 import 'main.dart';
-import 'services/tutorial_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -20,7 +18,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final SearchHistoryService _searchHistoryService = SearchHistoryService();
   bool _isLoading = true;
 
   @override
@@ -171,37 +168,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ],
-              /*
-              const SizedBox(height: 16)
-              // 로그인/편집 버튼
-              if (authService.isLoggedIn)
-                OutlinedButton(
-                  onPressed: () {
-                    _showEditProfileDialog(loc);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: colors.text,
-                    side: BorderSide(color: colors.dark),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(loc.get('edit_profile')),
-                )
-              else
-                ElevatedButton(
-                  onPressed: () {
-                    _showLoginDialog(loc);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.accent,
-                    foregroundColor: colors.text,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(loc.get('login')),
-                ), */
             ],
           ),
         );
@@ -245,27 +211,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildThemeItems(loc, colors),
 
               _buildMenuHeader(title: loc.get('information'), colors: colors),
-
-              _buildMenuItem(
-                icon: Icons.workspace_premium,
-                title: loc.get('pro_upgrade'),
-                subtitle: loc.get('pro_upgrade_description'),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProUpgradeScreen(),
-                  ),
-                ),
-                colors: colors,
-              ),
-
-              _buildMenuItem(
-                icon: Icons.help,
-                title: loc.get('help'),
-                subtitle: loc.get('help_description'),
-                onTap: () => _showHelp(loc),
-                colors: colors,
-              ),
 
               _buildMenuItem(
                 icon: Icons.description,
@@ -605,51 +550,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showHelp(AppLocalizations loc) {
-    // 튜토리얼 초기화
-    TutorialService.resetTutorial();
-
-    // 메인 홈 탭에서 쇼케이스를 시작하도록 전역 트리거 설정
-    TutorialService.requestMainShowcase();
-    // 메인 홈 탭에서 쇼케이스를 시작하도록 전역 트리거 호출
-    triggerHomeShowCase();
-
-    // 튜토리얼 완료 표시
-    TutorialService.markTutorialCompleted();
-  }
-
   void _showTermsOfService(AppLocalizations loc) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const TermsOfServiceScreen()),
     );
   }
-
-  /* void _showAppInfo(AppLocalizations loc) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(loc.get('app_info')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(loc.get('app_name')),
-            const SizedBox(height: 8),
-            Text('${loc.get('version')}: 1.0.0'),
-            const SizedBox(height: 8),
-            Text('${loc.get('developer')}: ${loc.get('ai_dictionary_team')}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(loc.get('confirm')),
-          ),
-        ],
-      ),
-    );
-  } */
 
   void _showLogoutDialog(AppLocalizations loc, CustomColors colors) {
     showDialog(
@@ -751,23 +657,6 @@ class _DataSettingsScreenState extends State<DataSettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPauseHistoryState();
-  }
-
-  // 검색 기록 일시 중지 상태 로드
-  Future<void> _loadPauseHistoryState() async {
-    final isEnabled = await SearchHistoryService.isPauseHistoryEnabled();
-    setState(() {
-      _isPauseHistoryEnabled = isEnabled;
-    });
-  }
-
-  // 검색 기록 일시 중지 상태 변경
-  Future<void> _setPauseHistoryState(bool enabled) async {
-    await SearchHistoryService.setPauseHistoryEnabled(enabled);
-    setState(() {
-      _isPauseHistoryEnabled = enabled;
-    });
   }
 
   @override
@@ -786,29 +675,6 @@ class _DataSettingsScreenState extends State<DataSettingsScreen> {
       backgroundColor: colors.background,
       body: Column(
         children: [
-          ListTile(
-            title: Text(
-              loc.get('pause_search_history'),
-              style: TextStyle(color: colors.text, fontWeight: FontWeight.w500),
-            ),
-            subtitle: Text(
-              loc.get('pause_search_history_description'),
-              style: TextStyle(color: colors.text, fontSize: 12),
-            ),
-            trailing: Switch(
-              value: _isPauseHistoryEnabled,
-              onChanged: _setPauseHistoryState,
-              activeColor: colors.text,
-            ),
-            onTap: () {
-              _setPauseHistoryState(!_isPauseHistoryEnabled);
-            },
-          ),
-          _buildMenuItem(
-            title: loc.get('delete_all_history'),
-            onTap: () => {SearchHistoryScreen.clearAllHistory(context, colors)},
-            colors: colors,
-          ),
           _buildMenuItem(
             title: loc.get('delete_account'),
             onTap: () => _showDeleteAccountDialog(loc, colors),
