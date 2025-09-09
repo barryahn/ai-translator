@@ -43,6 +43,7 @@ dependencies:
   fluttertoast: ^8.2.12
   flutter_langdetect: ^0.0.2
   lpinyin: ^2.0.3
+  cloud_firestore: ^6.0.1
 
 dev_dependencies:
   flutter_test:

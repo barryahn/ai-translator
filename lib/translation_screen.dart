@@ -11,7 +11,6 @@ import 'theme/app_theme.dart';
 import 'l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_langdetect/flutter_langdetect.dart' as langdetect;
-import 'services/tutorial_service.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 final GlobalKey _langSelectorKey = GlobalKey();
@@ -76,41 +75,12 @@ class TranslationScreenState extends State<TranslationScreen> {
 
     // 입력 텍스트 변경 시 높이 업데이트 (고정 높이 유지)
     _inputController.addListener(_updateInputFieldHeight);
-
-    // 번역 쇼케이스 노티파이어 구독 (탭 전환 등 런타임 트리거 대응)
-    TutorialService.translationShowcaseNotifier.addListener(
-      _onTranslationShowcaseEvent,
-    );
-  }
-
-  void _onTranslationShowcaseEvent() {
-    _maybeStartTranslationShowcase();
-  }
-
-  void _maybeStartTranslationShowcase() {
-    if (!mounted) return;
-    if (_showcaseContext == null) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
-      final alreadyShown = await TutorialService.wasTranslationShowcaseShown();
-      if (alreadyShown) return;
-      if (TutorialService.consumeTranslationShowcaseTrigger()) {
-        ShowCaseWidget.of(
-          _showcaseContext!,
-        ).startShowCase([_langSelectorKey, _tonePickerKey]);
-        await TutorialService.markTranslationShowcaseShown();
-      }
-    });
   }
 
   @override
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
-    TutorialService.translationShowcaseNotifier.removeListener(
-      _onTranslationShowcaseEvent,
-    );
     super.dispose();
   }
 
@@ -364,122 +334,45 @@ class TranslationScreenState extends State<TranslationScreen> {
     final themeService = context.watch<ThemeService>();
     final colors = themeService.colors;
 
-    return ShowCaseWidget(
-      builder: (ctx) {
-        _showcaseContext = ctx;
-        // 초기 진입 시에도 한 번 체크
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (!mounted) return;
-          final alreadyShown =
-              await TutorialService.wasTranslationShowcaseShown();
-          if (alreadyShown) return;
-          if (TutorialService.consumeTranslationShowcaseTrigger()) {
-            ShowCaseWidget.of(
-              ctx,
-            ).startShowCase([_langSelectorKey, _tonePickerKey]);
-            await TutorialService.markTranslationShowcaseShown();
-          }
-        });
-        return Scaffold(
-          backgroundColor: colors.background,
-          appBar: AppBar(
-            title: Text(
-              AppLocalizations.of(context).translation,
-              style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
-            ),
-            backgroundColor: colors.background,
-            elevation: 0,
+    return Scaffold(
+      backgroundColor: colors.background,
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context).translation,
+          style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: colors.background,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              _buildLanguageSelector(colors),
+              const SizedBox(height: 20),
+              _buildTonePicker(colors),
+              const SizedBox(height: 10),
+              _buildTranslationArea(colors),
+            ],
           ),
-          body: SingleChildScrollView(
-            controller: _scrollController,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: <Widget>[
-                  _buildLanguageSelector(colors),
-                  const SizedBox(height: 20),
-                  _buildTonePicker(colors),
-                  const SizedBox(height: 10),
-                  _buildTranslationArea(colors),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+        ),
+      ),
     );
   }
 
   // 언어 선택 영역
   Widget _buildLanguageSelector(CustomColors colors) {
-    return Showcase(
-      key: _langSelectorKey,
-      title: AppLocalizations.of(
-        context,
-      ).tutorial_translate_language_selector_title,
-      description:
-          AppLocalizations.of(
-            context,
-          ).tutorial_translate_language_selector_desc +
-          "ㅤ",
-      titleTextAlign: TextAlign.center,
-      titleTextStyle: TextStyle(
-        color: colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-      ),
-      titlePadding: EdgeInsets.only(top: 8),
-      descTextStyle: TextStyle(color: colors.white, fontSize: 13),
-      descriptionPadding: EdgeInsets.only(top: 4),
-      descriptionTextAlign: TextAlign.center,
-      tooltipBackgroundColor: colors.primary,
-      disableMovingAnimation: true,
-      targetPadding: EdgeInsets.all(10),
-      tooltipActions: [
-        TooltipActionButton(
-          type: TooltipDefaultActionType.skip,
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-          name: 'Skip All',
-          textStyle: TextStyle(color: colors.white.withValues(alpha: 0.5)),
-          backgroundColor: Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+    return Row(
+      children: <Widget>[
+        Expanded(flex: 5, child: _buildFromLanguageDropdown(colors)),
+        Expanded(
+          flex: 2,
+          child: Center(child: _buildLanguageSwapButton(colors)),
         ),
-        TooltipActionButton(
-          type: TooltipDefaultActionType.next,
-          padding: EdgeInsets.only(top: 3, right: 8),
-          name: '1/2',
-          textStyle: TextStyle(
-            color: colors.white.withValues(alpha: 0.5),
-            fontSize: 12,
-          ),
-          backgroundColor: Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        TooltipActionButton(
-          type: TooltipDefaultActionType.next,
-          padding: EdgeInsets.only(left: 10, right: 14, top: 2, bottom: 2),
-          name: 'Next',
-          textStyle: TextStyle(color: colors.white),
-          backgroundColor: Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
+        Expanded(flex: 5, child: _buildToLanguageDropdown(colors)),
       ],
-      tooltipActionConfig: const TooltipActionConfig(
-        alignment: MainAxisAlignment.spaceBetween,
-        gapBetweenContentAndAction: 10,
-        position: TooltipActionPosition.outside,
-      ),
-
-      child: Row(
-        children: <Widget>[
-          Expanded(flex: 5, child: _buildFromLanguageDropdown(colors)),
-          Expanded(
-            flex: 2,
-            child: Center(child: _buildLanguageSwapButton(colors)),
-          ),
-          Expanded(flex: 5, child: _buildToLanguageDropdown(colors)),
-        ],
-      ),
     );
   }
 
@@ -728,237 +621,182 @@ class TranslationScreenState extends State<TranslationScreen> {
 
   // 번역 분위기 설정 슬라이더
   Widget _buildTonePicker(CustomColors colors) {
-    return Showcase(
-      key: _tonePickerKey,
-      title: AppLocalizations.of(context).tutorial_translate_tone_picker_title,
-      description:
-          AppLocalizations.of(context).tutorial_translate_tone_picker_desc +
-          "ㅤ",
-      titleTextAlign: TextAlign.center,
-      titleTextStyle: TextStyle(
+    return Container(
+      decoration: BoxDecoration(
         color: colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-      ),
-      titlePadding: EdgeInsets.only(top: 8),
-      descTextStyle: TextStyle(color: colors.white, fontSize: 13),
-      descriptionPadding: EdgeInsets.only(top: 4),
-      descriptionTextAlign: TextAlign.center,
-      tooltipBackgroundColor: colors.primary,
-      disableMovingAnimation: true,
-      targetPadding: EdgeInsets.all(10),
-      tooltipActions: [
-        TooltipActionButton(
-          type: TooltipDefaultActionType.skip,
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-          name: 'Skip All',
-          textStyle: TextStyle(color: colors.white.withValues(alpha: 0.5)),
-          backgroundColor: Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        TooltipActionButton(
-          type: TooltipDefaultActionType.next,
-          padding: EdgeInsets.only(top: 3, right: 8),
-          name: '2/2',
-          textStyle: TextStyle(
-            color: colors.white.withValues(alpha: 0.5),
-            fontSize: 12,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
-          backgroundColor: Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        TooltipActionButton(
-          type: TooltipDefaultActionType.next,
-          padding: EdgeInsets.only(left: 10, right: 14, top: 2, bottom: 2),
-          name: 'Next',
-          textStyle: TextStyle(color: colors.white),
-          backgroundColor: Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ],
-      tooltipActionConfig: const TooltipActionConfig(
-        alignment: MainAxisAlignment.spaceBetween,
-        gapBetweenContentAndAction: 10,
-        position: TooltipActionPosition.outside,
+        ],
       ),
-
-      child: Container(
-        decoration: BoxDecoration(
-          color: colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                setState(() {
-                  isTonePickerExpanded = !isTonePickerExpanded;
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 14,
-                  bottom: 14,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.tune, color: colors.primary, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          AppLocalizations.of(context).translation_tone,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: colors.text,
-                          ),
-                        ),
-                        if (!isTonePickerExpanded) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  toneLabels[selectedToneLevel.round()],
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: colors.textLight,
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                Container(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Icon(
-                                    Icons.check_circle,
-                                    color: colors.textLight,
-                                    size: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isTonePickerExpanded = !isTonePickerExpanded;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          isTonePickerExpanded
-                              ? Icons.expand_less
-                              : Icons.expand_more,
-                          color: colors.text,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              setState(() {
+                isTonePickerExpanded = !isTonePickerExpanded;
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 14,
+                bottom: 14,
               ),
-            ),
-            if (isTonePickerExpanded)
-              Container(
-                padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                child: Column(
-                  children: [
-                    // 슬라이더
-                    SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: colors.textLight,
-                        inactiveTrackColor: colors.background,
-                        thumbColor: colors.textLight,
-                        overlayColor: colors.primary.withValues(alpha: 0.2),
-                        trackHeight: 4,
-                        thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 8,
-                        ),
-                        overlayShape: const RoundSliderOverlayShape(
-                          overlayRadius: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.tune, color: colors.primary, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        AppLocalizations.of(context).translation_tone,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: colors.text,
                         ),
                       ),
-                      child: Slider(
-                        value: selectedToneLevel,
-                        min: 0,
-                        max: 3,
-                        divisions: 3,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedToneLevel = value;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    // 라벨 표시
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: toneLabels.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        String label = entry.value;
-                        bool isSelected = selectedToneLevel.round() == index;
-
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              selectedToneLevel = index.toDouble();
-                            });
-                          },
-                          child: Column(
+                      if (!isTonePickerExpanded) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(
-                                width: 48,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? colors.primary
-                                      : colors.textLight,
-                                  shape: BoxShape.circle,
+                              Text(
+                                toneLabels[selectedToneLevel.round()],
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.textLight,
                                 ),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                label,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.w500,
-                                  color: isSelected
-                                      ? colors.primary
-                                      : colors.textLight,
+                              const SizedBox(width: 2),
+                              Container(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: colors.textLight,
+                                  size: 14,
                                 ),
                               ),
                             ],
                           ),
-                        );
-                      }).toList(),
+                        ),
+                      ],
+                    ],
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isTonePickerExpanded = !isTonePickerExpanded;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        isTonePickerExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: colors.text,
+                        size: 20,
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-          ],
-        ),
+            ),
+          ),
+          if (isTonePickerExpanded)
+            Container(
+              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+              child: Column(
+                children: [
+                  // 슬라이더
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      activeTrackColor: colors.textLight,
+                      inactiveTrackColor: colors.background,
+                      thumbColor: colors.textLight,
+                      overlayColor: colors.primary.withValues(alpha: 0.2),
+                      trackHeight: 4,
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 8,
+                      ),
+                      overlayShape: const RoundSliderOverlayShape(
+                        overlayRadius: 16,
+                      ),
+                    ),
+                    child: Slider(
+                      value: selectedToneLevel,
+                      min: 0,
+                      max: 3,
+                      divisions: 3,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedToneLevel = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // 라벨 표시
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: toneLabels.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      String label = entry.value;
+                      bool isSelected = selectedToneLevel.round() == index;
+
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            selectedToneLevel = index.toDouble();
+                          });
+                        },
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? colors.primary
+                                    : colors.textLight,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                                color: isSelected
+                                    ? colors.primary
+                                    : colors.textLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
