@@ -125,10 +125,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   ];
 
   final TextEditingController _inputController = TextEditingController();
+  final FocusNode _bottomInputFocusNode = FocusNode();
   String _translatedText = '';
 
-  static const double _minFieldHeight = 200.0;
-  double _resultFieldHeight = _minFieldHeight;
+  // static const double _minFieldHeight = 200.0;
 
   List<String> get toneLabels => ['친근', '기본', '공손', '격식'];
 
@@ -183,6 +183,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _bottomInputFocusNode.dispose();
+    super.dispose();
   }
 
   Widget _buildAppDrawer(BuildContext context) {
@@ -694,169 +700,181 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   }
 
   Widget _buildBottomSearchBar(CustomColors colors) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        color: Colors.transparent,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 언어 선택자 (하단 바 상단에 배치)
-            Container(child: _buildLanguageSelector(colors)),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                // 이미지 스캔 버튼
-                InkWell(
-                  borderRadius: BorderRadius.circular(24),
-                  onTap: () {
-                    Fluttertoast.showToast(
-                      msg: '이미지 스캔은 준비 중입니다',
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                    );
-                  },
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    child: Icon(Icons.document_scanner, color: colors.text),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                // 중앙 입력 영역 (투명 배경 + 라운드 보더)
-                Expanded(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(32),
-                    onTap: () async {
-                      final result = await Navigator.of(context).push<String>(
-                        MaterialPageRoute(
-                          builder: (_) => const _InputFullScreenEditor(),
-                          settings: RouteSettings(
-                            arguments: _inputController.text,
-                          ),
-                        ),
+    final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          color: Colors.transparent,
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 언어 선택자 (하단 바 상단에 배치)
+              Container(child: _buildLanguageSelector(colors)),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  // 이미지 스캔 버튼
+                  InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: () {
+                      Fluttertoast.showToast(
+                        msg: '이미지 스캔은 준비 중입니다',
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
                       );
-                      if (result != null) {
-                        setState(() {
-                          _inputController.text = result;
-                        });
-                      }
                     },
                     child: Container(
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: colors.textLight.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                      padding: const EdgeInsets.only(left: 16, right: 8),
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              _inputController.text.isEmpty
-                                  ? '검색어나 문장을 입력하세요'
-                                  : _inputController.text,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: colors.text,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-
-                          // 입력 텍스트가 없을 때
-                          if (_inputController.text.isEmpty) ...[
-                            const SizedBox(width: 8),
-
-                            // 음성 입력 버튼
-                            InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () {
-                                Fluttertoast.showToast(
-                                  msg: '음성 입력은 준비 중입니다',
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.BOTTOM,
-                                );
-                              },
-                              child: SizedBox(
-                                width: 32,
-                                height: 32,
-                                child: Icon(
-                                  Icons.mic_none_outlined,
-                                  color: colors.text.withValues(alpha: 0.5),
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          ],
-
-                          // 입력 텍스트가 있을 때
-                          if (_inputController.text.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () {
-                                setState(() {
-                                  _inputController.clear();
-                                });
-                              },
-                              child: SizedBox(
-                                width: 32,
-                                height: 32,
-                                child: Icon(
-                                  Icons.clear,
-                                  color: colors.text.withValues(alpha: 0.5),
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () async {
-                                final result = await Navigator.of(context)
-                                    .push<String>(
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            const _InputFullScreenEditor(),
-                                        settings: RouteSettings(
-                                          arguments: _inputController.text,
-                                        ),
-                                      ),
-                                    );
-                                if (result != null) {
-                                  setState(() {
-                                    _inputController.text = result;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                width: 32,
-                                height: 32,
-                                decoration: BoxDecoration(
+                      width: 40,
+                      height: 40,
+                      alignment: Alignment.center,
+                      child: Icon(Icons.document_scanner, color: colors.text),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  // 중앙 입력 영역 (투명 배경 + 라운드 보더)
+                  Expanded(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(32),
+                      onTap: () {
+                        FocusScope.of(
+                          context,
+                        ).requestFocus(_bottomInputFocusNode);
+                      },
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: colors.textLight.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(32),
+                        ),
+                        padding: const EdgeInsets.only(left: 16, right: 8),
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _inputController,
+                                focusNode: _bottomInputFocusNode,
+                                style: TextStyle(
                                   color: colors.text,
-                                  shape: BoxShape.circle,
+                                  fontSize: 15,
                                 ),
-                                child: Icon(
-                                  Icons.arrow_upward,
-                                  color: colors.white,
-                                  size: 24,
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  border: InputBorder.none,
+                                  hintText: '검색어나 문장을 입력하세요',
+                                  contentPadding: EdgeInsets.zero,
                                 ),
+                                minLines: 1,
+                                maxLines: 1,
+                                onChanged: (_) => setState(() {}),
                               ),
                             ),
+
+                            // 입력 텍스트가 없을 때
+                            if (_inputController.text.isEmpty) ...[
+                              const SizedBox(width: 8),
+
+                              // 음성 입력 버튼
+                              InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                onTap: () {
+                                  Fluttertoast.showToast(
+                                    msg: '음성 입력은 준비 중입니다',
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                  );
+                                },
+                                child: SizedBox(
+                                  width: 32,
+                                  height: 32,
+                                  child: Icon(
+                                    Icons.mic_none_outlined,
+                                    color: colors.text.withValues(alpha: 0.5),
+                                    size: 24,
+                                  ),
+                                ),
+                              ),
+                            ],
+
+                            // 입력 텍스트가 있을 때
+                            if (_inputController.text.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                onTap: () async {
+                                  final result = await Navigator.of(context)
+                                      .push<String>(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const _InputFullScreenEditor(),
+                                          settings: RouteSettings(
+                                            arguments: _inputController.text,
+                                          ),
+                                        ),
+                                      );
+                                  if (result != null) {
+                                    setState(() {
+                                      _inputController.text = result;
+                                    });
+                                  }
+                                },
+                                child: SizedBox(
+                                  width: 32,
+                                  height: 32,
+                                  child: Icon(
+                                    Icons.open_in_full,
+                                    color: colors.text.withValues(alpha: 0.5),
+                                    size: 24,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                onTap: () async {
+                                  final result = await Navigator.of(context)
+                                      .push<String>(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const _InputFullScreenEditor(),
+                                          settings: RouteSettings(
+                                            arguments: _inputController.text,
+                                          ),
+                                        ),
+                                      );
+                                  if (result != null) {
+                                    setState(() {
+                                      _inputController.text = result;
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: colors.text,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.arrow_upward,
+                                    color: colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -864,7 +882,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
 
   Widget _buildResultField(CustomColors colors) {
     return Container(
-      height: _resultFieldHeight,
+      height: 600, // _resultFieldHeight,
       width: double.infinity,
       decoration: BoxDecoration(
         color: colors.white,
