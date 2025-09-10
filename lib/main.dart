@@ -159,7 +159,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
       appBar: AppBar(
         title: Text(
           '번역',
-          style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colors.text,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
         backgroundColor: colors.background,
         iconTheme: IconThemeData(color: colors.text),
@@ -224,7 +228,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
               ),
               title: const Text('검색 기록'),
               onTap: () {
-                Navigator.of(context).pop();
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => const SearchHistoryScreen(),
@@ -240,7 +243,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
               ),
               title: const Text('이용약관'),
               onTap: () {
-                Navigator.of(context).pop();
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => const TermsOfServiceScreen(),
@@ -256,7 +258,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
               ),
               title: const Text('설정'),
               onTap: () {
-                Navigator.of(context).pop();
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
                 );
