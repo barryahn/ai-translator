@@ -532,7 +532,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -630,7 +630,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                       activeTrackColor: colors.textLight,
                       inactiveTrackColor: colors.background,
                       thumbColor: colors.textLight,
-                      overlayColor: colors.primary.withOpacity(0.2),
+                      overlayColor: colors.primary.withValues(alpha: 0.2),
                       trackHeight: 4,
                       thumbShape: const RoundSliderThumbShape(
                         enabledThumbRadius: 8,
@@ -953,12 +953,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -998,8 +998,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           color: (_translatedText.isNotEmpty
-                              ? Colors.red.withOpacity(0.1)
-                              : Colors.grey.withOpacity(0.1)),
+                              ? Colors.red.withValues(alpha: 0.1)
+                              : Colors.grey.withValues(alpha: 0.1)),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Icon(
@@ -1018,8 +1018,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           color: (_translatedText.isNotEmpty
-                              ? colors.primary.withOpacity(0.1)
-                              : Colors.grey.withOpacity(0.1)),
+                              ? colors.primary.withValues(alpha: 0.1)
+                              : Colors.grey.withValues(alpha: 0.1)),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Icon(
