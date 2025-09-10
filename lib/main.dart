@@ -737,12 +737,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                   // 중앙 입력 영역 (투명 배경 + 라운드 보더)
                   Expanded(
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(20),
                       // Disable InkWell visual effects to prevent color overlap with inner container
-                      splashFactory: NoSplash.splashFactory,
                       highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
                       focusColor: Colors.transparent,
                       onTap: () {
                         FocusScope.of(
