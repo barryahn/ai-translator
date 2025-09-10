@@ -737,19 +737,30 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                   // 중앙 입력 영역 (투명 배경 + 라운드 보더)
                   Expanded(
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(32),
+                      borderRadius: BorderRadius.circular(10),
+                      // Disable InkWell visual effects to prevent color overlap with inner container
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      focusColor: Colors.transparent,
                       onTap: () {
                         FocusScope.of(
                           context,
                         ).requestFocus(_bottomInputFocusNode);
                       },
                       child: Container(
-                        height: 44,
+                        constraints: const BoxConstraints(minHeight: 44),
                         decoration: BoxDecoration(
                           color: colors.textLight.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(32),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        padding: const EdgeInsets.only(left: 16, right: 8),
+                        padding: const EdgeInsets.only(
+                          left: 16,
+                          right: 8,
+                          top: 8,
+                          bottom: 8,
+                        ),
                         alignment: Alignment.centerLeft,
                         child: Row(
                           children: [
@@ -767,8 +778,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                                   hintText: '검색어나 문장을 입력하세요',
                                   contentPadding: EdgeInsets.zero,
                                 ),
+                                keyboardType: TextInputType.multiline,
+                                textInputAction: TextInputAction.newline,
                                 minLines: 1,
-                                maxLines: 1,
+                                maxLines: 4,
                                 onChanged: (_) => setState(() {}),
                               ),
                             ),
