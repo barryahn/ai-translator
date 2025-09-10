@@ -4,7 +4,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:lpinyin/lpinyin.dart';
 import 'package:ai_translator/l10n/app_localizations.dart';
 import 'services/theme_service.dart';
 import 'theme/app_theme.dart';
@@ -129,7 +128,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   String _translatedText = '';
 
   static const double _minFieldHeight = 200.0;
-  double _inputFieldHeight = _minFieldHeight;
   double _resultFieldHeight = _minFieldHeight;
 
   List<String> get toneLabels => ['친근', '기본', '공손', '격식'];
@@ -170,6 +168,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
         elevation: 0,
       ),
       drawer: _buildAppDrawer(context),
+      bottomNavigationBar: _buildBottomSearchBar(colors),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -180,6 +179,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
               _buildTonePicker(colors),
               const SizedBox(height: 10),
               _buildTranslationArea(colors),
+              const SizedBox(height: 90),
             ],
           ),
         ),
@@ -694,108 +694,99 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   Widget _buildTranslationArea(CustomColors colors) {
     return Column(
       children: [
-        _buildInputField(colors),
-        const SizedBox(height: 14),
-        _buildTranslateButton(colors),
-        const SizedBox(height: 14),
+        // 입력 컨테이너는 하단 검색바로 대체됨
         _buildResultField(colors),
       ],
     );
   }
 
-  Widget _buildInputField(CustomColors colors) {
-    return Container(
-      height: _inputFieldHeight,
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.edit,
-                      color: _inputController.text.isNotEmpty
-                          ? colors.primary
-                          : colors.textLight,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      '입력 텍스트',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: (_inputController.text.isNotEmpty
-                              ? Colors.red.withOpacity(0.1)
-                              : Colors.grey.withOpacity(0.1)),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Icon(
-                          Icons.clear,
-                          size: 16,
-                          color: _inputController.text.isNotEmpty
-                              ? Colors.red
-                              : Colors.grey,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: _inputController.text.isNotEmpty
-                              ? colors.primary.withOpacity(0.1)
-                              : Colors.grey.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Icon(
-                          Icons.copy,
-                          size: 16,
-                          color: _inputController.text.isNotEmpty
-                              ? colors.text
-                              : Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+  Widget _buildBottomSearchBar(CustomColors colors) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        color: Colors.transparent,
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: Row(
+          children: [
+            // 이미지 스캔 버튼
+            InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: () {
+                Fluttertoast.showToast(
+                  msg: '이미지 스캔은 준비 중입니다',
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                );
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                child: Icon(Icons.document_scanner, color: colors.text),
+              ),
             ),
-          ),
-          Expanded(
-            child: TextField(
-              controller: _inputController,
-              readOnly: true,
-              showCursor: false,
+            const SizedBox(width: 10),
+            // 중앙 입력 영역 (투명 배경 + 라운드 보더)
+            Expanded(
+              child: InkWell(
+                borderRadius: BorderRadius.circular(32),
+                onTap: () async {
+                  final result = await Navigator.of(context).push<String>(
+                    MaterialPageRoute(
+                      builder: (_) => const _InputFullScreenEditor(),
+                      settings: RouteSettings(arguments: _inputController.text),
+                    ),
+                  );
+                  if (result != null) {
+                    setState(() {
+                      _inputController.text = result;
+                    });
+                  }
+                },
+                child: Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(32),
+                    border: Border.all(
+                      color: colors.textLight.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _inputController.text.isEmpty
+                        ? '검색어나 문장을 입력하세요'
+                        : _inputController.text,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: colors.text, fontSize: 15),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            // 마이크 버튼
+            InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: () {
+                Fluttertoast.showToast(
+                  msg: '음성 입력은 준비 중입니다',
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                );
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                child: Icon(Icons.mic, color: colors.text),
+              ),
+            ),
+            const SizedBox(width: 2),
+            // 검색 버튼
+            InkWell(
+              borderRadius: BorderRadius.circular(24),
               onTap: () async {
                 final result = await Navigator.of(context).push<String>(
                   MaterialPageRoute(
@@ -809,71 +800,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                   });
                 }
               },
-              maxLines: null,
-              expands: true,
-              decoration: InputDecoration(
-                hintText: '여기를 눌러 입력하세요',
-                hintStyle: TextStyle(color: colors.textLight, fontSize: 15),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              child: Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                child: Icon(Icons.search, color: colors.text),
               ),
-              style: TextStyle(color: colors.text, fontSize: 15, height: 1.4),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTranslateButton(CustomColors colors) {
-    return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [
-            colors.primary.withOpacity(0.9),
-            colors.secondary.withOpacity(0.9),
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.transparent, width: 10),
-          color: colors.white,
-        ),
-        margin: const EdgeInsets.all(3),
-        child: InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.translate, color: colors.primary, size: 20),
-              const SizedBox(width: 8),
-              ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [colors.primary, colors.secondary],
-                  ).createShader(bounds);
-                },
-                child: const Text(
-                  '번역하기',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -1167,121 +1101,6 @@ class _InputFullScreenEditorState extends State<_InputFullScreenEditor> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ResultFullScreenViewer extends StatelessWidget {
-  final String text;
-  final bool showPinyin;
-
-  const _ResultFullScreenViewer({required this.text, required this.showPinyin});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeService = context.watch<ThemeService>();
-    final colors = themeService.colors;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).translation_result),
-      ),
-      body: Stack(
-        children: [
-          Container(
-            color: colors.white,
-            width: double.infinity,
-            height: double.infinity,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SelectableText(
-                    text.isEmpty
-                        ? AppLocalizations.of(context).translation_result_hint
-                        : text,
-                    style: TextStyle(
-                      color: text.isEmpty ? colors.textLight : colors.text,
-                      height: 1.6,
-                      fontSize: 15,
-                    ),
-                  ),
-                  if (showPinyin &&
-                      RegExp(r'[\u3400-\u9FFF]').hasMatch(text)) ...[
-                    const SizedBox(height: 12),
-                    Divider(
-                      height: 20,
-                      color: colors.textLight.withValues(alpha: 0.4),
-                      indent: 10,
-                      endIndent: 10,
-                    ),
-                    const SizedBox(height: 12),
-                    SelectableText(
-                      PinyinHelper.getPinyin(
-                        text,
-                        format: PinyinFormat.WITH_TONE_MARK,
-                      ),
-                      style: TextStyle(
-                        color: colors.textLight,
-                        height: 1.6,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 90),
-                ],
-              ),
-            ),
-          ),
-
-          // 하단바 영역: search_result_screen.dart의 초기 하단바 디자인을 참고
-          // 키보드가 올라오면 자동으로 키보드 위로 배치되도록 Stack + Positioned 사용
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: IgnorePointer(
-              ignoring: false,
-              child: BottomAppBar(
-                color: colors.background,
-                height: 64,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Text(
-                        "${text.length}",
-                        style: TextStyle(color: colors.text, fontSize: 14),
-                      ),
-                    ),
-                    const Spacer(),
-                    // 복사 버튼: 원형 버튼 스타일, 누르면 텍스트가 전체 복사됩니다.
-                    ElevatedButton(
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: text));
-                        Fluttertoast.showToast(
-                          msg: AppLocalizations.of(context).input_text_copied,
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(2),
-                        backgroundColor: colors.white,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 2),
-                        child: Icon(Icons.copy, color: colors.text, size: 24),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
