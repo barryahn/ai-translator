@@ -181,16 +181,22 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
       ),
       drawer: _buildAppDrawer(context),
       bottomNavigationBar: _buildBottomSearchBar(colors),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              _buildTonePicker(colors),
-              const SizedBox(height: 10),
-              _buildTranslationArea(colors),
-              const SizedBox(height: 90),
-            ],
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: <Widget>[
+                _buildTonePicker(colors),
+                const SizedBox(height: 10),
+                _buildTranslationArea(colors),
+                const SizedBox(height: 90),
+              ],
+            ),
           ),
         ),
       ),
