@@ -174,8 +174,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: <Widget>[
-              _buildLanguageSelector(colors),
-              const SizedBox(height: 20),
               _buildTonePicker(colors),
               const SizedBox(height: 10),
               _buildTranslationArea(colors),
@@ -370,9 +368,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
           buttonStyleData: ButtonStyleData(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             height: 40,
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: colors.primary)),
-            ),
           ),
           menuItemStyleData: const MenuItemStyleData(height: 46),
           dropdownStyleData: DropdownStyleData(
@@ -400,11 +395,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
         height: 28,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: colors.primary,
+          color: colors.background,
           shape: BoxShape.rectangle,
+          border: Border.all(color: colors.textLight.withValues(alpha: 0.3)),
         ),
         child: Center(
-          child: Icon(Icons.arrow_forward_ios, color: colors.white, size: 16),
+          child: Icon(Icons.arrow_forward_ios, color: colors.text, size: 16),
         ),
       ),
     );
@@ -498,9 +494,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
           buttonStyleData: ButtonStyleData(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             height: 40,
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: colors.primary)),
-            ),
           ),
           menuItemStyleData: const MenuItemStyleData(height: 46),
           dropdownStyleData: DropdownStyleData(
@@ -706,106 +699,118 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
       child: Container(
         color: Colors.transparent,
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // 이미지 스캔 버튼
-            InkWell(
-              borderRadius: BorderRadius.circular(24),
-              onTap: () {
-                Fluttertoast.showToast(
-                  msg: '이미지 스캔은 준비 중입니다',
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                );
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                child: Icon(Icons.document_scanner, color: colors.text),
-              ),
-            ),
-            const SizedBox(width: 10),
-            // 중앙 입력 영역 (투명 배경 + 라운드 보더)
-            Expanded(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(32),
-                onTap: () async {
-                  final result = await Navigator.of(context).push<String>(
-                    MaterialPageRoute(
-                      builder: (_) => const _InputFullScreenEditor(),
-                      settings: RouteSettings(arguments: _inputController.text),
-                    ),
-                  );
-                  if (result != null) {
-                    setState(() {
-                      _inputController.text = result;
-                    });
-                  }
-                },
-                child: Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(32),
-                    border: Border.all(
-                      color: colors.textLight.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    _inputController.text.isEmpty
-                        ? '검색어나 문장을 입력하세요'
-                        : _inputController.text,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: colors.text, fontSize: 15),
+            // 언어 선택자 (하단 바 상단에 배치)
+            Container(child: _buildLanguageSelector(colors)),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                // 이미지 스캔 버튼
+                InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: () {
+                    Fluttertoast.showToast(
+                      msg: '이미지 스캔은 준비 중입니다',
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.document_scanner, color: colors.text),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            // 마이크 버튼
-            InkWell(
-              borderRadius: BorderRadius.circular(24),
-              onTap: () {
-                Fluttertoast.showToast(
-                  msg: '음성 입력은 준비 중입니다',
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                );
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                child: Icon(Icons.mic, color: colors.text),
-              ),
-            ),
-            const SizedBox(width: 2),
-            // 검색 버튼
-            InkWell(
-              borderRadius: BorderRadius.circular(24),
-              onTap: () async {
-                final result = await Navigator.of(context).push<String>(
-                  MaterialPageRoute(
-                    builder: (_) => const _InputFullScreenEditor(),
-                    settings: RouteSettings(arguments: _inputController.text),
+                const SizedBox(width: 10),
+                // 중앙 입력 영역 (투명 배경 + 라운드 보더)
+                Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(32),
+                    onTap: () async {
+                      final result = await Navigator.of(context).push<String>(
+                        MaterialPageRoute(
+                          builder: (_) => const _InputFullScreenEditor(),
+                          settings: RouteSettings(
+                            arguments: _inputController.text,
+                          ),
+                        ),
+                      );
+                      if (result != null) {
+                        setState(() {
+                          _inputController.text = result;
+                        });
+                      }
+                    },
+                    child: Container(
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(32),
+                        border: Border.all(
+                          color: colors.textLight.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        _inputController.text.isEmpty
+                            ? '검색어나 문장을 입력하세요'
+                            : _inputController.text,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: colors.text, fontSize: 15),
+                      ),
+                    ),
                   ),
-                );
-                if (result != null) {
-                  setState(() {
-                    _inputController.text = result;
-                  });
-                }
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                child: Icon(Icons.search, color: colors.text),
-              ),
+                ),
+                const SizedBox(width: 2),
+                // 마이크 버튼
+                InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: () {
+                    Fluttertoast.showToast(
+                      msg: '음성 입력은 준비 중입니다',
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.mic, color: colors.text),
+                  ),
+                ),
+                const SizedBox(width: 2),
+                // 검색 버튼
+                InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: () async {
+                    final result = await Navigator.of(context).push<String>(
+                      MaterialPageRoute(
+                        builder: (_) => const _InputFullScreenEditor(),
+                        settings: RouteSettings(
+                          arguments: _inputController.text,
+                        ),
+                      ),
+                    );
+                    if (result != null) {
+                      setState(() {
+                        _inputController.text = result;
+                      });
+                    }
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.search, color: colors.text),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
