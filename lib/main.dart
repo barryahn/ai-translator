@@ -188,66 +188,81 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
     final colors = themeService.colors;
 
     return Drawer(
+      backgroundColor: colors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(8), // 왼쪽 드로어일 때 둥글게 할 모서리
+          bottomRight: Radius.circular(8),
+        ),
+      ),
       child: SafeArea(
-        child: Container(
-          color: colors.background,
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              Container(
-                height: 56,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                alignment: Alignment.centerLeft,
-                color: colors.background,
-                child: Text(
-                  '메뉴',
-                  style: TextStyle(
-                    color: colors.text,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            Container(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              alignment: Alignment.centerLeft,
+              color: colors.background,
+              child: Text(
+                '메뉴',
+                style: TextStyle(
+                  color: colors.text,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Divider(
-                height: 1,
-                color: colors.textLight.withValues(alpha: 0.1),
+            ),
+            const SizedBox(height: 10),
+            Divider(height: 1, color: colors.textLight.withValues(alpha: 0.1)),
+            const SizedBox(height: 10),
+            ListTile(
+              leading: Container(
+                width: 24,
+                height: 24,
+                child: Icon(Icons.history, color: colors.text),
               ),
-              ListTile(
-                leading: const Icon(Icons.history),
-                title: const Text('검색 기록'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const SearchHistoryScreen(),
-                    ),
-                  );
-                },
+              title: const Text('검색 기록'),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const SearchHistoryScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Container(
+                width: 24,
+                height: 24,
+                child: Icon(Icons.article, color: colors.text),
               ),
-              ListTile(
-                leading: const Icon(Icons.article),
-                title: const Text('이용약관'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const TermsOfServiceScreen(),
-                    ),
-                  );
-                },
+              title: const Text('이용약관'),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const TermsOfServiceScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Container(
+                width: 24,
+                height: 24,
+                child: Icon(Icons.settings, color: colors.text),
               ),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('설정'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                  );
-                },
-              ),
-            ],
-          ),
+              title: const Text('설정'),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
