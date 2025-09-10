@@ -703,14 +703,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   }
 
   Widget _buildTranslationArea(CustomColors colors) {
-    return Column(
-      children: [
-        // 입력 컨테이너는 하단 검색바로 대체됨
-        _buildResultField(colors),
-      ],
-    );
+    return Column(children: [_buildResultField(colors)]);
   }
 
+  // 입력 컨테이너는 하단 검색바로 대체됨
   Widget _buildBottomSearchBar(CustomColors colors) {
     final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
@@ -730,21 +726,29 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   // 이미지 스캔 버튼
-                  InkWell(
-                    borderRadius: BorderRadius.circular(24),
-                    onTap: () {
-                      Fluttertoast.showToast(
-                        msg: '이미지 스캔은 준비 중입니다',
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                      );
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      alignment: Alignment.center,
-                      child: Icon(Icons.document_scanner, color: colors.text),
-                    ),
+                  Column(
+                    children: [
+                      InkWell(
+                        borderRadius: BorderRadius.circular(24),
+                        onTap: () {
+                          Fluttertoast.showToast(
+                            msg: '이미지 스캔은 준비 중입니다',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                          );
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.document_scanner,
+                            color: colors.text,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
                   ),
                   const SizedBox(width: 10),
                   // 중앙 입력 영역 (투명 배경 + 라운드 보더)
