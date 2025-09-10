@@ -184,29 +184,33 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   }
 
   Widget _buildAppDrawer(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final background = Theme.of(context).scaffoldBackgroundColor;
-    final text = colorScheme.onBackground;
+    final themeService = context.watch<ThemeService>();
+    final colors = themeService.colors;
+
     return Drawer(
       child: SafeArea(
         child: Container(
-          color: background,
+          color: colors.background,
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              DrawerHeader(
-                decoration: BoxDecoration(color: background),
-                child: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    '메뉴',
-                    style: TextStyle(
-                      color: text,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+              Container(
+                height: 56,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                alignment: Alignment.centerLeft,
+                color: colors.background,
+                child: Text(
+                  '메뉴',
+                  style: TextStyle(
+                    color: colors.text,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+              ),
+              Divider(
+                height: 1,
+                color: colors.textLight.withValues(alpha: 0.1),
               ),
               ListTile(
                 leading: const Icon(Icons.history),
