@@ -922,6 +922,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                       InkWell(
                         borderRadius: BorderRadius.circular(24),
                         onTap: () {
+                          if (_isFetching) {
+                            return;
+                          }
                           Fluttertoast.showToast(
                             msg: '이미지 스캔은 준비 중입니다',
                             toastLength: Toast.LENGTH_SHORT,
@@ -934,7 +937,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                           alignment: Alignment.center,
                           child: Icon(
                             Icons.document_scanner,
-                            color: colors.text,
+                            color: _isFetching
+                                ? colors.text.withValues(alpha: 0.5)
+                                : colors.text,
                           ),
                         ),
                       ),
@@ -1018,6 +1023,15 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                                       InkWell(
                                         borderRadius: BorderRadius.circular(20),
                                         onTap: () {
+                                          if (_isFetching) {
+                                            // 스트리밍 중지
+                                            OpenAIService.cancelStreaming();
+                                            setState(() {
+                                              _isFetching = false;
+                                              _isTranslating = false;
+                                            });
+                                            return;
+                                          }
                                           Fluttertoast.showToast(
                                             msg: '음성 입력은 준비 중입니다',
                                             toastLength: Toast.LENGTH_SHORT,
@@ -1028,10 +1042,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                                           width: 32,
                                           height: 32,
                                           child: Icon(
-                                            Icons.mic_none_outlined,
-                                            color: colors.text.withValues(
-                                              alpha: 0.5,
-                                            ),
+                                            _isFetching
+                                                ? Icons.stop
+                                                : Icons.mic_none_outlined,
+                                            color: _isFetching
+                                                ? colors.text
+                                                : colors.text.withValues(
+                                                    alpha: 0.5,
+                                                  ),
                                             size: 24,
                                           ),
                                         ),

@@ -21,6 +21,12 @@ class OpenAIService {
     _subscription?.cancel();
   }
 
+  /// 진행 중인 스트리밍을 취소합니다. 이후에는 더 이상 델타가 전달되지 않습니다.
+  static void cancelStreaming() {
+    _subscription?.cancel();
+    _subscription = null;
+  }
+
   static Future<void> initialize() async {
     if (_isInitialized) return;
 
