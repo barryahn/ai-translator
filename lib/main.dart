@@ -1018,7 +1018,13 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                                         onTap: _isTranslating
                                             ? null
                                             : () async {
+                                                _hideKeyboard();
                                                 await _runTranslate();
+                                                if (mounted) {
+                                                  setState(() {
+                                                    _inputController.clear();
+                                                  });
+                                                }
                                               },
                                         child: Container(
                                           width: 32,
