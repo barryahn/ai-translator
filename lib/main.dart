@@ -110,7 +110,8 @@ class TranslationUIOnlyScreen extends StatefulWidget {
       _TranslationUIOnlyScreenState();
 }
 
-class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
+class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
+    with SingleTickerProviderStateMixin {
   String selectedFromLanguage = '영어';
   String selectedToLanguage = '한국어';
   double selectedToneLevel = 1.0; // 0: 친근, 1: 기본, 2: 공손, 3: 격식
@@ -121,6 +122,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   // 측정된 높이는 본문 하단 여백(bottomSpacer) 계산에 사용됩니다.
   final GlobalKey _bottomBarKey = GlobalKey();
   double _bottomBarHeight = 0.0;
+  bool _hasReceivedFirstDelta = false; // 첫 델타 수신 여부
+  late final AnimationController _loadingController; // 프리스트림 로딩 애니메이션
 
   bool _isFetching = false; // 현재 API 호출이 진행 중인지 여부
 
@@ -155,6 +158,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   }
 
   // static const double _minFieldHeight = 200.0;
+  @override
+  void initState() {
+    super.initState();
+    _loadingController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
 
   List<String> get toneLabels => ['친근', '기본', '공손', '격식'];
 
@@ -207,6 +218,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
     setState(() {
       _isTranslating = true;
       _isFetching = true;
+      _hasReceivedFirstDelta = false;
       _translatedText = '';
     });
 
@@ -227,6 +239,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
           buffer += delta;
           if (!mounted) return;
           setState(() {
+            if (!_hasReceivedFirstDelta && buffer.isNotEmpty) {
+              _hasReceivedFirstDelta = true; // 프리스트림 로딩 → 스트리밍 중 전환
+            }
             _translatedText = buffer; // 스트리밍 도중 실시간 업데이트
           });
         },
@@ -396,6 +411,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
 
   @override
   void dispose() {
+    _loadingController.dispose();
     _bottomInputFocusNode.dispose();
     super.dispose();
   }
@@ -880,6 +896,42 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
     return Column(children: [_buildResultField(colors)]);
   }
 
+  Widget _buildPrestreamLoading(CustomColors colors) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 14),
+        AnimatedBuilder(
+          animation: _loadingController,
+          builder: (context, _) {
+            final double v = _loadingController.value * 2 * math.pi;
+            final List<double> phases = [0.0, 0.6, 1.2];
+            List<Widget> dots = phases.map((p) {
+              final double s = (math.sin(v - p) + 1) / 2; // 0..1
+              final double scale = 0.6 + 0.3 * s; // 0.6..1.0
+              return Transform.scale(
+                scale: scale,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(
+                    color: colors.text.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              );
+            }).toList();
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: dots,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   // 입력 컨테이너는 하단 검색바로 대체됨
   Widget _buildBottomSearchBar(CustomColors colors) {
     // 키보드가 올라오면 하단 패딩을 늘려 바가 키보드 위에 위치하게 합니다.
@@ -1175,19 +1227,22 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
               // 페이지 전체가 이미 SingleChildScrollView이므로 내부 스크롤은 제거
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 60), // 하단 버튼 공간 확보
-                child: SelectableText(
-                  _translatedText.isEmpty
-                      //? '번역 결과가 여기에 표시됩니다'
-                      ? 'My English teacher wanted to flunk me in junior high (Shh) Thanks a lot, next semester I\'ll be 35 I smacked him in his face with an eraser, chased him with a stapler And stapled his nuts to a stack of paper (Ow) Walked in the strip club, had my jacket zipped up Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me, \"Let\'s just be friends\" 99 percent of my life, I was lied to I just found out my mom does more dope than I do (Damn) I told her I\'d grow up to be a famous rapper Make a record about doin\' drugs and name it after her (Oh, thank you) You know you blew up when the women rush your stands And try to touch your hands like some screamin\' Usher fans (Ahh, ahh, ahh) This guy at White Castle asked for my autograph (Dude, can I get your autograph?) So I signed it, Dear Dave, thanks for the support, asshole Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me, \"Let\'s just be friends\" 99 percent of my life, I was lied to I just found out my mom does more dope than I do (Damn) I told her I\'d grow up to be a famous rapper Make a record about doin\' drugs and name it after her (Oh, thank you) You know you blew up when the women rush your stands And try to touch your hands like some screamin\' Usher fans (Ahh, ahh, ahh) This guy at White Castle asked for my autograph (Dude, can I get your autograph?) So I signed it, Dear Dave, thanks for the support, asshole'
-                      : _translatedText,
-                  style: TextStyle(
-                    color: _translatedText.isEmpty
-                        ? colors.textLight
-                        : colors.text,
-                    fontSize: _getAdaptiveResultFontSize(_translatedText),
-                    height: 1.4,
-                  ),
-                ),
+                child:
+                    (_isTranslating && _isFetching && !_hasReceivedFirstDelta)
+                    ? _buildPrestreamLoading(colors)
+                    : SelectableText(
+                        _translatedText.isEmpty
+                            ? '번역 결과가 여기에 표시됩니다'
+                            //? 'My English teacher wanted to flunk me in junior high (Shh) Thanks a lot, next semester I\'ll be 35 I smacked him in his face with an eraser, chased him with a stapler And stapled his nuts to a stack of paper (Ow) Walked in the strip club, had my jacket zipped up Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me, "Let\'s just be friends" 99 percent of my life, I was lied to I just found out my mom does more dope than I do (Damn) I told her I\'d grow up to be a famous rapper Make a record about doin\' drugs and name it after her (Oh, thank you) You know you blew up when the women rush your stands And try to touch your hands like some screamin\' Usher fans (Ahh, ahh, ahh) This guy at White Castle asked for my autograph (Dude, can I get your autograph?) So I signed it, Dear Dave, thanks for the support, asshole My English teacher wanted to flunk me in junior high (Shh) Thanks a lot, next semester I\'ll be 35 I smacked him in his face with an eraser, chased him with a stapler And stapled his nuts to a stack of paper (Ow) Walked in the strip club, had my jacket zipped up Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me.'
+                            : _translatedText,
+                        style: TextStyle(
+                          color: _translatedText.isEmpty
+                              ? colors.textLight
+                              : colors.text,
+                          fontSize: _getAdaptiveResultFontSize(_translatedText),
+                          height: 1.4,
+                        ),
+                      ),
               ),
             ],
           ),
