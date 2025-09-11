@@ -117,6 +117,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   bool isTonePickerExpanded = false;
   bool isLanguageListOpen = false; // 하단바 위쪽 언어 선택 패널 표시 여부
   bool isSelectingFromLanguage = true; // true: 출발 언어 선택, false: 도착 언어 선택
+  // 하단바의 실제 렌더링 높이를 측정하기 위한 키와 상태 값입니다.
+  // 측정된 높이는 본문 하단 여백(bottomSpacer) 계산에 사용됩니다.
+  final GlobalKey _bottomBarKey = GlobalKey();
+  double _bottomBarHeight = 0.0;
 
   final List<String> languages = <String>[
     '한국어',
@@ -273,9 +277,33 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   Widget build(BuildContext context) {
     final themeService = context.watch<ThemeService>();
     final colors = themeService.colors;
+    // 하단바 높이 측정 및 본문 여백 계산
+    // 프레임 렌더링 이후에 실제 사이즈(RenderBox)를 읽어 정확한 높이를 얻습니다.
+    // 값이 의미 있게 변할 때만 setState하여 불필요한 리빌드를 방지합니다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final ctx = _bottomBarKey.currentContext;
+      if (ctx != null) {
+        final renderObject = ctx.findRenderObject();
+        if (renderObject is RenderBox) {
+          final newHeight = renderObject.size.height;
+          if ((_bottomBarHeight - newHeight).abs() > 0.5) {
+            setState(() {
+              _bottomBarHeight = newHeight;
+            });
+          }
+        }
+      }
+    });
+    // 키보드가 올라올 때는 키보드 높이(viewInsets.bottom)만큼도 추가로 확보합니다.
+    final double keyboardInset = MediaQuery.of(context).viewInsets.bottom;
+    // 항상 하단바(+키보드) 높이만큼 본문 하단 여백을 줘서 컨텐츠가 가려지지 않게 합니다.
+    final double bottomSpacer = _bottomBarHeight + keyboardInset;
 
     return Scaffold(
       backgroundColor: colors.background,
+      // 하단바를 본문 위에 겹치게 렌더링하여 뒤 컨텐츠가 비치도록 합니다.
+      extendBody: true,
       appBar: AppBar(
         title: Text(
           '번역',
@@ -328,7 +356,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                 _buildTonePicker(colors),
                 const SizedBox(height: 20),
                 _buildTranslationArea(colors),
-                const SizedBox(height: 90),
+                // 하단바 + 키보드 높이만큼 동적 여백을 추가합니다.
+                SizedBox(height: bottomSpacer),
               ],
             ),
           ),
@@ -440,10 +469,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
 
   Widget _buildFromLanguageDropdown(colors) {
     return GestureDetector(
+      // 투명 배경에서도 터치 이벤트를 받을 수 있게 설정합니다.
+      behavior: HitTestBehavior.translucent,
       onTap: () => _showLanguagePicker(selectingFrom: true),
       child: Container(
         height: 40,
-        color: colors.background,
+        color: Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 4),
         alignment: Alignment.center,
         child: Row(
@@ -497,10 +528,13 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
 
   Widget _buildToLanguageDropdown(CustomColors colors) {
     return GestureDetector(
+      // 투명 배경에서도 터치 이벤트를 받을 수 있게 설정합니다.
+      behavior: HitTestBehavior.translucent,
       onTap: () => _showLanguagePicker(selectingFrom: false),
       child: Container(
         height: 40,
-        color: colors.background,
+        // 시각적 배경은 투명 처리하여 뒤 그라데이션이 비치도록 합니다.
+        color: Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 4),
         alignment: Alignment.center,
         child: Row(
@@ -820,14 +854,27 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
 
   // 입력 컨테이너는 하단 검색바로 대체됨
   Widget _buildBottomSearchBar(CustomColors colors) {
+    // 키보드가 올라오면 하단 패딩을 늘려 바가 키보드 위에 위치하게 합니다.
     final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
       child: SafeArea(
         top: false,
         child: Container(
-          color: Colors.transparent,
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          // 본 컨테이너의 실제 높이를 측정하기 위한 키입니다.
+          key: _bottomBarKey,
+          decoration: BoxDecoration(
+            // 하단바 배경 그라데이션: 아래쪽은 불투명, 위로 갈수록 투명해집니다.
+            gradient: LinearGradient(
+              begin: Alignment(0.0, -0.68),
+              end: Alignment.topCenter,
+              colors: [
+                colors.background,
+                colors.background.withValues(alpha: 0.0),
+              ],
+            ),
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 28, 16, 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1078,7 +1125,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 60), // 하단 버튼 공간 확보
                 child: SelectableText(
                   _translatedText.isEmpty
-                      ? '번역 결과가 여기에 표시됩니다'
+                      //? '번역 결과가 여기에 표시됩니다'
+                      ? 'My English teacher wanted to flunk me in junior high (Shh) Thanks a lot, next semester I\'ll be 35 I smacked him in his face with an eraser, chased him with a stapler And stapled his nuts to a stack of paper (Ow) Walked in the strip club, had my jacket zipped up Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me, \"Let\'s just be friends\" 99 percent of my life, I was lied to I just found out my mom does more dope than I do (Damn) I told her I\'d grow up to be a famous rapper Make a record about doin\' drugs and name it after her (Oh, thank you) You know you blew up when the women rush your stands And try to touch your hands like some screamin\' Usher fans (Ahh, ahh, ahh) This guy at White Castle asked for my autograph (Dude, can I get your autograph?) So I signed it, Dear Dave, thanks for the support, asshole Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me, \"Let\'s just be friends\" 99 percent of my life, I was lied to I just found out my mom does more dope than I do (Damn) I told her I\'d grow up to be a famous rapper Make a record about doin\' drugs and name it after her (Oh, thank you) You know you blew up when the women rush your stands And try to touch your hands like some screamin\' Usher fans (Ahh, ahh, ahh) This guy at White Castle asked for my autograph (Dude, can I get your autograph?) So I signed it, Dear Dave, thanks for the support, asshole'
                       : _translatedText,
                   style: TextStyle(
                     color: _translatedText.isEmpty
