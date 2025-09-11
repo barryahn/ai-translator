@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ai_translator/l10n/app_localizations.dart';
@@ -116,6 +115,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   String selectedToLanguage = '한국어';
   double selectedToneLevel = 1.0; // 0: 친근, 1: 기본, 2: 공손, 3: 격식
   bool isTonePickerExpanded = false;
+  bool isLanguageListOpen = false; // 하단바 위쪽 언어 선택 패널 표시 여부
+  bool isSelectingFromLanguage = true; // true: 출발 언어 선택, false: 도착 언어 선택
 
   final List<String> languages = <String>[
     '한국어',
@@ -137,6 +138,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   void _hideKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
     SystemChannels.textInput.invokeMethod('TextInput.hide');
+  }
+
+  void _showLanguagePicker({required bool selectingFrom}) {
+    setState(() {
+      isSelectingFromLanguage = selectingFrom;
+      isLanguageListOpen = true;
+    });
+    _hideKeyboard();
   }
 
   // static const double _minFieldHeight = 200.0;
@@ -286,6 +295,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
           // 드로어가 열릴 때 현재 하단 입력창 포커스 상태를 저장하고, 드로어 열림에 의해 포커스가 바뀌지 않도록 함
           _shouldRestoreBottomInputFocus = _bottomInputFocusNode.hasFocus;
           _hideKeyboard();
+          if (isLanguageListOpen) {
+            setState(() {
+              isLanguageListOpen = false;
+            });
+          }
         } else {
           // 드로어가 닫힐 때 이전 포커스 상태를 복원
           if (_shouldRestoreBottomInputFocus) {
@@ -300,6 +314,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
         behavior: HitTestBehavior.translucent,
         onTap: () {
           FocusScope.of(context).unfocus();
+          if (isLanguageListOpen) {
+            setState(() {
+              isLanguageListOpen = false;
+            });
+          }
         },
         child: SingleChildScrollView(
           child: Padding(
@@ -420,101 +439,32 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   }
 
   Widget _buildFromLanguageDropdown(colors) {
-    return SizedBox(
-      width: double.infinity,
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton2<String>(
-          isExpanded: true,
-          hint: Text(
-            'Select Item',
-            style: TextStyle(fontSize: 14, color: colors.textLight),
-          ),
-          items: languages
-              .map(
-                (String name) => DropdownMenuItem<String>(
-                  value: name,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          name,
-                          softWrap: true,
-                          style: TextStyle(
-                            fontSize: _getDropdownFontSize(name),
-                            color: colors.text,
-                            height: 1.1,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                      if (name == selectedFromLanguage)
-                        Icon(Icons.check, size: 16, color: colors.primary),
-                    ],
+    return GestureDetector(
+      onTap: () => _showLanguagePicker(selectingFrom: true),
+      child: Container(
+        height: 40,
+        color: colors.background,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                selectedFromLanguage,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: _getDropdownFontSize(
+                    selectedFromLanguage,
+                    isSelected: true,
                   ),
+                  color: colors.text,
                 ),
-              )
-              .toList(),
-          selectedItemBuilder: (context) {
-            return languages
-                .map(
-                  (name) => Center(
-                    child: Text(
-                      name,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: _getDropdownFontSize(name, isSelected: true),
-                        color: colors.text,
-                        height: 1.1,
-                      ),
-                    ),
-                  ),
-                )
-                .toList();
-          },
-          iconStyleData: IconStyleData(
-            icon: SizedBox(
-              width: 14,
-              child: Icon(
-                Icons.arrow_drop_down,
-                size: 18,
-                color: colors.textLight,
               ),
             ),
-            openMenuIcon: SizedBox(
-              width: 14,
-              child: Icon(
-                Icons.arrow_drop_up,
-                size: 18,
-                color: colors.textLight,
-              ),
-            ),
-            iconSize: 18,
-          ),
-          value: selectedFromLanguage,
-          onChanged: (String? newValue) {
-            if (newValue == null) return;
-            setState(() {
-              if (newValue == selectedToLanguage) {
-                final tmp = selectedFromLanguage;
-                selectedFromLanguage = selectedToLanguage;
-                selectedToLanguage = tmp;
-              } else {
-                selectedFromLanguage = newValue;
-              }
-            });
-          },
-          buttonStyleData: ButtonStyleData(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            height: 40,
-          ),
-          menuItemStyleData: const MenuItemStyleData(height: 46),
-          dropdownStyleData: DropdownStyleData(
-            decoration: BoxDecoration(
-              color: colors.background,
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
+            const SizedBox(width: 6),
+            Icon(Icons.expand_more, size: 18, color: colors.textLight),
+          ],
         ),
       ),
     );
@@ -546,102 +496,143 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   }
 
   Widget _buildToLanguageDropdown(CustomColors colors) {
-    return SizedBox(
-      width: double.infinity,
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton2<String>(
-          isExpanded: true,
-          hint: Text(
-            'Select Item',
-            style: TextStyle(fontSize: 14, color: colors.textLight),
+    return GestureDetector(
+      onTap: () => _showLanguagePicker(selectingFrom: false),
+      child: Container(
+        height: 40,
+        color: colors.background,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                selectedToLanguage,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: _getDropdownFontSize(
+                    selectedToLanguage,
+                    isSelected: true,
+                  ),
+                  color: colors.text,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(Icons.expand_more, size: 18, color: colors.textLight),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguagePickerPanel(CustomColors colors) {
+    final String title = isSelectingFromLanguage ? '출발 언어 선택' : '도착 언어 선택';
+    final String current = isSelectingFromLanguage
+        ? selectedFromLanguage
+        : selectedToLanguage;
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          items: languages
-              .map(
-                (String name) => DropdownMenuItem<String>(
-                  value: name,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          name,
-                          softWrap: true,
-                          style: TextStyle(
-                            fontSize: _getDropdownFontSize(name),
-                            color: colors.text,
-                            height: 1.1,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                      if (name == selectedToLanguage)
-                        Icon(Icons.check, size: 16, color: colors.primary),
-                    ],
+        ],
+        border: Border.all(color: colors.textLight.withValues(alpha: 0.12)),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Row(
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colors.textLight,
                   ),
                 ),
-              )
-              .toList(),
-          selectedItemBuilder: (context) {
-            return languages
-                .map(
-                  (name) => Center(
-                    child: Text(
-                      name,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: _getDropdownFontSize(name, isSelected: true),
-                        color: colors.text,
-                        height: 1.1,
-                      ),
+                const Spacer(),
+                InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () => setState(() => isLanguageListOpen = false),
+                  child: Icon(Icons.close, size: 18, color: colors.textLight),
+                ),
+              ],
+            ),
+          ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 240),
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemCount: languages.length,
+              separatorBuilder: (_, __) => Divider(
+                height: 1,
+                thickness: 0.5,
+                color: colors.textLight.withValues(alpha: 0.08),
+              ),
+              itemBuilder: (context, index) {
+                final name = languages[index];
+                final bool selected = name == current;
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      if (isSelectingFromLanguage) {
+                        if (name == selectedToLanguage) {
+                          final tmp = selectedFromLanguage;
+                          selectedFromLanguage = selectedToLanguage;
+                          selectedToLanguage = tmp;
+                        } else {
+                          selectedFromLanguage = name;
+                        }
+                      } else {
+                        if (name == selectedFromLanguage) {
+                          final tmp = selectedToLanguage;
+                          selectedToLanguage = selectedFromLanguage;
+                          selectedFromLanguage = tmp;
+                        } else {
+                          selectedToLanguage = name;
+                        }
+                      }
+                      isLanguageListOpen = false;
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: TextStyle(
+                              fontSize: _getDropdownFontSize(name),
+                              color: colors.text,
+                            ),
+                          ),
+                        ),
+                        if (selected)
+                          Icon(Icons.check, size: 18, color: colors.primary),
+                      ],
                     ),
                   ),
-                )
-                .toList();
-          },
-          iconStyleData: IconStyleData(
-            icon: SizedBox(
-              width: 14,
-              child: Icon(
-                Icons.arrow_drop_down,
-                size: 18,
-                color: colors.textLight,
-              ),
-            ),
-            openMenuIcon: SizedBox(
-              width: 14,
-              child: Icon(
-                Icons.arrow_drop_up,
-                size: 18,
-                color: colors.textLight,
-              ),
-            ),
-            iconSize: 18,
-          ),
-          value: selectedToLanguage,
-          onChanged: (String? newValue) {
-            if (newValue == null) return;
-            setState(() {
-              if (newValue == selectedFromLanguage) {
-                final tmp = selectedToLanguage;
-                selectedToLanguage = selectedFromLanguage;
-                selectedFromLanguage = tmp;
-              } else {
-                selectedToLanguage = newValue;
-              }
-            });
-          },
-          buttonStyleData: ButtonStyleData(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            height: 40,
-          ),
-          menuItemStyleData: const MenuItemStyleData(height: 46),
-          dropdownStyleData: DropdownStyleData(
-            decoration: BoxDecoration(
-              color: colors.background,
-              borderRadius: BorderRadius.circular(8),
+                );
+              },
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -836,13 +827,17 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
         top: false,
         child: Container(
           color: Colors.transparent,
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (isLanguageListOpen) ...[
+                _buildLanguagePickerPanel(colors),
+                const SizedBox(height: 10),
+              ],
               // 언어 선택자 (하단 바 상단에 배치)
               Container(child: _buildLanguageSelector(colors)),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
