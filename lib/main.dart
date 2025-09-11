@@ -616,7 +616,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
     return Container(
       decoration: BoxDecoration(
         color: colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -637,8 +637,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
             },
             child: Container(
               padding: const EdgeInsets.only(
-                left: 20,
-                right: 20,
+                left: 16,
+                right: 16,
                 top: 14,
                 bottom: 14,
               ),
@@ -1021,28 +1021,18 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   }
 
   Widget _buildResultField(CustomColors colors) {
-    return Container(
-      height: 600, // _resultFieldHeight,
-      width: double.infinity,
-      //color: colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(2, 0, 2, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      Icons.translate,
-                      color: _translatedText.isEmpty
-                          ? colors.textLight
-                          : colors.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
                     Text(
                       '번역 결과',
                       style: TextStyle(
@@ -1055,78 +1045,47 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                     ),
                   ],
                 ),
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: (_translatedText.isNotEmpty
-                              ? Colors.red.withValues(alpha: 0.1)
-                              : Colors.grey.withValues(alpha: 0.1)),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Icon(
-                          Icons.clear,
-                          size: 16,
-                          color: (_translatedText.isNotEmpty
-                              ? Colors.red
-                              : Colors.grey),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: (_translatedText.isNotEmpty
-                              ? colors.primary.withValues(alpha: 0.1)
-                              : Colors.grey.withValues(alpha: 0.1)),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Icon(
-                          Icons.copy,
-                          size: 16,
-                          color: (_translatedText.isNotEmpty
-                              ? colors.text
-                              : Colors.grey),
-                        ),
-                      ),
-                    ),
-                  ],
+              ),
+              // 페이지 전체가 이미 SingleChildScrollView이므로 내부 스크롤은 제거
+              Padding(
+                padding: const EdgeInsets.fromLTRB(2, 0, 2, 60), // 하단 버튼 공간 확보
+                child: SelectableText(
+                  _translatedText.isEmpty
+                      ? '번역 결과가 여기에 표시됩니다'
+                      : _translatedText,
+                  style: TextStyle(
+                    color: _translatedText.isEmpty
+                        ? colors.textLight
+                        : colors.text,
+                    fontSize: 15,
+                    height: 1.4,
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SelectableText(
-                      _translatedText.isEmpty
-                          ? '번역 결과가 여기에 표시됩니다'
-                          : _translatedText,
-                      style: TextStyle(
-                        color: _translatedText.isEmpty
-                            ? colors.textLight
-                            : colors.text,
-                        fontSize: 15,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
+        ),
+        if (_translatedText.isNotEmpty)
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: GestureDetector(
+              onTap: () async {
+                await Clipboard.setData(ClipboardData(text: _translatedText));
+                Fluttertoast.showToast(msg: '복사되었습니다');
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(shape: BoxShape.circle),
+                child: Icon(
+                  Icons.copy,
+                  size: 18,
+                  color: colors.text.withValues(alpha: 0.5),
                 ),
               ),
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }
