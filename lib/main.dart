@@ -252,7 +252,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
     if (text.isEmpty) return 15.0;
     final int length = text.runes.length;
     const double minSize = 14.0;
-    const double maxSize = 22.0;
+    const double maxSize = 28.0;
     // 60자 이하는 최대, 600자 이상은 최소로 선형 보간
     if (length <= 60) return maxSize;
     if (length >= 600) return minSize;
