@@ -122,6 +122,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   final GlobalKey _bottomBarKey = GlobalKey();
   double _bottomBarHeight = 0.0;
 
+  bool _isFetching = false; // 현재 API 호출이 진행 중인지 여부
+
   final List<String> languages = <String>[
     '한국어',
     '영어',
@@ -196,12 +198,15 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
 
   Future<void> _runTranslate() async {
     final text = _inputController.text.trim();
+    String buffer = '';
+
     if (text.isEmpty) {
       Fluttertoast.showToast(msg: '번역할 텍스트를 입력하세요');
       return;
     }
     setState(() {
       _isTranslating = true;
+      _isFetching = true;
       _translatedText = '';
     });
 
@@ -211,21 +216,44 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
       final toneInstruction = _buildToneInstruction();
       // 무료/프로 모델 선택 로직은 임시로 무료 고정
       const usingProModel = false;
-      final result = await OpenAIService.translateText(
+      OpenAIService.translateText(
         text,
         from,
         to,
         toneInstruction,
         usingProModel,
+        (delta) {
+          if (!_isFetching) return;
+          buffer += delta;
+          if (!mounted) return;
+          setState(() {
+            _translatedText = buffer; // 스트리밍 도중 실시간 업데이트
+          });
+        },
+        () {
+          if (!_isFetching) return;
+          if (!mounted) return;
+          setState(() {
+            _translatedText = buffer; // 최종 결과 보장
+            _isFetching = false;
+            _isTranslating = false;
+          });
+        },
+        (error) {
+          if (!_isFetching) return;
+          if (!mounted) return;
+          Fluttertoast.showToast(msg: '번역 중 오류가 발생했습니다');
+          setState(() {
+            _isFetching = false;
+            _isTranslating = false;
+          });
+        },
       );
-      setState(() {
-        _translatedText = result;
-      });
     } catch (e) {
       Fluttertoast.showToast(msg: '번역 중 오류가 발생했습니다');
-    } finally {
       if (mounted) {
         setState(() {
+          _isFetching = false;
           _isTranslating = false;
         });
       }

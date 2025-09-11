@@ -34,12 +34,15 @@ class OpenAIService {
     client = OpenAIClient(apiKey: apiKey);
   }
 
-  static Future<String> translateText(
+  static void translateText(
     String text,
     String fromLanguage,
     String toLanguage,
     String toneInstruction,
     bool usingProModel,
+    ChatDeltaCallback onDelta,
+    ChatCompleteCallback onComplete,
+    ChatErrorCallback onError,
   ) async {
     try {
       final prompt =
@@ -58,6 +61,7 @@ $toneInstruction
         ),
         role: ChatCompletionMessageRole.developer,
       );
+
       final userMessage = ChatCompletionMessage.user(
         content: ChatCompletionUserMessageContent.string(prompt),
         role: ChatCompletionMessageRole.user,
@@ -78,20 +82,27 @@ $toneInstruction
               ),
             ); */
 
+      // 이전 진행 중인 스트림이 있다면 즉시 취소하여 지연을 방지
+      _subscription?.cancel();
+
       // 프로 모델만 사용하는 경우
-      final res = await client.createChatCompletion(
+      final stream = client.createChatCompletionStream(
         request: CreateChatCompletionRequest(
           model: ChatCompletionModel.modelId(_proModel),
           messages: [developerMessage, userMessage],
         ),
       );
 
-      return res.choices.first.message.content != null
-          ? res.choices.first.message.content.toString()
-          : '번역을 생성할 수 없습니다.';
+      _subscription = stream.listen(
+        (event) {
+          final deltaText = event.choices!.first.delta?.content ?? '';
+          if (deltaText != '') onDelta(deltaText.toString());
+        },
+        onDone: onComplete,
+        onError: onError,
+      );
     } catch (e) {
       print('OpenAI API 호출 오류: $e');
-      return '죄송합니다. 현재 번역 서비스를 이용할 수 없습니다. 잠시 후 다시 시도해주세요.';
     }
   }
 }
