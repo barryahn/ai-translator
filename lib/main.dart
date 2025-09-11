@@ -937,264 +937,280 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   Widget _buildBottomSearchBar(CustomColors colors) {
     // 키보드가 올라오면 하단 패딩을 늘려 바가 키보드 위에 위치하게 합니다.
     final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomInset),
-      child: SafeArea(
-        top: false,
-        child: Container(
-          // 본 컨테이너의 실제 높이를 측정하기 위한 키입니다.
-          key: _bottomBarKey,
-          decoration: BoxDecoration(
-            // 하단바 배경 그라데이션: 아래쪽은 불투명, 위로 갈수록 투명해집니다.
-            gradient: LinearGradient(
-              begin: Alignment(0.0, -0.68),
-              end: Alignment.topCenter,
-              colors: [
-                colors.background,
-                colors.background.withValues(alpha: 0.0),
-              ],
+    return Container(
+      // 하단바 배경 그라데이션: 아래쪽은 불투명, 위로 갈수록 투명해집니다.
+      // 하단바 가장 밑 비어 있는 공간을 채우기 위해 추가
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment(0.0, 0.0),
+          end: Alignment(0.0, -0.1),
+          colors: [colors.background, colors.background.withValues(alpha: 0.0)],
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: SafeArea(
+          top: false,
+          child: Container(
+            // 본 컨테이너의 실제 높이를 측정하기 위한 키입니다.
+            key: _bottomBarKey,
+            decoration: BoxDecoration(
+              // 하단바 배경 추가 그라데이션: 아래쪽은 불투명, 위로 갈수록 투명해집니다.
+              gradient: LinearGradient(
+                begin: Alignment(0.0, -0.68),
+                end: Alignment.topCenter,
+                colors: [
+                  colors.background,
+                  colors.background.withValues(alpha: 0.0),
+                ],
+              ),
             ),
-          ),
-          padding: const EdgeInsets.fromLTRB(16, 28, 16, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isLanguageListOpen) ...[
-                _buildLanguagePickerPanel(colors),
-                const SizedBox(height: 10),
-              ],
-              // 언어 선택자 (하단 바 상단에 배치)
-              Container(child: _buildLanguageSelector(colors)),
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // 이미지 스캔 버튼
-                  Column(
-                    children: [
-                      InkWell(
-                        borderRadius: BorderRadius.circular(24),
-                        onTap: () {
-                          if (_isFetching) {
-                            return;
-                          }
-                          Fluttertoast.showToast(
-                            msg: '이미지 스캔은 준비 중입니다',
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                          );
-                        },
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.document_scanner,
-                            color: _isFetching
-                                ? colors.text.withValues(alpha: 0.5)
-                                : colors.text,
+            padding: const EdgeInsets.fromLTRB(16, 28, 16, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isLanguageListOpen) ...[
+                  _buildLanguagePickerPanel(colors),
+                  const SizedBox(height: 10),
+                ],
+                // 언어 선택자 (하단 바 상단에 배치)
+                Container(child: _buildLanguageSelector(colors)),
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // 이미지 스캔 버튼
+                    Column(
+                      children: [
+                        InkWell(
+                          borderRadius: BorderRadius.circular(24),
+                          onTap: () {
+                            if (_isFetching) {
+                              return;
+                            }
+                            Fluttertoast.showToast(
+                              msg: '이미지 스캔은 준비 중입니다',
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                            );
+                          },
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.document_scanner,
+                              color: _isFetching
+                                  ? colors.text.withValues(alpha: 0.5)
+                                  : colors.text,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                    ],
-                  ),
-                  const SizedBox(width: 10),
-                  // 중앙 입력 영역 (투명 배경 + 라운드 보더)
-                  Expanded(
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      // Disable InkWell visual effects to prevent color overlap with inner container
-                      highlightColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      onTap: () {
-                        FocusScope.of(
-                          context,
-                        ).requestFocus(_bottomInputFocusNode);
-                      },
-                      child: Container(
-                        constraints: const BoxConstraints(minHeight: 44),
-                        decoration: BoxDecoration(
-                          color: colors.textLight.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.only(
-                          left: 16,
-                          right: 8,
-                          top: 8,
-                          bottom: 8,
-                        ),
-                        alignment: Alignment.centerLeft,
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final TextStyle textStyle = TextStyle(
-                              color: colors.text,
-                              fontSize: 15,
-                            );
-                            final int lineCount = _computeLineCount(
-                              _inputController.text,
-                              constraints.maxWidth,
-                              textStyle,
-                            );
-                            final bool showExpand = lineCount > 4;
-                            return Stack(
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        constraints: const BoxConstraints(
-                                          minHeight: 32,
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: TextField(
-                                          controller: _inputController,
-                                          focusNode: _bottomInputFocusNode,
-                                          style: textStyle,
-                                          decoration: const InputDecoration(
-                                            isDense: true,
-                                            border: InputBorder.none,
-                                            hintText: '검색어나 문장을 입력하세요',
-                                            contentPadding: EdgeInsets.zero,
+                        const SizedBox(height: 4),
+                      ],
+                    ),
+                    const SizedBox(width: 10),
+                    // 중앙 입력 영역 (투명 배경 + 라운드 보더)
+                    Expanded(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        // Disable InkWell visual effects to prevent color overlap with inner container
+                        highlightColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        onTap: () {
+                          FocusScope.of(
+                            context,
+                          ).requestFocus(_bottomInputFocusNode);
+                        },
+                        child: Container(
+                          constraints: const BoxConstraints(minHeight: 44),
+                          decoration: BoxDecoration(
+                            color: colors.textLight.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.only(
+                            left: 16,
+                            right: 8,
+                            top: 8,
+                            bottom: 8,
+                          ),
+                          alignment: Alignment.centerLeft,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final TextStyle textStyle = TextStyle(
+                                color: colors.text,
+                                fontSize: 15,
+                              );
+                              final int lineCount = _computeLineCount(
+                                _inputController.text,
+                                constraints.maxWidth,
+                                textStyle,
+                              );
+                              final bool showExpand = lineCount > 4;
+                              return Stack(
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          constraints: const BoxConstraints(
+                                            minHeight: 32,
                                           ),
-                                          keyboardType: TextInputType.multiline,
-                                          textInputAction:
-                                              TextInputAction.newline,
-                                          minLines: 1,
-                                          maxLines: 4,
-                                          onChanged: (_) => setState(() {}),
+                                          alignment: Alignment.center,
+                                          child: TextField(
+                                            controller: _inputController,
+                                            focusNode: _bottomInputFocusNode,
+                                            style: textStyle,
+                                            decoration: const InputDecoration(
+                                              isDense: true,
+                                              border: InputBorder.none,
+                                              hintText: '검색어나 문장을 입력하세요',
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                            keyboardType:
+                                                TextInputType.multiline,
+                                            textInputAction:
+                                                TextInputAction.newline,
+                                            minLines: 1,
+                                            maxLines: 4,
+                                            onChanged: (_) => setState(() {}),
+                                          ),
                                         ),
                                       ),
-                                    ),
 
-                                    // 입력 텍스트가 없을 때
-                                    if (_inputController.text.isEmpty) ...[
-                                      const SizedBox(width: 8),
+                                      // 입력 텍스트가 없을 때
+                                      if (_inputController.text.isEmpty) ...[
+                                        const SizedBox(width: 8),
 
-                                      // 음성 입력 버튼
-                                      InkWell(
-                                        borderRadius: BorderRadius.circular(20),
-                                        onTap: () {
-                                          if (_isFetching) {
-                                            // 스트리밍 중지
-                                            OpenAIService.cancelStreaming();
+                                        // 음성 입력 버튼
+                                        InkWell(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          onTap: () {
+                                            if (_isFetching) {
+                                              // 스트리밍 중지
+                                              OpenAIService.cancelStreaming();
+                                              setState(() {
+                                                _isFetching = false;
+                                                _isTranslating = false;
+                                              });
+                                              return;
+                                            }
+                                            Fluttertoast.showToast(
+                                              msg: '음성 입력은 준비 중입니다',
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              gravity: ToastGravity.BOTTOM,
+                                            );
+                                          },
+                                          child: SizedBox(
+                                            width: 32,
+                                            height: 32,
+                                            child: Icon(
+                                              _isFetching
+                                                  ? Icons.stop
+                                                  : Icons.mic_none_outlined,
+                                              color: _isFetching
+                                                  ? colors.text
+                                                  : colors.text.withValues(
+                                                      alpha: 0.5,
+                                                    ),
+                                              size: 24,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+
+                                      // 입력 텍스트가 있을 때
+                                      if (_inputController.text.isNotEmpty) ...[
+                                        const SizedBox(width: 8),
+                                        InkWell(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          onTap: _isTranslating
+                                              ? null
+                                              : () async {
+                                                  _hideKeyboard();
+                                                  await _runTranslate();
+                                                  if (mounted) {
+                                                    setState(() {
+                                                      _inputController.clear();
+                                                    });
+                                                  }
+                                                },
+                                          child: Container(
+                                            width: 32,
+                                            height: 32,
+                                            decoration: BoxDecoration(
+                                              color: _isTranslating
+                                                  ? colors.textLight.withValues(
+                                                      alpha: 0.4,
+                                                    )
+                                                  : colors.text,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.arrow_upward,
+                                              color: colors.white,
+                                              size: 24,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  if (showExpand)
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(16),
+                                        onTap: () async {
+                                          final result =
+                                              await Navigator.of(
+                                                context,
+                                              ).push<String>(
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      const _InputFullScreenEditor(),
+                                                  settings: RouteSettings(
+                                                    arguments:
+                                                        _inputController.text,
+                                                  ),
+                                                ),
+                                              );
+                                          if (result != null) {
                                             setState(() {
-                                              _isFetching = false;
-                                              _isTranslating = false;
+                                              _inputController.text = result;
                                             });
-                                            return;
                                           }
-                                          Fluttertoast.showToast(
-                                            msg: '음성 입력은 준비 중입니다',
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.BOTTOM,
-                                          );
                                         },
                                         child: SizedBox(
                                           width: 32,
                                           height: 32,
                                           child: Icon(
-                                            _isFetching
-                                                ? Icons.stop
-                                                : Icons.mic_none_outlined,
-                                            color: _isFetching
-                                                ? colors.text
-                                                : colors.text.withValues(
-                                                    alpha: 0.5,
-                                                  ),
-                                            size: 24,
+                                            Icons.open_in_full,
+                                            color: colors.text.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                            size: 14,
                                           ),
-                                        ),
-                                      ),
-                                    ],
-
-                                    // 입력 텍스트가 있을 때
-                                    if (_inputController.text.isNotEmpty) ...[
-                                      const SizedBox(width: 8),
-                                      InkWell(
-                                        borderRadius: BorderRadius.circular(20),
-                                        onTap: _isTranslating
-                                            ? null
-                                            : () async {
-                                                _hideKeyboard();
-                                                await _runTranslate();
-                                                if (mounted) {
-                                                  setState(() {
-                                                    _inputController.clear();
-                                                  });
-                                                }
-                                              },
-                                        child: Container(
-                                          width: 32,
-                                          height: 32,
-                                          decoration: BoxDecoration(
-                                            color: _isTranslating
-                                                ? colors.textLight.withValues(
-                                                    alpha: 0.4,
-                                                  )
-                                                : colors.text,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            Icons.arrow_upward,
-                                            color: colors.white,
-                                            size: 24,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                if (showExpand)
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(16),
-                                      onTap: () async {
-                                        final result =
-                                            await Navigator.of(
-                                              context,
-                                            ).push<String>(
-                                              MaterialPageRoute(
-                                                builder: (_) =>
-                                                    const _InputFullScreenEditor(),
-                                                settings: RouteSettings(
-                                                  arguments:
-                                                      _inputController.text,
-                                                ),
-                                              ),
-                                            );
-                                        if (result != null) {
-                                          setState(() {
-                                            _inputController.text = result;
-                                          });
-                                        }
-                                      },
-                                      child: SizedBox(
-                                        width: 32,
-                                        height: 32,
-                                        child: Icon(
-                                          Icons.open_in_full,
-                                          color: colors.text.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                          size: 14,
                                         ),
                                       ),
                                     ),
-                                  ),
-                              ],
-                            );
-                          },
+                                ],
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
