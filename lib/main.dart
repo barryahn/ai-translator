@@ -7,12 +7,16 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ai_translator/l10n/app_localizations.dart';
 import 'services/theme_service.dart';
 import 'theme/app_theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'services/openai_service.dart';
 
 // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
 final int maxInputLengthInFreeVersion = 500;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  await OpenAIService.initialize();
   await ThemeService.initialize();
   runApp(const MyApp());
 }
@@ -127,10 +131,87 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _bottomInputFocusNode = FocusNode();
   String _translatedText = '';
+  bool _isTranslating = false;
 
   // static const double _minFieldHeight = 200.0;
 
   List<String> get toneLabels => ['친근', '기본', '공손', '격식'];
+
+  String _buildToneInstruction() {
+    final tone = toneLabels[selectedToneLevel.round()];
+    switch (tone) {
+      case '친근':
+        return '톤: 친근하고 캐주얼하게, 구어체 사용.';
+      case '공손':
+        return '톤: 공손하고 정중하게, 존댓말 사용.';
+      case '격식':
+        return '톤: 매우 격식 있고 전문적인 문체로.';
+      case '기본':
+      default:
+        return '톤: 중립적이고 자연스러운 문체로.';
+    }
+  }
+
+  String _mapUiLanguageToApi(String uiLanguage) {
+    switch (uiLanguage) {
+      case '한국어':
+        return '한국어';
+      case '영어':
+        return '영어';
+      case '일본어':
+        return '일본어';
+      case '중국어':
+        return '중국어 간체';
+      case '대만 중국어':
+        return '중국어 번체(대만)';
+      case '프랑스어':
+        return '프랑스어';
+      case '독일어':
+        return '독일어';
+      case '스페인어':
+        return '스페인어';
+      default:
+        return uiLanguage;
+    }
+  }
+
+  Future<void> _runTranslate() async {
+    final text = _inputController.text.trim();
+    if (text.isEmpty) {
+      Fluttertoast.showToast(msg: '번역할 텍스트를 입력하세요');
+      return;
+    }
+    setState(() {
+      _isTranslating = true;
+      _translatedText = '';
+    });
+
+    try {
+      final from = _mapUiLanguageToApi(selectedFromLanguage);
+      final to = _mapUiLanguageToApi(selectedToLanguage);
+      final toneInstruction = _buildToneInstruction();
+      // 무료/프로 모델 선택 로직은 임시로 무료 고정
+      const usingProModel = false;
+      final result = await OpenAIService.translateText(
+        text,
+        from,
+        to,
+        toneInstruction,
+        usingProModel,
+      );
+      setState(() {
+        _translatedText = result;
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: '번역 중 오류가 발생했습니다');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isTranslating = false;
+        });
+      }
+    }
+  }
 
   int _computeLineCount(String text, double maxWidth, TextStyle style) {
     if (text.isEmpty) return 1;
@@ -858,31 +939,20 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                                       const SizedBox(width: 8),
                                       InkWell(
                                         borderRadius: BorderRadius.circular(20),
-                                        onTap: () async {
-                                          final result =
-                                              await Navigator.of(
-                                                context,
-                                              ).push<String>(
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      const _InputFullScreenEditor(),
-                                                  settings: RouteSettings(
-                                                    arguments:
-                                                        _inputController.text,
-                                                  ),
-                                                ),
-                                              );
-                                          if (result != null) {
-                                            setState(() {
-                                              _inputController.text = result;
-                                            });
-                                          }
-                                        },
+                                        onTap: _isTranslating
+                                            ? null
+                                            : () async {
+                                                await _runTranslate();
+                                              },
                                         child: Container(
                                           width: 32,
                                           height: 32,
                                           decoration: BoxDecoration(
-                                            color: colors.text,
+                                            color: _isTranslating
+                                                ? colors.textLight.withValues(
+                                                    alpha: 0.4,
+                                                  )
+                                                : colors.text,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Icon(

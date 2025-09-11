@@ -63,7 +63,7 @@ $toneInstruction
         role: ChatCompletionMessageRole.user,
       );
 
-      // the actual request.
+      /* // 프로 모델, 무료 모델 차등
       final res = usingProModel
           ? await client.createChatCompletion(
               request: CreateChatCompletionRequest(
@@ -76,7 +76,15 @@ $toneInstruction
                 model: ChatCompletionModel.modelId(_freeModel),
                 messages: [developerMessage, userMessage],
               ),
-            );
+            ); */
+
+      // 프로 모델만 사용하는 경우
+      final res = await client.createChatCompletion(
+        request: CreateChatCompletionRequest(
+          model: ChatCompletionModel.modelId(_proModel),
+          messages: [developerMessage, userMessage],
+        ),
+      );
 
       return res.choices.first.message.content != null
           ? res.choices.first.message.content.toString()
