@@ -132,6 +132,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
   final FocusNode _bottomInputFocusNode = FocusNode();
   String _translatedText = '';
   bool _isTranslating = false;
+  bool _shouldRestoreBottomInputFocus = false;
+
+  void _hideKeyboard() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+  }
 
   // static const double _minFieldHeight = 200.0;
 
@@ -275,6 +281,20 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
         elevation: 0,
       ),
       drawer: _buildAppDrawer(context),
+      onDrawerChanged: (isOpened) {
+        if (isOpened) {
+          // 드로어가 열릴 때 현재 하단 입력창 포커스 상태를 저장하고, 드로어 열림에 의해 포커스가 바뀌지 않도록 함
+          _shouldRestoreBottomInputFocus = _bottomInputFocusNode.hasFocus;
+          _hideKeyboard();
+        } else {
+          // 드로어가 닫힐 때 이전 포커스 상태를 복원
+          if (_shouldRestoreBottomInputFocus) {
+            FocusScope.of(context).requestFocus(_bottomInputFocusNode);
+          } else {
+            _hideKeyboard();
+          }
+        }
+      },
       bottomNavigationBar: _buildBottomSearchBar(colors),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
