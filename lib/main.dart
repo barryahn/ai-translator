@@ -240,6 +240,20 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
     }
   }
 
+  // 번역 결과 텍스트 길이에 따라 폰트 크기를 부드럽게 조절합니다.
+  // 짧은 텍스트는 크게(최대 22), 긴 텍스트는 작게(최소 14).
+  double _getAdaptiveResultFontSize(String text) {
+    if (text.isEmpty) return 15.0;
+    final int length = text.runes.length;
+    const double minSize = 14.0;
+    const double maxSize = 22.0;
+    // 60자 이하는 최대, 600자 이상은 최소로 선형 보간
+    if (length <= 60) return maxSize;
+    if (length >= 600) return minSize;
+    final double t = (length - 60) / (600 - 60);
+    return maxSize - (maxSize - minSize) * t;
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeService = context.watch<ThemeService>();
@@ -1029,18 +1043,16 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.fromLTRB(2, 0, 2, 8),
+                padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '번역 결과',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: _translatedText.isEmpty
-                            ? colors.textLight
-                            : colors.text,
+                        color: colors.textLight,
                       ),
                     ),
                   ],
@@ -1048,7 +1060,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
               ),
               // 페이지 전체가 이미 SingleChildScrollView이므로 내부 스크롤은 제거
               Padding(
-                padding: const EdgeInsets.fromLTRB(2, 0, 2, 60), // 하단 버튼 공간 확보
+                padding: const EdgeInsets.fromLTRB(4, 0, 4, 60), // 하단 버튼 공간 확보
                 child: SelectableText(
                   _translatedText.isEmpty
                       ? '번역 결과가 여기에 표시됩니다'
@@ -1057,7 +1069,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
                     color: _translatedText.isEmpty
                         ? colors.textLight
                         : colors.text,
-                    fontSize: 15,
+                    fontSize: _getAdaptiveResultFontSize(_translatedText),
                     height: 1.4,
                   ),
                 ),
