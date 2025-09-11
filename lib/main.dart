@@ -192,7 +192,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
             child: Column(
               children: <Widget>[
                 _buildTonePicker(colors),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
                 _buildTranslationArea(colors),
                 const SizedBox(height: 90),
               ],
@@ -954,23 +954,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
     return Container(
       height: 600, // _resultFieldHeight,
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
-      ),
+      //color: colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1044,7 +1033,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen> {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
