@@ -146,6 +146,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
 
   double selectedToneLevel = 1.0; // 0: 친근, 1: 기본, 2: 공손, 3: 격식
   bool isTonePickerExpanded = false;
+  bool isTonePanelVisible = false; // 하단바 상단 톤 패널 표시 여부
 
   bool isLanguageListOpen = false; // 하단바 위쪽 언어 선택 패널 표시 여부
   bool isSelectingFromLanguage = true; // true: 출발 언어 선택, false: 도착 언어 선택
@@ -398,6 +399,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               isLanguageListOpen = false;
             });
           }
+          if (isTonePanelVisible) {
+            setState(() {
+              isTonePanelVisible = false;
+            });
+          }
         } else {
           // 드로어가 닫힐 때 이전 포커스 상태를 복원
           if (_shouldRestoreBottomInputFocus) {
@@ -417,14 +423,17 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               isLanguageListOpen = false;
             });
           }
+          if (isTonePanelVisible) {
+            setState(() {
+              isTonePanelVisible = false;
+            });
+          }
         },
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: <Widget>[
-                _buildTonePicker(colors),
-                const SizedBox(height: 20),
                 _buildTranslationArea(colors),
                 // 하단바 + 키보드 높이만큼 동적 여백을 추가합니다.
                 SizedBox(height: bottomSpacer),
@@ -756,15 +765,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   Widget _buildTonePicker(CustomColors colors) {
     return Container(
       decoration: BoxDecoration(
-        color: colors.white,
+        border: Border.all(color: colors.textLight.withValues(alpha: 0.12)),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -780,67 +782,32 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               padding: const EdgeInsets.only(
                 left: 16,
                 right: 16,
-                top: 14,
-                bottom: 14,
+                top: 10,
+                bottom: 10,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.tune, color: colors.primary, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context).translation_tone,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: colors.text,
-                        ),
-                      ),
-                      if (!isTonePickerExpanded) ...[
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                toneLabels[selectedToneLevel.round()],
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: colors.textLight,
-                                ),
-                              ),
-                              const SizedBox(width: 2),
-                              Container(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: Icon(
-                                  Icons.check_circle,
-                                  color: colors.textLight,
-                                  size: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
+                  Text(
+                    AppLocalizations.of(context).translation_tone,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: colors.text.withValues(alpha: 0.8),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
                       setState(() {
-                        isTonePickerExpanded = !isTonePickerExpanded;
+                        isTonePanelVisible = !isTonePanelVisible;
                       });
                     },
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       child: Icon(
-                        isTonePickerExpanded
-                            ? Icons.expand_less
-                            : Icons.expand_more,
-                        color: colors.text,
-                        size: 20,
+                        Icons.close,
+                        color: colors.text.withValues(alpha: 0.8),
+                        size: 18,
                       ),
                     ),
                   ),
@@ -848,83 +815,70 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               ),
             ),
           ),
-          if (isTonePickerExpanded)
-            Container(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-              child: Column(
-                children: [
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: colors.textLight,
-                      inactiveTrackColor: colors.background,
-                      thumbColor: colors.textLight,
-                      overlayColor: colors.primary.withValues(alpha: 0.2),
-                      trackHeight: 4,
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 8,
-                      ),
-                      overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 16,
-                      ),
+          Container(
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+            child: Column(
+              children: [
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: colors.textLight,
+                    inactiveTrackColor: colors.text.withValues(alpha: 0.12),
+                    thumbColor: colors.textLight,
+                    overlayColor: colors.primary.withValues(alpha: 0.2),
+                    trackHeight: 4,
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 8,
                     ),
-                    child: Slider(
-                      value: selectedToneLevel,
-                      min: 0,
-                      max: 3,
-                      divisions: 3,
-                      onChanged: (value) {
+                    overlayShape: const RoundSliderOverlayShape(
+                      overlayRadius: 16,
+                    ),
+                  ),
+                  child: Slider(
+                    value: selectedToneLevel,
+                    min: 0,
+                    max: 3,
+                    divisions: 3,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedToneLevel = value;
+                      });
+                    },
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: toneLabels.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    String label = entry.value;
+                    bool isSelected = selectedToneLevel.round() == index;
+                    return InkWell(
+                      onTap: () {
                         setState(() {
-                          selectedToneLevel = value;
+                          selectedToneLevel = index.toDouble();
                         });
                       },
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: toneLabels.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      String label = entry.value;
-                      bool isSelected = selectedToneLevel.round() == index;
-                      return InkWell(
-                        onTap: () {
-                          setState(() {
-                            selectedToneLevel = index.toDouble();
-                          });
-                        },
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? colors.primary
-                                    : colors.textLight,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              label,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.w500,
-                                color: isSelected
-                                    ? colors.primary
-                                    : colors.textLight,
-                              ),
-                            ),
-                          ],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        color: colors.background,
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.w500,
+                            color: isSelected
+                                ? colors.primary
+                                : colors.textLight,
+                          ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );
@@ -1006,6 +960,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // 하단바 최상단에 톤 선택 배치 (버튼으로 토글 표시)
+                if (isTonePanelVisible) ...[
+                  _buildTonePicker(colors),
+                  const SizedBox(height: 4),
+                ],
                 if (isLanguageListOpen) ...[
                   _buildLanguagePickerPanel(colors),
                   const SizedBox(height: 10),
@@ -1019,32 +978,83 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     // 이미지 스캔 버튼
                     Column(
                       children: [
-                        InkWell(
-                          borderRadius: BorderRadius.circular(24),
-                          onTap: () {
-                            if (_isFetching) {
-                              return;
-                            }
-                            Fluttertoast.showToast(
-                              msg: AppLocalizations.of(
-                                context,
-                              ).feature_coming_soon,
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                            );
-                          },
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.document_scanner,
-                              color: _isFetching
-                                  ? colors.text.withValues(alpha: 0.5)
-                                  : colors.text,
+                        if (_inputController.text.isEmpty)
+                          InkWell(
+                            borderRadius: BorderRadius.circular(24),
+                            onTap: () {
+                              if (_isFetching) {
+                                return;
+                              }
+                              Fluttertoast.showToast(
+                                msg: AppLocalizations.of(
+                                  context,
+                                ).feature_coming_soon,
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                              );
+                            },
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.document_scanner,
+                                color: _isFetching
+                                    ? colors.text.withValues(alpha: 0.5)
+                                    : colors.text,
+                              ),
+                            ),
+                          )
+                        else
+                          InkWell(
+                            borderRadius: BorderRadius.circular(24),
+                            onTap: () {
+                              setState(() {
+                                // 언어 선택 패널은 닫고 톤 패널 토글
+                                isLanguageListOpen = false;
+                                isTonePanelVisible = !isTonePanelVisible;
+                                // 처음 열 때 즉시 슬라이더 보이도록 확장 상태로
+                                if (isTonePanelVisible) {
+                                  isTonePickerExpanded = true;
+                                }
+                              });
+                            },
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              alignment: Alignment(0, 0.5),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.tune,
+                                    color: colors.text,
+                                    size: 20,
+                                  ),
+                                  Container(
+                                    height: 14,
+                                    alignment: Alignment.bottomCenter,
+                                    child: Text(
+                                      toneLabels[selectedToneLevel.round()],
+                                      style: TextStyle(
+                                        fontSize:
+                                            toneLabels[selectedToneLevel
+                                                        .round()]
+                                                    .length >
+                                                6
+                                            ? 8
+                                            : 11,
+                                        fontWeight: FontWeight.w500,
+                                        color: colors.text.withValues(
+                                          alpha: 0.8,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
                         const SizedBox(height: 4),
                       ],
                     ),
