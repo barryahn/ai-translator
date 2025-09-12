@@ -8,6 +8,7 @@ import 'services/theme_service.dart';
 import 'theme/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/openai_service.dart';
+import 'services/language_service.dart';
 import 'dart:math' as math;
 
 // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
@@ -18,6 +19,7 @@ void main() async {
   await dotenv.load(fileName: ".env");
   await OpenAIService.initialize();
   await ThemeService.initialize();
+  await LanguageService.initialize();
   runApp(const MyApp());
 }
 
@@ -41,14 +43,7 @@ class MyApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [
-              Locale('ko'),
-              Locale('en'),
-              Locale('zh'),
-              Locale('fr'),
-              Locale('es'),
-              Locale.fromSubtags(languageCode: 'zh', countryCode: 'TW'),
-            ],
+            supportedLocales: LanguageService.getSupportedAppLocales(),
             home: const TranslationUIOnlyScreen(),
           );
         },
@@ -128,16 +123,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
 
   bool _isFetching = false; // 현재 API 호출이 진행 중인지 여부
 
-  final List<String> languages = <String>[
-    '한국어',
-    '영어',
-    '일본어',
-    '중국어',
-    '대만 중국어',
-    '프랑스어',
-    '독일어',
-    '스페인어',
-  ];
+  final List<String> languages =
+      LanguageService.getUiLanguagesOrderedBySystem();
 
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _bottomInputFocusNode = FocusNode();
@@ -166,6 +153,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat();
+
+    // LanguageService의 저장값을 화면 상태에 반영
+    selectedFromLanguage = LanguageService.fromLanguage;
+    selectedToLanguage = LanguageService.toLanguage;
   }
 
   List<String> get toneLabels => ['친근', '기본', '공손', '격식'];
@@ -185,28 +176,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     }
   }
 
-  String _mapUiLanguageToApi(String uiLanguage) {
-    switch (uiLanguage) {
-      case '한국어':
-        return '한국어';
-      case '영어':
-        return '영어';
-      case '일본어':
-        return '일본어';
-      case '중국어':
-        return '중국어 간체';
-      case '대만 중국어':
-        return '중국어 번체(대만)';
-      case '프랑스어':
-        return '프랑스어';
-      case '독일어':
-        return '독일어';
-      case '스페인어':
-        return '스페인어';
-      default:
-        return uiLanguage;
-    }
-  }
+  // 언어 매핑은 LanguageService에서 관리
 
   Future<void> _runTranslate() async {
     final text = _inputController.text.trim();
@@ -224,8 +194,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     });
 
     try {
-      final from = _mapUiLanguageToApi(selectedFromLanguage);
-      final to = _mapUiLanguageToApi(selectedToLanguage);
+      final from = LanguageService.mapUiLanguageToApi(selectedFromLanguage);
+      final to = LanguageService.mapUiLanguageToApi(selectedToLanguage);
       final toneInstruction = _buildToneInstruction();
       // 무료/프로 모델 선택 로직은 임시로 무료 고정
       const usingProModel = false;
@@ -554,6 +524,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           selectedFromLanguage = selectedToLanguage;
           selectedToLanguage = temp;
         });
+        // 서비스에도 반영
+        LanguageService.swapTranslationLanguages();
       },
       child: Container(
         width: 36,
@@ -685,6 +657,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                       }
                       isLanguageListOpen = false;
                     });
+                    // 서비스에도 반영
+                    LanguageService.setTranslationLanguages(
+                      fromLanguage: selectedFromLanguage,
+                      toLanguage: selectedToLanguage,
+                    );
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
