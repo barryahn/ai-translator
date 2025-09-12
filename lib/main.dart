@@ -175,10 +175,15 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
 
   void _showLanguagePicker({required bool selectingFrom}) {
     setState(() {
-      isSelectingFromLanguage = selectingFrom;
-      isLanguageListOpen = true;
+      if (isLanguageListOpen && isSelectingFromLanguage == selectingFrom) {
+        // 같은 드롭다운을 다시 누르면 닫기
+        isLanguageListOpen = false;
+      } else {
+        // 다른 드롭다운이거나 닫혀 있으면 열기/전환
+        isSelectingFromLanguage = selectingFrom;
+        isLanguageListOpen = true;
+      }
     });
-    _hideKeyboard();
   }
 
   // static const double _minFieldHeight = 200.0;
