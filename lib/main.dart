@@ -182,6 +182,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
         // 다른 드롭다운이거나 닫혀 있으면 열기/전환
         isSelectingFromLanguage = selectingFrom;
         isLanguageListOpen = true;
+        // 언어 선택 창을 열면 번역 분위기 탭은 닫기
+        isTonePanelVisible = false;
       }
     });
   }
@@ -824,6 +826,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     onTap: () {
                       setState(() {
                         isTonePanelVisible = !isTonePanelVisible;
+                        if (isTonePanelVisible) {
+                          isLanguageListOpen = false;
+                        }
                       });
                     },
                     child: Container(
@@ -1050,6 +1055,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                   isTonePanelVisible = !isTonePanelVisible;
                                   // 처음 열 때 즉시 슬라이더 보이도록 확장 상태로
                                   if (isTonePanelVisible) {
+                                    // 톤 패널 열리면 언어 패널 닫힘 유지
+                                    isLanguageListOpen = false;
                                     isTonePickerExpanded = true;
                                   }
                                 });
