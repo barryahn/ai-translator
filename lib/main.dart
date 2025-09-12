@@ -1018,8 +1018,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                 );
                               },
                               child: Container(
-                                width: 40,
-                                height: 40,
+                                width: 42,
+                                height: 42,
                                 alignment: Alignment.center,
                                 child: Icon(
                                   Icons.document_scanner,
@@ -1050,8 +1050,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                 });
                               },
                               child: Container(
-                                width: 40,
-                                height: 40,
+                                width: 42,
+                                height: 42,
                                 alignment: Alignment(0, 0.5),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -1086,10 +1086,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                               ),
                             ),
                           ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 3),
                       ],
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     // 중앙 입력 영역 (투명 배경 + 라운드 보더)
                     Expanded(
                       child: Material(
