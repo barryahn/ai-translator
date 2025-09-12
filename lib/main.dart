@@ -13,6 +13,7 @@ import 'services/language_service.dart';
 import 'dart:math' as math;
 import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
+import 'services/language_detect_service.dart';
 
 // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
 final int maxInputLengthInFreeVersion = 500;
@@ -167,6 +168,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   String _translatedText = '';
   bool _isTranslating = false;
   bool _shouldRestoreBottomInputFocus = false;
+  List<LanguageDetectResult> _inputLangCandidates = [];
 
   void _hideKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -196,6 +198,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat();
+
+    // 언어 감지 서비스 초기화
+    LanguageDetectService.instance.initialize();
 
     // LanguageService의 저장값을 화면 상태에 반영
     selectedFromLanguage = LanguageService.fromLanguage;
@@ -239,6 +244,18 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       Fluttertoast.showToast(msg: '번역할 텍스트를 입력하세요');
       return;
     }
+    // 입력 언어 감지 및 콘솔 출력 (서비스 사용)
+    LanguageDetectService.instance.detectRealtime(
+      text: text,
+      debounce: const Duration(milliseconds: 0),
+      onDetected: (res) {
+        final String name = LanguageService.getUiLanguageFromCode(res.code);
+        print('입력 언어 감지: ' + res.code + ' (' + name + ')');
+      },
+      onError: (e) {
+        print('입력 언어 감지 실패: ' + e.toString());
+      },
+    );
     setState(() {
       _isTranslating = true;
       _isFetching = true;
@@ -454,6 +471,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
 
   @override
   void dispose() {
+    LanguageDetectService.instance.dispose();
     _loadingController.dispose();
     _bottomInputFocusNode.dispose();
     super.dispose();
@@ -1173,7 +1191,50 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                                   TextInputAction.newline,
                                               minLines: 1,
                                               maxLines: 4,
-                                              onChanged: (_) => setState(() {}),
+                                              onChanged: (value) {
+                                                setState(() {});
+                                                LanguageDetectService.instance
+                                                    .detectRealtimeAll(
+                                                      text: value,
+                                                      onDetected: (list) {
+                                                        setState(() {
+                                                          _inputLangCandidates =
+                                                              list;
+                                                        });
+                                                        final buffer =
+                                                            StringBuffer();
+                                                        buffer.write(
+                                                          '실시간 입력 언어 후보: ',
+                                                        );
+                                                        for (
+                                                          int i = 0;
+                                                          i < list.length;
+                                                          i++
+                                                        ) {
+                                                          final r = list[i];
+                                                          final name =
+                                                              LanguageService.getUiLanguageFromCode(
+                                                                r.code,
+                                                              );
+                                                          if (i > 0)
+                                                            buffer.write(', ');
+                                                          buffer.write(r.code);
+                                                          buffer.write(' (');
+                                                          buffer.write(name);
+                                                          buffer.write(') ');
+                                                          buffer.write(
+                                                            _formatProb(
+                                                              r.probability,
+                                                            ),
+                                                          );
+                                                        }
+                                                        print(
+                                                          buffer.toString(),
+                                                        );
+                                                      },
+                                                      onError: (e) {},
+                                                    );
+                                              },
                                             ),
                                           ),
                                         ),
@@ -1330,6 +1391,43 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     ),
                   ],
                 ),
+                // 실시간 감지된 다중 입력 언어 후보 표시 (하단바 바로 위)
+                if (_inputLangCandidates.isNotEmpty)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Builder(
+                        builder: (context) {
+                          final buffer = StringBuffer();
+                          buffer.write('입력 언어: ');
+                          for (
+                            int i = 0;
+                            i < _inputLangCandidates.length;
+                            i++
+                          ) {
+                            final r = _inputLangCandidates[i];
+                            final name = LanguageService.getUiLanguageFromCode(
+                              r.code,
+                            );
+                            if (i > 0) buffer.write(', ');
+                            buffer.write(r.code);
+                            buffer.write(' (');
+                            buffer.write(name);
+                            buffer.write(') ');
+                            buffer.write(_formatProb(r.probability));
+                          }
+                          return Text(
+                            buffer.toString(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colors.textLight,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -1411,6 +1509,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           ),
       ],
     );
+  }
+}
+
+String _formatProb(double p) {
+  try {
+    return p.toStringAsFixed(4);
+  } catch (_) {
+    return p.toString();
   }
 }
 
