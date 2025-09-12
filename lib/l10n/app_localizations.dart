@@ -11,8 +11,8 @@ class AppLocalizations {
   }
 
   // 앱 이름 상수
-  static const String appName = 'WordVibe';
-  static const String appVersion = '1.0.3';
+  static const String appName = 'AI_Translator';
+  static const String appVersion = '1.0.0';
 
   static const Map<String, Map<String, String>> _localizedValues = {
     'ko': {

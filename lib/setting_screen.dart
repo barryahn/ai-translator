@@ -15,7 +15,7 @@ class SettingsScreen extends StatelessWidget {
     final colors = themeService.colors;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('설정')),
+      appBar: AppBar(title: Text(loc.get('settings'))),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -97,11 +97,7 @@ class SettingsScreen extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: TextStyle(
-          color: textColor ?? colors.text,
-          fontWeight: FontWeight.w500,
-          fontSize: 15,
-        ),
+        style: TextStyle(color: textColor ?? colors.text, fontSize: 15),
       ),
       subtitle: subtitle != null
           ? Text(
