@@ -548,96 +548,115 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   }
 
   Widget _buildFromLanguageDropdown(colors) {
-    return GestureDetector(
-      // 투명 배경에서도 터치 이벤트를 받을 수 있게 설정합니다.
-      behavior: HitTestBehavior.translucent,
-      onTap: () => _showLanguagePicker(selectingFrom: true),
-      child: Container(
-        height: 40,
-        color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: Text(
-                _localizedNameFor(selectedFromLanguage),
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: _getDropdownFontSize(
-                    _localizedNameFor(selectedFromLanguage),
-                    isSelected: true,
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        splashColor: colors.text.withValues(alpha: 0.08),
+        onTap: () => _showLanguagePicker(selectingFrom: true),
+        child: Container(
+          height: 40,
+          color: Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  _localizedNameFor(selectedFromLanguage),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: _getDropdownFontSize(
+                      _localizedNameFor(selectedFromLanguage),
+                      isSelected: true,
+                    ),
+                    color: colors.text,
                   ),
-                  color: colors.text,
                 ),
               ),
-            ),
-            const SizedBox(width: 6),
-            Icon(Icons.expand_more, size: 18, color: colors.textLight),
-          ],
+              const SizedBox(width: 6),
+              Icon(Icons.expand_more, size: 18, color: colors.textLight),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildLanguageSwapButton(CustomColors colors) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          final temp = selectedFromLanguage;
-          selectedFromLanguage = selectedToLanguage;
-          selectedToLanguage = temp;
-        });
-        // 서비스에도 반영
-        LanguageService.swapTranslationLanguages();
-      },
-      child: Container(
-        width: 36,
-        height: 28,
-        decoration: BoxDecoration(
+    return Material(
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        customBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          color: colors.background,
-          shape: BoxShape.rectangle,
-          border: Border.all(color: colors.textLight.withValues(alpha: 0.3)),
         ),
-        child: Center(
-          child: Icon(Icons.arrow_forward_ios, color: colors.text, size: 16),
+        splashColor: colors.text.withValues(alpha: 0.08),
+        onTap: () {
+          setState(() {
+            final temp = selectedFromLanguage;
+            selectedFromLanguage = selectedToLanguage;
+            selectedToLanguage = temp;
+          });
+          // 서비스에도 반영
+          LanguageService.swapTranslationLanguages();
+        },
+        child: Container(
+          width: 36,
+          height: 28,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: colors.background,
+            shape: BoxShape.rectangle,
+            border: Border.all(color: colors.textLight.withValues(alpha: 0.3)),
+          ),
+          child: Center(
+            child: Icon(Icons.arrow_forward_ios, color: colors.text, size: 16),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildToLanguageDropdown(CustomColors colors) {
-    return GestureDetector(
-      // 투명 배경에서도 터치 이벤트를 받을 수 있게 설정합니다.
-      behavior: HitTestBehavior.translucent,
-      onTap: () => _showLanguagePicker(selectingFrom: false),
-      child: Container(
-        height: 40,
-        // 시각적 배경은 투명 처리하여 뒤 그라데이션이 비치도록 합니다.
-        color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: Text(
-                _localizedNameFor(selectedToLanguage),
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: _getDropdownFontSize(
-                    _localizedNameFor(selectedToLanguage),
-                    isSelected: true,
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        splashColor: colors.text.withValues(alpha: 0.08),
+        onTap: () => _showLanguagePicker(selectingFrom: false),
+        child: Container(
+          height: 40,
+          // 시각적 배경은 투명 처리하여 뒤 그라데이션이 비치도록 합니다.
+          color: Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  _localizedNameFor(selectedToLanguage),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: _getDropdownFontSize(
+                      _localizedNameFor(selectedToLanguage),
+                      isSelected: true,
+                    ),
+                    color: colors.text,
                   ),
-                  color: colors.text,
                 ),
               ),
-            ),
-            const SizedBox(width: 6),
-            Icon(Icons.expand_more, size: 18, color: colors.textLight),
-          ],
+              const SizedBox(width: 6),
+              Icon(Icons.expand_more, size: 18, color: colors.textLight),
+            ],
+          ),
         ),
       ),
     );
@@ -979,79 +998,91 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     Column(
                       children: [
                         if (_inputController.text.isEmpty)
-                          InkWell(
-                            borderRadius: BorderRadius.circular(24),
-                            onTap: () {
-                              if (_isFetching) {
-                                return;
-                              }
-                              Fluttertoast.showToast(
-                                msg: AppLocalizations.of(
-                                  context,
-                                ).feature_coming_soon,
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                              );
-                            },
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              alignment: Alignment.center,
-                              child: Icon(
-                                Icons.document_scanner,
-                                color: _isFetching
-                                    ? colors.text.withValues(alpha: 0.5)
-                                    : colors.text,
+                          Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            clipBehavior: Clip.antiAlias,
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              splashColor: colors.text.withValues(alpha: 0.08),
+                              onTap: () {
+                                if (_isFetching) {
+                                  return;
+                                }
+                                Fluttertoast.showToast(
+                                  msg: AppLocalizations.of(
+                                    context,
+                                  ).feature_coming_soon,
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                );
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.document_scanner,
+                                  color: _isFetching
+                                      ? colors.text.withValues(alpha: 0.5)
+                                      : colors.text,
+                                ),
                               ),
                             ),
                           )
                         else
-                          InkWell(
-                            borderRadius: BorderRadius.circular(24),
-                            onTap: () {
-                              setState(() {
-                                // 언어 선택 패널은 닫고 톤 패널 토글
-                                isLanguageListOpen = false;
-                                isTonePanelVisible = !isTonePanelVisible;
-                                // 처음 열 때 즉시 슬라이더 보이도록 확장 상태로
-                                if (isTonePanelVisible) {
-                                  isTonePickerExpanded = true;
-                                }
-                              });
-                            },
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              alignment: Alignment(0, 0.5),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.tune,
-                                    color: colors.text,
-                                    size: 20,
-                                  ),
-                                  Container(
-                                    height: 14,
-                                    alignment: Alignment.bottomCenter,
-                                    child: Text(
-                                      toneLabels[selectedToneLevel.round()],
-                                      style: TextStyle(
-                                        fontSize:
-                                            toneLabels[selectedToneLevel
-                                                        .round()]
-                                                    .length >
-                                                6
-                                            ? 8
-                                            : 11,
-                                        fontWeight: FontWeight.w500,
-                                        color: colors.text.withValues(
-                                          alpha: 0.8,
+                          Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            clipBehavior: Clip.antiAlias,
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              splashColor: colors.text.withValues(alpha: 0.08),
+                              onTap: () {
+                                setState(() {
+                                  // 언어 선택 패널은 닫고 톤 패널 토글
+                                  isLanguageListOpen = false;
+                                  isTonePanelVisible = !isTonePanelVisible;
+                                  // 처음 열 때 즉시 슬라이더 보이도록 확장 상태로
+                                  if (isTonePanelVisible) {
+                                    isTonePickerExpanded = true;
+                                  }
+                                });
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                alignment: Alignment(0, 0.5),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.tune,
+                                      color: colors.text,
+                                      size: 20,
+                                    ),
+                                    Container(
+                                      height: 14,
+                                      alignment: Alignment.bottomCenter,
+                                      child: Text(
+                                        toneLabels[selectedToneLevel.round()],
+                                        style: TextStyle(
+                                          fontSize:
+                                              toneLabels[selectedToneLevel
+                                                          .round()]
+                                                      .length >
+                                                  6
+                                              ? 8
+                                              : 11,
+                                          fontWeight: FontWeight.w500,
+                                          color: colors.text.withValues(
+                                            alpha: 0.8,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -1061,201 +1092,226 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     const SizedBox(width: 10),
                     // 중앙 입력 영역 (투명 배경 + 라운드 보더)
                     Expanded(
-                      child: InkWell(
+                      child: Material(
+                        color: Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
-                        // Disable InkWell visual effects to prevent color overlap with inner container
-                        highlightColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        onTap: () {
-                          FocusScope.of(
-                            context,
-                          ).requestFocus(_bottomInputFocusNode);
-                        },
-                        child: Container(
-                          constraints: const BoxConstraints(minHeight: 44),
-                          decoration: BoxDecoration(
-                            color: colors.textLight.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 8,
-                            top: 8,
-                            bottom: 8,
-                          ),
-                          alignment: Alignment.centerLeft,
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              final TextStyle textStyle = TextStyle(
-                                color: colors.text,
-                                fontSize: 15,
-                              );
-                              final int lineCount = _computeLineCount(
-                                _inputController.text,
-                                constraints.maxWidth,
-                                textStyle,
-                              );
-                              final bool showExpand = lineCount > 4;
-                              return Stack(
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          constraints: const BoxConstraints(
-                                            minHeight: 32,
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: TextField(
-                                            controller: _inputController,
-                                            focusNode: _bottomInputFocusNode,
-                                            style: textStyle,
-                                            decoration: InputDecoration(
-                                              isDense: true,
-                                              border: InputBorder.none,
-                                              hintText: AppLocalizations.of(
-                                                context,
-                                              ).search_or_sentence_hint,
-                                              contentPadding: EdgeInsets.zero,
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(20),
+                          splashColor: colors.text.withValues(alpha: 0.06),
+                          highlightColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          onTap: () {
+                            FocusScope.of(
+                              context,
+                            ).requestFocus(_bottomInputFocusNode);
+                          },
+                          child: Container(
+                            constraints: const BoxConstraints(minHeight: 44),
+                            decoration: BoxDecoration(
+                              color: colors.textLight.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              right: 8,
+                              top: 8,
+                              bottom: 8,
+                            ),
+                            alignment: Alignment.centerLeft,
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                final TextStyle textStyle = TextStyle(
+                                  color: colors.text,
+                                  fontSize: 15,
+                                );
+                                final int lineCount = _computeLineCount(
+                                  _inputController.text,
+                                  constraints.maxWidth,
+                                  textStyle,
+                                );
+                                final bool showExpand = lineCount > 4;
+                                return Stack(
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            constraints: const BoxConstraints(
+                                              minHeight: 32,
                                             ),
-                                            keyboardType:
-                                                TextInputType.multiline,
-                                            textInputAction:
-                                                TextInputAction.newline,
-                                            minLines: 1,
-                                            maxLines: 4,
-                                            onChanged: (_) => setState(() {}),
+                                            alignment: Alignment.center,
+                                            child: TextField(
+                                              controller: _inputController,
+                                              focusNode: _bottomInputFocusNode,
+                                              style: textStyle,
+                                              decoration: InputDecoration(
+                                                isDense: true,
+                                                border: InputBorder.none,
+                                                hintText: AppLocalizations.of(
+                                                  context,
+                                                ).search_or_sentence_hint,
+                                                contentPadding: EdgeInsets.zero,
+                                              ),
+                                              keyboardType:
+                                                  TextInputType.multiline,
+                                              textInputAction:
+                                                  TextInputAction.newline,
+                                              minLines: 1,
+                                              maxLines: 4,
+                                              onChanged: (_) => setState(() {}),
+                                            ),
                                           ),
                                         ),
-                                      ),
 
-                                      // 입력 텍스트가 없을 때
-                                      if (_inputController.text.isEmpty) ...[
-                                        const SizedBox(width: 8),
+                                        // 입력 텍스트가 없을 때
+                                        if (_inputController.text.isEmpty) ...[
+                                          const SizedBox(width: 8),
 
-                                        // 음성 입력 버튼
-                                        InkWell(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
+                                          // 음성 입력 버튼
+                                          Material(
+                                            color: Colors.transparent,
+                                            shape: const CircleBorder(),
+                                            clipBehavior: Clip.antiAlias,
+                                            child: InkWell(
+                                              customBorder:
+                                                  const CircleBorder(),
+                                              splashColor: colors.text
+                                                  .withValues(alpha: 0.08),
+                                              onTap: () {
+                                                if (_isFetching) {
+                                                  // 스트리밍 중지
+                                                  OpenAIService.cancelStreaming();
+                                                  setState(() {
+                                                    _isFetching = false;
+                                                    _isTranslating = false;
+                                                  });
+                                                  return;
+                                                }
+                                                Fluttertoast.showToast(
+                                                  msg: AppLocalizations.of(
+                                                    context,
+                                                  ).feature_coming_soon,
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                );
+                                              },
+                                              child: SizedBox(
+                                                width: 32,
+                                                height: 32,
+                                                child: Icon(
+                                                  _isFetching
+                                                      ? Icons.stop
+                                                      : Icons.mic_none_outlined,
+                                                  color: _isFetching
+                                                      ? colors.text
+                                                      : colors.text.withValues(
+                                                          alpha: 0.5,
+                                                        ),
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                          onTap: () {
-                                            if (_isFetching) {
-                                              // 스트리밍 중지
-                                              OpenAIService.cancelStreaming();
+                                        ],
+
+                                        // 입력 텍스트가 있을 때
+                                        if (_inputController
+                                            .text
+                                            .isNotEmpty) ...[
+                                          const SizedBox(width: 8),
+                                          Material(
+                                            color: Colors.transparent,
+                                            shape: const CircleBorder(),
+                                            clipBehavior: Clip.antiAlias,
+                                            child: InkWell(
+                                              customBorder:
+                                                  const CircleBorder(),
+                                              splashColor: colors.text
+                                                  .withValues(alpha: 0.08),
+                                              onTap: _isTranslating
+                                                  ? null
+                                                  : () async {
+                                                      _hideKeyboard();
+                                                      await _runTranslate();
+                                                      if (mounted) {
+                                                        setState(() {
+                                                          _inputController
+                                                              .clear();
+                                                        });
+                                                      }
+                                                    },
+                                              child: Container(
+                                                width: 32,
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  color: _isTranslating
+                                                      ? colors.textLight
+                                                            .withValues(
+                                                              alpha: 0.4,
+                                                            )
+                                                      : colors.text,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  Icons.arrow_upward,
+                                                  color: colors.white,
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    if (showExpand)
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: InkWell(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          onTap: () async {
+                                            final result =
+                                                await Navigator.of(
+                                                  context,
+                                                ).push<String>(
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        const _InputFullScreenEditor(),
+                                                    settings: RouteSettings(
+                                                      arguments:
+                                                          _inputController.text,
+                                                    ),
+                                                  ),
+                                                );
+                                            if (result != null) {
                                               setState(() {
-                                                _isFetching = false;
-                                                _isTranslating = false;
+                                                _inputController.text = result;
                                               });
-                                              return;
                                             }
-                                            Fluttertoast.showToast(
-                                              msg: AppLocalizations.of(
-                                                context,
-                                              ).feature_coming_soon,
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                            );
                                           },
                                           child: SizedBox(
                                             width: 32,
                                             height: 32,
                                             child: Icon(
-                                              _isFetching
-                                                  ? Icons.stop
-                                                  : Icons.mic_none_outlined,
-                                              color: _isFetching
-                                                  ? colors.text
-                                                  : colors.text.withValues(
-                                                      alpha: 0.5,
-                                                    ),
-                                              size: 24,
+                                              Icons.open_in_full,
+                                              color: colors.text.withValues(
+                                                alpha: 0.5,
+                                              ),
+                                              size: 14,
                                             ),
-                                          ),
-                                        ),
-                                      ],
-
-                                      // 입력 텍스트가 있을 때
-                                      if (_inputController.text.isNotEmpty) ...[
-                                        const SizedBox(width: 8),
-                                        InkWell(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                          onTap: _isTranslating
-                                              ? null
-                                              : () async {
-                                                  _hideKeyboard();
-                                                  await _runTranslate();
-                                                  if (mounted) {
-                                                    setState(() {
-                                                      _inputController.clear();
-                                                    });
-                                                  }
-                                                },
-                                          child: Container(
-                                            width: 32,
-                                            height: 32,
-                                            decoration: BoxDecoration(
-                                              color: _isTranslating
-                                                  ? colors.textLight.withValues(
-                                                      alpha: 0.4,
-                                                    )
-                                                  : colors.text,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Icon(
-                                              Icons.arrow_upward,
-                                              color: colors.white,
-                                              size: 24,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  if (showExpand)
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: InkWell(
-                                        borderRadius: BorderRadius.circular(16),
-                                        onTap: () async {
-                                          final result =
-                                              await Navigator.of(
-                                                context,
-                                              ).push<String>(
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      const _InputFullScreenEditor(),
-                                                  settings: RouteSettings(
-                                                    arguments:
-                                                        _inputController.text,
-                                                  ),
-                                                ),
-                                              );
-                                          if (result != null) {
-                                            setState(() {
-                                              _inputController.text = result;
-                                            });
-                                          }
-                                        },
-                                        child: SizedBox(
-                                          width: 32,
-                                          height: 32,
-                                          child: Icon(
-                                            Icons.open_in_full,
-                                            color: colors.text.withValues(
-                                              alpha: 0.5,
-                                            ),
-                                            size: 14,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                ],
-                              );
-                            },
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
