@@ -198,14 +198,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     final tone = toneLabels[selectedToneLevel.round()];
     switch (tone) {
       case '친근':
-        return '톤: 친근하고 캐주얼하게, 구어체 사용.';
+        return '친구에게 말하듯이 친근하고 편안한 말투로 번역해주세요.';
       case '공손':
-        return '톤: 공손하고 정중하게, 존댓말 사용.';
+        return '공적인 자리에서 사용할 수 있도록 공손하고 예의 바른 톤으로 번역해주세요.';
       case '격식':
-        return '톤: 매우 격식 있고 전문적인 문체로.';
+        return '문서에서 사용하려고 합니다. 격식 있고 공식적인 톤으로 번역해주세요.';
       case '기본':
       default:
-        return '톤: 중립적이고 자연스러운 문체로.';
+        return '기본적이고 중립적인 톤으로 존대말로 번역해주세요.';
     }
   }
 
