@@ -180,11 +180,18 @@ class SettingsScreen extends StatelessWidget {
                   onTap: () async {
                     Navigator.of(dialogContext).pop();
                     await LanguageService.setAppLanguageCode(code);
+                    // 새 로케일 기준으로 메시지/언어명을 생성하여 스낵바 표시
+                    final newLocale = LanguageService.createLocale(code);
+                    final newLoc = AppLocalizations(newLocale);
+                    final newLabel = LanguageService.getAppLanguageDisplayName(
+                      code,
+                      newLoc,
+                    );
                     ScaffoldMessenger.of(messengerContext).showSnackBar(
                       SnackBar(
                         content: Text(
-                          loc.getWithParams('language_changed', {
-                            'language': label,
+                          newLoc.getWithParams('language_changed', {
+                            'language': newLabel,
                           }),
                         ),
                         duration: const Duration(seconds: 2),
