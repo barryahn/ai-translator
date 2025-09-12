@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -25,8 +26,37 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Locale _appLocale;
+  StreamSubscription<Map<String, String>>? _langSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _appLocale = LanguageService.createLocale(LanguageService.appLanguageCode);
+    _langSub = LanguageService.languageStream.listen((event) {
+      if (event.containsKey('appLanguage')) {
+        setState(() {
+          _appLocale = LanguageService.createLocale(
+            LanguageService.appLanguageCode,
+          );
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _langSub?.cancel();
+    super.dispose();
+  }
 
   // This widget is the root of your application.
   @override
@@ -39,6 +69,7 @@ class MyApp extends StatelessWidget {
             title: 'AI Translator',
             debugShowCheckedModeBanner: false,
             theme: themeService.themeData,
+            locale: _appLocale,
             localizationsDelegates: const [
               AppLocalizationsDelegate(),
               GlobalMaterialLocalizations.delegate,

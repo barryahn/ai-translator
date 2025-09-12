@@ -20,14 +20,18 @@ class SettingsScreen extends StatelessWidget {
         child: Column(
           children: [
             // 설정 메뉴
-            _buildSettingsMenu(loc, colors),
+            _buildSettingsMenu(context, loc, colors),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSettingsMenu(AppLocalizations loc, CustomColors colors) {
+  Widget _buildSettingsMenu(
+    BuildContext context,
+    AppLocalizations loc,
+    CustomColors colors,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -37,10 +41,11 @@ class SettingsScreen extends StatelessWidget {
           _buildMenuItem(
             icon: Icons.language,
             title: loc.get('app_language_setting'),
-            subtitle: LanguageService.getUiLanguageFromCode(
+            subtitle: LanguageService.getAppLanguageDisplayName(
               LanguageService.appLanguageCode,
+              loc,
             ),
-            onTap: () => _showLanguageSettings(loc),
+            onTap: () => _showLanguageSettings(context, loc, colors),
             colors: colors,
           ),
 
@@ -112,7 +117,93 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showLanguageSettings(AppLocalizations loc) {
-    debugPrint("open language settings: ${loc.get('app_language_setting')}");
+  void _showLanguageSettings(
+    BuildContext context,
+    AppLocalizations loc,
+    CustomColors colors,
+  ) {
+    final messengerContext = context;
+    final langs = LanguageService.getLocalizedAppLanguages(loc);
+    final current = LanguageService.appLanguageCode;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          titlePadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.zero,
+          title: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                child: Text(
+                  loc.get('app_language_setting'),
+                  style: TextStyle(
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: colors.textLight.withValues(alpha: 0.08),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: langs.length,
+              itemBuilder: (_, index) {
+                final item = langs[index];
+                final code = item['code']!;
+                final label = item['name']!;
+                final selected = code.toLowerCase() == current.toLowerCase();
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                  leading: selected
+                      ? Icon(Icons.check, color: colors.primary)
+                      : const SizedBox(width: 24),
+                  title: Text(label, style: TextStyle(color: colors.text)),
+                  onTap: () async {
+                    Navigator.of(dialogContext).pop();
+                    await LanguageService.setAppLanguageCode(code);
+                    ScaffoldMessenger.of(messengerContext).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          loc.getWithParams('language_changed', {
+                            'language': label,
+                          }),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(loc.cancel),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

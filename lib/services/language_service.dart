@@ -252,6 +252,42 @@ class LanguageService {
     codeChineseTaiwan,
   ];
 
+  // 앱 언어 목록(코드/표시명)을 로컬라이즈해서 제공
+  static List<Map<String, String>> getLocalizedAppLanguages(
+    AppLocalizations loc,
+  ) {
+    return [
+      {'code': codeKorean, 'name': loc.korean},
+      {'code': codeEnglish, 'name': loc.english},
+      {'code': 'zh', 'name': loc.chinese},
+      {'code': codeChineseTaiwan, 'name': loc.taiwanMandarin},
+      {'code': codeFrench, 'name': loc.french},
+      {'code': codeSpanish, 'name': loc.spanish},
+    ];
+  }
+
+  // 앱 언어 코드에 해당하는 표시명 반환 (로컬라이즈)
+  static String getAppLanguageDisplayName(String code, AppLocalizations loc) {
+    final normalized = code.trim().toLowerCase();
+    switch (normalized) {
+      case 'ko':
+        return loc.korean;
+      case 'en':
+        return loc.english;
+      case 'zh-tw':
+        return loc.taiwanMandarin;
+      case 'zh':
+      case 'zh-cn':
+        return loc.chinese;
+      case 'fr':
+        return loc.french;
+      case 'es':
+        return loc.spanish;
+      default:
+        return loc.english;
+    }
+  }
+
   // AppLocalizations 기반 다국어 표시용 (옵셔널)
   static List<Map<String, String>> getLocalizedTranslationLanguages(
     AppLocalizations loc,
