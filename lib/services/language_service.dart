@@ -295,12 +295,12 @@ class LanguageService {
     final base = [
       {'code': uiEnglish, 'name': loc.english},
       {'code': uiKorean, 'name': loc.korean},
-      {'code': uiJapanese, 'name': '日本語'},
+      {'code': uiJapanese, 'name': loc.japanese},
       {'code': uiChinese, 'name': loc.chinese},
       {'code': uiChineseTaiwan, 'name': loc.taiwanMandarin},
       {'code': uiSpanish, 'name': loc.spanish},
       {'code': uiFrench, 'name': loc.french},
-      {'code': uiGerman, 'name': 'Deutsch'},
+      {'code': uiGerman, 'name': loc.german},
     ];
 
     // 사용자 언어를 앞으로 정렬

@@ -306,6 +306,17 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     }
   }
 
+  String _localizedNameFor(String code) {
+    final items = LanguageService.getLocalizedTranslationLanguages(
+      AppLocalizations.of(context),
+    );
+    final match = items.firstWhere(
+      (m) => m['code'] == code,
+      orElse: () => {'name': code},
+    );
+    return match['name'] ?? code;
+  }
+
   // 번역 결과 텍스트 길이에 따라 폰트 크기를 부드럽게 조절합니다.
   // 짧은 텍스트는 크게(최대 22), 긴 텍스트는 작게(최소 14).
   double _getAdaptiveResultFontSize(String text) {
@@ -353,7 +364,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       extendBody: true,
       appBar: AppBar(
         title: Text(
-          '번역',
+          AppLocalizations.of(context).translation,
           style: TextStyle(
             color: colors.text,
             fontWeight: FontWeight.bold,
@@ -442,7 +453,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               alignment: Alignment.centerLeft,
               color: colors.background,
               child: Text(
-                '메뉴',
+                AppLocalizations.of(context).get('menu'),
                 style: TextStyle(
                   color: colors.text,
                   fontSize: 20,
@@ -459,7 +470,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 height: 24,
                 child: Icon(Icons.history, color: colors.text),
               ),
-              title: const Text('검색 기록'),
+              title: Text(AppLocalizations.of(context).search_history),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -474,7 +485,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 height: 24,
                 child: Icon(Icons.article, color: colors.text),
               ),
-              title: const Text('이용약관'),
+              title: Text(AppLocalizations.of(context).get('terms_of_service')),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -489,7 +500,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 height: 24,
                 child: Icon(Icons.settings, color: colors.text),
               ),
-              title: const Text('설정'),
+              title: Text(AppLocalizations.of(context).get('settings')),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -530,11 +541,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           children: [
             Flexible(
               child: Text(
-                selectedFromLanguage,
+                _localizedNameFor(selectedFromLanguage),
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: _getDropdownFontSize(
-                    selectedFromLanguage,
+                    _localizedNameFor(selectedFromLanguage),
                     isSelected: true,
                   ),
                   color: colors.text,
@@ -592,11 +603,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           children: [
             Flexible(
               child: Text(
-                selectedToLanguage,
+                _localizedNameFor(selectedToLanguage),
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: _getDropdownFontSize(
-                    selectedToLanguage,
+                    _localizedNameFor(selectedToLanguage),
                     isSelected: true,
                   ),
                   color: colors.text,
@@ -612,7 +623,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   }
 
   Widget _buildLanguagePickerPanel(CustomColors colors) {
-    final String title = isSelectingFromLanguage ? '출발 언어 선택' : '도착 언어 선택';
+    final String title = isSelectingFromLanguage
+        ? AppLocalizations.of(context).select_from_language
+        : AppLocalizations.of(context).select_to_language;
     final String current = isSelectingFromLanguage
         ? selectedFromLanguage
         : selectedToLanguage;
@@ -705,9 +718,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                       children: [
                         Expanded(
                           child: Text(
-                            name,
+                            _localizedNameFor(name),
                             style: TextStyle(
-                              fontSize: _getDropdownFontSize(name),
+                              fontSize: _getDropdownFontSize(
+                                _localizedNameFor(name),
+                              ),
                               color: colors.text,
                             ),
                           ),
@@ -999,7 +1014,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                               return;
                             }
                             Fluttertoast.showToast(
-                              msg: '이미지 스캔은 준비 중입니다',
+                              msg: AppLocalizations.of(
+                                context,
+                              ).feature_coming_soon,
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.BOTTOM,
                             );
@@ -1072,10 +1089,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                             controller: _inputController,
                                             focusNode: _bottomInputFocusNode,
                                             style: textStyle,
-                                            decoration: const InputDecoration(
+                                            decoration: InputDecoration(
                                               isDense: true,
                                               border: InputBorder.none,
-                                              hintText: '검색어나 문장을 입력하세요',
+                                              hintText: AppLocalizations.of(
+                                                context,
+                                              ).search_or_sentence_hint,
                                               contentPadding: EdgeInsets.zero,
                                             ),
                                             keyboardType:
@@ -1109,7 +1128,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                               return;
                                             }
                                             Fluttertoast.showToast(
-                                              msg: '음성 입력은 준비 중입니다',
+                                              msg: AppLocalizations.of(
+                                                context,
+                                              ).feature_coming_soon,
                                               toastLength: Toast.LENGTH_SHORT,
                                               gravity: ToastGravity.BOTTOM,
                                             );
@@ -1241,7 +1262,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '번역 결과',
+                      AppLocalizations.of(context).translation_result,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -1259,7 +1280,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     ? _buildPrestreamLoading(colors)
                     : SelectableText(
                         _translatedText.isEmpty
-                            ? '번역 결과가 여기에 표시됩니다'
+                            ? AppLocalizations.of(
+                                context,
+                              ).translation_result_hint
                             //? 'My English teacher wanted to flunk me in junior high (Shh) Thanks a lot, next semester I\'ll be 35 I smacked him in his face with an eraser, chased him with a stapler And stapled his nuts to a stack of paper (Ow) Walked in the strip club, had my jacket zipped up Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me, "Let\'s just be friends" 99 percent of my life, I was lied to I just found out my mom does more dope than I do (Damn) I told her I\'d grow up to be a famous rapper Make a record about doin\' drugs and name it after her (Oh, thank you) You know you blew up when the women rush your stands And try to touch your hands like some screamin\' Usher fans (Ahh, ahh, ahh) This guy at White Castle asked for my autograph (Dude, can I get your autograph?) So I signed it, Dear Dave, thanks for the support, asshole My English teacher wanted to flunk me in junior high (Shh) Thanks a lot, next semester I\'ll be 35 I smacked him in his face with an eraser, chased him with a stapler And stapled his nuts to a stack of paper (Ow) Walked in the strip club, had my jacket zipped up Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me.'
                             : _translatedText,
                         style: TextStyle(
@@ -1281,7 +1304,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             child: GestureDetector(
               onTap: () async {
                 await Clipboard.setData(ClipboardData(text: _translatedText));
-                Fluttertoast.showToast(msg: '복사되었습니다');
+                Fluttertoast.showToast(
+                  msg: AppLocalizations.of(context).translation_result_copied,
+                );
               },
               child: Container(
                 padding: const EdgeInsets.all(10),
@@ -1476,7 +1501,7 @@ class SearchHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('검색 기록')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).search_history)),
       body: const SizedBox.shrink(),
     );
   }

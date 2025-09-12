@@ -24,6 +24,8 @@ class AppLocalizations {
       'history': '기록',
       'explore': '탐색',
       'profile': '프로필',
+      'menu': '메뉴',
+      'settings': '설정',
 
       // 검색 관련
       'search_hint': '어떤 단어든 물어보세요',
@@ -46,6 +48,8 @@ class AppLocalizations {
       'taiwanMandarin': '대만 중국어',
       'spanish': '스페인어',
       'french': '프랑스어',
+      'japanese': '일본어',
+      'german': '독일어',
 
       // 검색 결과
       'dictionary_meaning': '뜻',
@@ -222,10 +226,13 @@ class AppLocalizations {
       // 번역 관련
       'translation': '번역',
       'translation_tone': '번역 분위기',
+      'select_from_language': '출발 언어 선택',
+      'select_to_language': '도착 언어 선택',
       'input_text': '입력 텍스트',
       'translation_result': '번역 결과',
       'translate_button': '번역하기',
       'input_text_hint': '번역할 텍스트를 입력하세요.',
+      'search_or_sentence_hint': '검색어나 문장을 입력하세요',
       'translation_result_hint': '번역 결과가 여기에 표시됩니다.',
       'input_text_copied': '입력 텍스트가 복사되었습니다.',
       'translation_result_copied': '번역 결과가 복사되었습니다.',
@@ -288,6 +295,8 @@ class AppLocalizations {
       'history': 'History',
       'explore': 'Explore',
       'profile': 'Profile',
+      'menu': 'Menu',
+      'settings': 'Settings',
 
       // Search Related
       'search_hint': 'Ask about any word',
@@ -310,6 +319,8 @@ class AppLocalizations {
       'taiwanMandarin': 'Taiwan Mandarin',
       'spanish': 'Spanish',
       'french': 'French',
+      'japanese': 'Japanese',
+      'german': 'German',
 
       // Search Results
       'dictionary_meaning': 'Meaning',
@@ -498,10 +509,13 @@ class AppLocalizations {
       // Translation Related
       'translation': 'Translation',
       'translation_tone': 'Translation Tone',
+      'select_from_language': 'Select From Language',
+      'select_to_language': 'Select To Language',
       'input_text': 'Input Text',
       'translation_result': 'Translation Result',
       'translate_button': 'Translate',
       'input_text_hint': 'Enter text to translate.',
+      'search_or_sentence_hint': 'Enter a query or sentence',
       'translation_result_hint': 'Translation result will appear here.',
       'input_text_copied': 'Input text copied.',
       'translation_result_copied': 'Translation result copied.',
@@ -576,6 +590,8 @@ class AppLocalizations {
       'history': '历史',
       'explore': '探索',
       'profile': '个人',
+      'menu': '菜单',
+      'settings': '设置',
 
       // 搜索相关
       'search_hint': '询问任何单词',
@@ -598,6 +614,8 @@ class AppLocalizations {
       'taiwanMandarin': '中文 (台湾)',
       'spanish': '西班牙语',
       'french': '法语',
+      'japanese': '日语',
+      'german': '德语',
 
       // 搜索结果
       'dictionary_meaning': '含义',
@@ -772,10 +790,13 @@ class AppLocalizations {
       // 翻译相关
       'translation': '翻译',
       'translation_tone': '翻译语气',
+      'select_from_language': '选择源语言',
+      'select_to_language': '选择目标语言',
       'input_text': '输入文本',
       'translation_result': '翻译结果',
       'translate_button': '翻译',
       'input_text_hint': '请输入要翻译的文本。',
+      'search_or_sentence_hint': '请输入要搜索的词或句子',
       'translation_result_hint': '翻译结果将显示在这里。',
       'input_text_copied': '输入文本已复制。',
       'translation_result_copied': '翻译结果已复制。',
@@ -837,6 +858,8 @@ class AppLocalizations {
       'history': '歷史',
       'explore': '探索',
       'profile': '個人',
+      'menu': '選單',
+      'settings': '設定',
 
       // 搜尋相關
       'search_hint': '詢問任何單字',
@@ -859,6 +882,8 @@ class AppLocalizations {
       'taiwanMandarin': '中文 (台灣)',
       'spanish': '西班牙語',
       'french': '法語',
+      'japanese': '日語',
+      'german': '德語',
 
       // 搜尋結果
       'dictionary_meaning': '含義',
@@ -1033,10 +1058,13 @@ class AppLocalizations {
       // 翻譯相關
       'translation': '翻譯',
       'translation_tone': '翻譯語氣',
+      'select_from_language': '選擇來源語言',
+      'select_to_language': '選擇目標語言',
       'input_text': '輸入文字',
       'translation_result': '翻譯結果',
       'translate_button': '翻譯',
       'input_text_hint': '請輸入要翻譯的文字。',
+      'search_or_sentence_hint': '請輸入要搜尋的詞或句子',
       'translation_result_hint': '翻譯結果將顯示在這裡。',
       'input_text_copied': '輸入文字已複製。',
       'translation_result_copied': '翻譯結果已複製。',
@@ -1098,6 +1126,8 @@ class AppLocalizations {
       'history': 'Historique',
       'explore': 'Explorer',
       'profile': 'Profil',
+      'menu': 'Menu',
+      'settings': 'Paramètres',
 
       // Recherche
       'search_hint': 'Demandez n\'importe quel mot',
@@ -1120,6 +1150,8 @@ class AppLocalizations {
       'taiwanMandarin': 'Mandarin taïwanais',
       'spanish': 'Espagnol',
       'french': 'Français',
+      'japanese': 'Japonais',
+      'german': 'Allemand',
 
       // Résultats de recherche
       'dictionary_meaning': 'Signification',
@@ -1313,10 +1345,13 @@ class AppLocalizations {
       // Traduction
       'translation': 'Traduction',
       'translation_tone': 'Ton de traduction',
+      'select_from_language': 'Choisir la langue source',
+      'select_to_language': 'Choisir la langue cible',
       'input_text': 'Texte d\'entrée',
       'translation_result': 'Résultat de traduction',
       'translate_button': 'Traduire',
       'input_text_hint': 'Entrez le texte à traduire.',
+      'search_or_sentence_hint': 'Saisissez une requête ou une phrase',
       'translation_result_hint': 'Le résultat de traduction apparaîtra ici.',
       'input_text_copied': 'Texte d\'entrée copié.',
       'translation_result_copied': 'Résultat de traduction copié.',
@@ -1392,6 +1427,8 @@ class AppLocalizations {
       'history': 'Historial',
       'explore': 'Explorar',
       'profile': 'Perfil',
+      'menu': 'Menú',
+      'settings': 'Configuración',
 
       // Búsqueda
       'search_hint': 'Pregunta sobre cualquier palabra',
@@ -1415,6 +1452,8 @@ class AppLocalizations {
       'taiwanMandarin': 'Mandarín de Taiwán',
       'spanish': 'Español',
       'french': 'Francés',
+      'japanese': 'Japonés',
+      'german': 'Alemán',
 
       // Resultados de búsqueda
       'dictionary_meaning': 'Significado',
@@ -1605,10 +1644,13 @@ class AppLocalizations {
       // Traducción
       'translation': 'Traducción',
       'translation_tone': 'Tono de traducción',
+      'select_from_language': 'Elegir idioma de origen',
+      'select_to_language': 'Elegir idioma de destino',
       'input_text': 'Texto de entrada',
       'translation_result': 'Resultado de traducción',
       'translate_button': 'Traducir',
       'input_text_hint': 'Ingresa el texto a traducir.',
+      'search_or_sentence_hint': 'Ingresa una consulta o frase',
       'translation_result_hint': 'El resultado de traducción aparecerá aquí.',
       'input_text_copied': 'Texto de entrada copiado.',
       'translation_result_copied': 'Resultado de traducción copiado.',
@@ -1685,9 +1727,13 @@ class AppLocalizations {
       languageCode = locale.languageCode;
     }
 
-    final translations =
-        _localizedValues[languageCode] ?? _localizedValues['en']!;
-    return translations[key] ?? key;
+    final Map<String, String>? translations = _localizedValues[languageCode];
+    final Map<String, String> enTranslations = _localizedValues['en']!;
+    // 현재 로케일에 키가 없으면 영어로 폴백
+    if (translations != null && translations.containsKey(key)) {
+      return translations[key] ?? key;
+    }
+    return enTranslations[key] ?? key;
   }
 
   String getWithParams(String key, Map<String, String> params) {
@@ -1728,6 +1774,8 @@ class AppLocalizations {
   String get taiwanMandarin => get('taiwanMandarin');
   String get spanish => get('spanish');
   String get french => get('french');
+  String get japanese => get('japanese');
+  String get german => get('german');
 
   // 검색 결과
   String get dictionary_meaning => get('dictionary_meaning');
@@ -1770,10 +1818,13 @@ class AppLocalizations {
   // 번역 관련
   String get translation => get('translation');
   String get translation_tone => get('translation_tone');
+  String get select_from_language => get('select_from_language');
+  String get select_to_language => get('select_to_language');
   String get input_text => get('input_text');
   String get translation_result => get('translation_result');
   String get translate_button => get('translate_button');
   String get input_text_hint => get('input_text_hint');
+  String get search_or_sentence_hint => get('search_or_sentence_hint');
   String get translation_result_hint => get('translation_result_hint');
   String get input_text_copied => get('input_text_copied');
   String get translation_result_copied => get('translation_result_copied');
@@ -1787,6 +1838,7 @@ class AppLocalizations {
   String get basic => get('basic');
   String get polite => get('polite');
   String get formal => get('formal');
+  String get feature_coming_soon => get('feature_coming_soon');
 
   // 도움말 관련
   String get welcome_tutorial => get('welcome_tutorial');
