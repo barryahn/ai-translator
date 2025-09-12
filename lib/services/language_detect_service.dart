@@ -78,6 +78,10 @@ class LanguageDetectService {
     required void Function(LanguageDetectResult result) onDetected,
     void Function(Object error)? onError,
   }) async {
+    if (_isHanjaDominant(text)) {
+      onDetected(const LanguageDetectResult(code: 'zh', probability: 1.0));
+      return;
+    }
     try {
       // 1) ML Kit 우선
       final List<IdentifiedLanguage> langs = await languageIdentifier
@@ -124,6 +128,11 @@ class LanguageDetectService {
     required void Function(List<LanguageDetectResult> results) onDetected,
     void Function(Object error)? onError,
   }) async {
+    if (_isHanjaDominant(text)) {
+      print('한자 우선 (여러 후보)');
+      onDetected(const [LanguageDetectResult(code: 'zh', probability: 1.0)]);
+      return;
+    }
     try {
       print('ML Kit 우선 (여러 후보)');
       // 1) ML Kit 우선 (여러 후보)
@@ -202,5 +211,38 @@ class LanguageDetectService {
       }
     } catch (_) {}
     return 0.0;
+  }
+
+  bool _isHanjaDominant(String text, {double threshold = 0.5}) {
+    final double ratio = _hanCoverageRatio(text);
+    return ratio >= threshold;
+  }
+
+  double _hanCoverageRatio(String text) {
+    int total = 0;
+    int han = 0;
+    for (final codePoint in text.runes) {
+      if (_isWhitespaceCodePoint(codePoint)) continue;
+      total++;
+      if (_isHanCodePoint(codePoint)) han++;
+    }
+    if (total == 0) return 0.0;
+    return han / total;
+  }
+
+  bool _isWhitespaceCodePoint(int cp) {
+    return cp == 0x20 ||
+        cp == 0x09 ||
+        cp == 0x0A ||
+        cp == 0x0D ||
+        cp == 0x0B ||
+        cp == 0x0C;
+  }
+
+  bool _isHanCodePoint(int cp) {
+    if (cp >= 0x4E00 && cp <= 0x9FFF) return true;
+    if (cp >= 0x3400 && cp <= 0x4DBF) return true;
+    if (cp >= 0xF900 && cp <= 0xFAFF) return true;
+    return false;
   }
 }
