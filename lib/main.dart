@@ -205,7 +205,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
         return '문서에서 사용하려고 합니다. 격식 있고 공식적인 톤으로 번역해주세요.';
       case '기본':
       default:
-        return '기본적이고 중립적인 톤으로 존대말로 번역해주세요.';
+        return '자연스럽게 번역해주세요.';
     }
   }
 
