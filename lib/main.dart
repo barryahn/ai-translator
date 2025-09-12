@@ -10,6 +10,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/openai_service.dart';
 import 'services/language_service.dart';
 import 'dart:math' as math;
+import 'setting_screen.dart';
+import 'terms_of_service_screen.dart';
 
 // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
 final int maxInputLengthInFreeVersion = 500;
@@ -1444,30 +1446,6 @@ class SearchHistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('검색 기록')),
-      body: const SizedBox.shrink(),
-    );
-  }
-}
-
-class TermsOfServiceScreen extends StatelessWidget {
-  const TermsOfServiceScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('이용약관')),
-      body: const SizedBox.shrink(),
-    );
-  }
-}
-
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('설정')),
       body: const SizedBox.shrink(),
     );
   }
