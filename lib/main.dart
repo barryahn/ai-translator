@@ -143,8 +143,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     with SingleTickerProviderStateMixin {
   String selectedFromLanguage = '영어';
   String selectedToLanguage = '한국어';
+
   double selectedToneLevel = 1.0; // 0: 친근, 1: 기본, 2: 공손, 3: 격식
   bool isTonePickerExpanded = false;
+
   bool isLanguageListOpen = false; // 하단바 위쪽 언어 선택 패널 표시 여부
   bool isSelectingFromLanguage = true; // true: 출발 언어 선택, false: 도착 언어 선택
   // 하단바의 실제 렌더링 높이를 측정하기 위한 키와 상태 값입니다.
@@ -192,18 +194,28 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     selectedToLanguage = LanguageService.toLanguage;
   }
 
-  List<String> get toneLabels => ['친근', '기본', '공손', '격식'];
+  List<String> get toneLabels => [
+    AppLocalizations.of(context).friendly,
+    AppLocalizations.of(context).basic,
+    AppLocalizations.of(context).polite,
+    AppLocalizations.of(context).formal,
+  ];
 
   String _buildToneInstruction() {
-    final tone = toneLabels[selectedToneLevel.round()];
-    switch (tone) {
-      case '친근':
+    int toneIndex = selectedToneLevel.round();
+
+    switch (toneIndex) {
+      // 친구
+      case 0:
         return '친구에게 말하듯이 친근하고 편안한 말투로 번역해주세요.';
-      case '공손':
+      // 공손
+      case 2:
         return '공적인 자리에서 사용할 수 있도록 공손하고 예의 바른 톤으로 번역해주세요.';
-      case '격식':
+      // 격식
+      case 3:
         return '문서에서 사용하려고 합니다. 격식 있고 공식적인 톤으로 번역해주세요.';
-      case '기본':
+      // 기본
+      case 1:
       default:
         return '자연스럽게 번역해주세요.';
     }
@@ -779,7 +791,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                       Icon(Icons.tune, color: colors.primary, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        '번역 톤',
+                        AppLocalizations.of(context).translation_tone,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
