@@ -1004,8 +1004,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       color: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
-          color: colors.white,
-          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: colors.text.withValues(alpha: 0.1),
@@ -1013,55 +1011,90 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               offset: const Offset(0, 2),
             ),
           ],
-          border: Border.all(color: colors.textLight.withValues(alpha: 0.12)),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: InkWell(
-          onTap: () {
-            if (suggestedFromUi == null) return;
-            setState(() {
-              if (suggestedFromUi == selectedToLanguage) {
-                final tmp = selectedFromLanguage;
-                selectedFromLanguage = selectedToLanguage;
-                selectedToLanguage = tmp;
-              } else {
-                selectedFromLanguage = suggestedFromUi!;
-              }
-              LanguageService.setTranslationLanguages(
-                fromLanguage: selectedFromLanguage,
-                toLanguage: selectedToLanguage,
-              );
-              _inputLangCandidates = [];
-            });
-          },
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(Icons.language, size: 16, color: colors.textLight),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '출발 언어를 ${suggestedFromUi}로 변경',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colors.text,
-                    height: 1.3,
+        child: Material(
+          color: colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: colors.textLight.withValues(alpha: 0.12)),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            splashColor: colors.text.withValues(alpha: 0.08),
+            highlightColor: colors.text.withValues(alpha: 0.04),
+            onTap: () {
+              if (suggestedFromUi == null) return;
+              setState(() {
+                if (suggestedFromUi == selectedToLanguage) {
+                  final tmp = selectedFromLanguage;
+                  selectedFromLanguage = selectedToLanguage;
+                  selectedToLanguage = tmp;
+                } else {
+                  selectedFromLanguage = suggestedFromUi!;
+                }
+                LanguageService.setTranslationLanguages(
+                  fromLanguage: selectedFromLanguage,
+                  toLanguage: selectedToLanguage,
+                );
+                _inputLangCandidates = [];
+              });
+            },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(
+                    left: 12,
+                    right: 4,
+                    top: 10,
+                    bottom: 10,
+                  ),
+                  child: Icon(
+                    Icons.language,
+                    size: 16,
+                    color: colors.textLight,
                   ),
                 ),
-              ),
-              const SizedBox(width: 4),
-              InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () {
-                  setState(() {
-                    _inputLangCandidates = [];
-                  });
-                },
-                child: Icon(Icons.close, size: 16, color: colors.textLight),
-              ),
-            ],
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 10,
+                    ),
+                    child: Text(
+                      '출발 언어를 ${suggestedFromUi}로 변경',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colors.text,
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    setState(() {
+                      _inputLangCandidates = [];
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      right: 6,
+                      top: 6,
+                      bottom: 6,
+                      left: 6,
+                    ),
+                    child: Icon(Icons.close, size: 16, color: colors.textLight),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ),
           ),
         ),
       ),
