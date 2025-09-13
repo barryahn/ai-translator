@@ -169,6 +169,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   bool _isTranslating = false;
   bool _shouldRestoreBottomInputFocus = false;
   List<LanguageDetectResult> _inputLangCandidates = [];
+  double _swapButtonTurns = 0.0; // 스왑 버튼 회전(1.0 = 360도)
+  double _swapIconTurns = 0.0; // 아이콘 자체 360도 회전(1.0 = 360도)
 
   void _hideKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -625,33 +627,49 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   }
 
   Widget _buildLanguageSwapButton(CustomColors colors) {
-    return Material(
-      color: colors.background,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: colors.textLight.withValues(alpha: 0.3)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        customBorder: RoundedRectangleBorder(
+    return AnimatedRotation(
+      turns: _swapButtonTurns,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      child: Material(
+        color: colors.background,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: colors.textLight.withValues(alpha: 0.3)),
         ),
-        splashColor: colors.text.withValues(alpha: 0.08),
-        highlightColor: colors.text.withValues(alpha: 0.04),
-        onTap: () {
-          setState(() {
-            final temp = selectedFromLanguage;
-            selectedFromLanguage = selectedToLanguage;
-            selectedToLanguage = temp;
-          });
-          // 서비스에도 반영
-          LanguageService.swapTranslationLanguages();
-        },
-        child: SizedBox(
-          width: 36,
-          height: 28,
-          child: Center(
-            child: Icon(Icons.arrow_forward_ios, color: colors.text, size: 16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          customBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          splashColor: colors.text.withValues(alpha: 0.08),
+          highlightColor: colors.text.withValues(alpha: 0.04),
+          onTap: () {
+            setState(() {
+              final temp = selectedFromLanguage;
+              selectedFromLanguage = selectedToLanguage;
+              selectedToLanguage = temp;
+              _swapButtonTurns += 0.5; // 180도 회전
+              _swapIconTurns += 0.5; // 아이콘 360도 회전
+            });
+            // 서비스에도 반영
+            LanguageService.swapTranslationLanguages();
+          },
+          child: SizedBox(
+            width: 36,
+            height: 28,
+            child: Center(
+              child: AnimatedRotation(
+                turns: _swapIconTurns,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: colors.text,
+                  size: 16,
+                ),
+              ),
+            ),
           ),
         ),
       ),
