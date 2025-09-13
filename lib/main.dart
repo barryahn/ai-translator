@@ -171,6 +171,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   List<LanguageDetectResult> _inputLangCandidates = [];
   double _swapButtonTurns = 0.0; // 스왑 버튼 회전(1.0 = 360도)
   double _swapIconTurns = 0.0; // 아이콘 자체 360도 회전(1.0 = 360도)
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _resultSectionKey = GlobalKey();
+  String _lastInputText = '';
 
   void _hideKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -260,10 +263,33 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     ); */
 
     setState(() {
+      _lastInputText = text;
       _isTranslating = true;
       _isFetching = true;
       _hasReceivedFirstDelta = false;
       _translatedText = '';
+    });
+
+    // 스크롤: 먼저 맨 위로, 이후 번역 결과 섹션이 보이도록 이동
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      try {
+        await _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
+        await Future.delayed(const Duration(milliseconds: 120));
+        final ctx = _resultSectionKey.currentContext;
+        if (ctx != null) {
+          await Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOut,
+            alignment: 0.0,
+          );
+        }
+      } catch (_) {}
     });
 
     try {
@@ -457,6 +483,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               }
             },
             child: SingleChildScrollView(
+              controller: _scrollController,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -487,6 +514,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     LanguageDetectService.instance.dispose();
     _loadingController.dispose();
     _bottomInputFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -963,7 +991,13 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   }
 
   Widget _buildTranslationArea(CustomColors colors) {
-    return Column(children: [_buildResultField(colors)]);
+    return Column(
+      children: [
+        _buildInputSummaryField(colors),
+        const SizedBox(height: 8),
+        _buildResultField(colors),
+      ],
+    );
   }
 
   Widget _buildPrestreamLoading(CustomColors colors) {
@@ -999,6 +1033,63 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildInputSummaryField(CustomColors colors) {
+    if (_lastInputText.isEmpty) return const SizedBox.shrink();
+    return Container(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '입력한 내용',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: colors.textLight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+            child: SelectableText(
+              _lastInputText,
+              style: TextStyle(color: colors.text, fontSize: 15, height: 1.4),
+            ),
+          ),
+          if (_lastInputText.isNotEmpty)
+            Container(
+              width: double.infinity,
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () async {
+                  await Clipboard.setData(ClipboardData(text: _lastInputText));
+                  Fluttertoast.showToast(
+                    msg: AppLocalizations.of(context).input_text_copied,
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(shape: BoxShape.circle),
+                  child: Icon(
+                    Icons.copy,
+                    size: 18,
+                    color: colors.text.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -1524,15 +1615,29 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   }
 
   Widget _buildResultField(CustomColors colors) {
+    final mediaQuery = MediaQuery.of(context);
+    final bool showingResultState =
+        _isTranslating || _translatedText.isNotEmpty;
+    final double minHeight = showingResultState
+        ? math.max(
+            0,
+            mediaQuery.size.height -
+                kToolbarHeight -
+                mediaQuery.padding.top -
+                32,
+          )
+        : 0;
     return Stack(
       children: [
         Container(
+          key: _resultSectionKey,
+          constraints: BoxConstraints(minHeight: minHeight),
           width: double.infinity,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+                padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1549,7 +1654,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               ),
               // 페이지 전체가 이미 SingleChildScrollView이므로 내부 스크롤은 제거
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 60), // 하단 버튼 공간 확보
+                padding: const EdgeInsets.fromLTRB(4, 0, 4, 4), // 하단 버튼 공간 확보
                 child:
                     (_isTranslating && _isFetching && !_hasReceivedFirstDelta)
                     ? _buildPrestreamLoading(colors)
@@ -1569,31 +1674,35 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                         ),
                       ),
               ),
+              if (_translatedText.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () async {
+                      await Clipboard.setData(
+                        ClipboardData(text: _translatedText),
+                      );
+                      Fluttertoast.showToast(
+                        msg: AppLocalizations.of(
+                          context,
+                        ).translation_result_copied,
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                      child: Icon(
+                        Icons.copy,
+                        size: 18,
+                        color: colors.text.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
-        if (_translatedText.isNotEmpty)
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: GestureDetector(
-              onTap: () async {
-                await Clipboard.setData(ClipboardData(text: _translatedText));
-                Fluttertoast.showToast(
-                  msg: AppLocalizations.of(context).translation_result_copied,
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(shape: BoxShape.circle),
-                child: Icon(
-                  Icons.copy,
-                  size: 18,
-                  color: colors.text.withValues(alpha: 0.5),
-                ),
-              ),
-            ),
-          ),
       ],
     );
   }
