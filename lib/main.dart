@@ -332,14 +332,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   double _getDropdownFontSize(String text, {bool isSelected = false}) {
     final int length = text.length;
     if (isSelected) {
-      if (length > 18) return 14.0;
+      if (length > 18) return 13.0;
       if (length > 12) return 14.0;
-      if (length > 5) return 15.0;
-      return 18.0;
+      if (length > 7) return 15.0;
+      return 17.0;
     } else {
-      if (length > 18) return 12.0;
-      if (length > 12) return 14.0;
-      if (length > 5) return 15.0;
+      if (length > 18) return 14.0;
       return 16.0;
     }
   }
@@ -605,12 +603,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               Flexible(
                 child: Text(
                   _localizedNameFor(selectedFromLanguage),
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.clip,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: _getDropdownFontSize(
                       _localizedNameFor(selectedFromLanguage),
                       isSelected: true,
                     ),
+                    height: 1.2,
                     color: colors.text,
                   ),
                 ),
@@ -681,12 +681,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               Flexible(
                 child: Text(
                   _localizedNameFor(selectedToLanguage),
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.clip,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: _getDropdownFontSize(
                       _localizedNameFor(selectedToLanguage),
                       isSelected: true,
                     ),
+                    height: 1.2,
                     color: colors.text,
                   ),
                 ),
