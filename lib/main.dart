@@ -984,17 +984,20 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   }
 
   Widget _buildInputLangOverlay(CustomColors colors) {
-    final buffer = StringBuffer();
-    buffer.write('입력 언어: ');
-    for (int i = 0; i < _inputLangCandidates.length; i++) {
-      final r = _inputLangCandidates[i];
-      final name = LanguageService.getUiLanguageFromCode(r.code);
-      if (i > 0) buffer.write(', ');
-      buffer.write(r.code);
-      buffer.write(' (');
-      buffer.write(name);
-      buffer.write(') ');
-      buffer.write(_formatProb(r.probability));
+    String? suggestedFromUi;
+    for (final r in _inputLangCandidates) {
+      if (r.probability < 0.54) continue;
+      final String uiName = LanguageService.getUiLanguageFromCode(r.code);
+      if (languages.contains(uiName)) {
+        suggestedFromUi = uiName;
+        break;
+      }
+    }
+
+    if (_inputController.text.isEmpty ||
+        suggestedFromUi == null ||
+        suggestedFromUi == selectedFromLanguage) {
+      return const SizedBox.shrink();
     }
 
     return Material(
@@ -1020,7 +1023,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                buffer.toString(),
+                '출발 언어를 ${suggestedFromUi}로 변경할까요?',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 12, color: colors.text, height: 1.3),
@@ -1519,14 +1522,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           ),
       ],
     );
-  }
-}
-
-String _formatProb(double p) {
-  try {
-    return p.toStringAsFixed(4);
-  } catch (_) {
-    return p.toString();
   }
 }
 
