@@ -394,79 +394,90 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     // 키보드가 올라올 때는 키보드 높이(viewInsets.bottom)만큼도 추가로 확보합니다.
     final double keyboardInset = MediaQuery.of(context).viewInsets.bottom;
     // 항상 하단바(+키보드) 높이만큼 본문 하단 여백을 줘서 컨텐츠가 가려지지 않게 합니다.
-    final double bottomSpacer = _bottomBarHeight + keyboardInset;
+    final double bottomSpacer = _bottomBarHeight + (keyboardInset * 0.92);
 
-    return Scaffold(
-      backgroundColor: colors.background,
-      // 하단바를 본문 위에 겹치게 렌더링하여 뒤 컨텐츠가 비치도록 합니다.
-      extendBody: true,
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context).translation,
-          style: TextStyle(
-            color: colors.text,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: colors.background,
+          // 하단바를 본문 위에 겹치게 렌더링하여 뒤 컨텐츠가 비치도록 합니다.
+          extendBody: true,
+          appBar: AppBar(
+            title: Text(
+              AppLocalizations.of(context).translation,
+              style: TextStyle(
+                color: colors.text,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            backgroundColor: colors.background,
+            iconTheme: IconThemeData(color: colors.text),
+            elevation: 0,
           ),
-        ),
-        backgroundColor: colors.background,
-        iconTheme: IconThemeData(color: colors.text),
-        elevation: 0,
-      ),
-      drawer: _buildAppDrawer(context),
-      onDrawerChanged: (isOpened) {
-        if (isOpened) {
-          // 드로어가 열릴 때 현재 하단 입력창 포커스 상태를 저장하고, 드로어 열림에 의해 포커스가 바뀌지 않도록 함
-          _shouldRestoreBottomInputFocus = _bottomInputFocusNode.hasFocus;
-          _hideKeyboard();
-          if (isLanguageListOpen) {
-            setState(() {
-              isLanguageListOpen = false;
-            });
-          }
-          if (isTonePanelVisible) {
-            setState(() {
-              isTonePanelVisible = false;
-            });
-          }
-        } else {
-          // 드로어가 닫힐 때 이전 포커스 상태를 복원
-          if (_shouldRestoreBottomInputFocus) {
-            FocusScope.of(context).requestFocus(_bottomInputFocusNode);
-          } else {
-            _hideKeyboard();
-          }
-        }
-      },
-      bottomNavigationBar: _buildBottomSearchBar(colors),
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          FocusScope.of(context).unfocus();
-          if (isLanguageListOpen) {
-            setState(() {
-              isLanguageListOpen = false;
-            });
-          }
-          if (isTonePanelVisible) {
-            setState(() {
-              isTonePanelVisible = false;
-            });
-          }
-        },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: <Widget>[
-                _buildTranslationArea(colors),
-                // 하단바 + 키보드 높이만큼 동적 여백을 추가합니다.
-                SizedBox(height: bottomSpacer),
-              ],
+          drawer: _buildAppDrawer(context),
+          onDrawerChanged: (isOpened) {
+            if (isOpened) {
+              // 드로어가 열릴 때 현재 하단 입력창 포커스 상태를 저장하고, 드로어 열림에 의해 포커스가 바뀌지 않도록 함
+              _shouldRestoreBottomInputFocus = _bottomInputFocusNode.hasFocus;
+              _hideKeyboard();
+              if (isLanguageListOpen) {
+                setState(() {
+                  isLanguageListOpen = false;
+                });
+              }
+              if (isTonePanelVisible) {
+                setState(() {
+                  isTonePanelVisible = false;
+                });
+              }
+            } else {
+              // 드로어가 닫힐 때 이전 포커스 상태를 복원
+              if (_shouldRestoreBottomInputFocus) {
+                FocusScope.of(context).requestFocus(_bottomInputFocusNode);
+              } else {
+                _hideKeyboard();
+              }
+            }
+          },
+          bottomNavigationBar: _buildBottomSearchBar(colors),
+          body: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              FocusScope.of(context).unfocus();
+              if (isLanguageListOpen) {
+                setState(() {
+                  isLanguageListOpen = false;
+                });
+              }
+              if (isTonePanelVisible) {
+                setState(() {
+                  isTonePanelVisible = false;
+                });
+              }
+            },
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: <Widget>[
+                    _buildTranslationArea(colors),
+                    // 하단바 + 키보드 높이만큼 동적 여백을 추가합니다.
+                    SizedBox(height: bottomSpacer),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-      ),
+        if (_inputLangCandidates.isNotEmpty)
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: bottomSpacer + 8,
+            child: _buildInputLangOverlay(colors),
+          ),
+      ],
     );
   }
 
@@ -972,6 +983,65 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     );
   }
 
+  Widget _buildInputLangOverlay(CustomColors colors) {
+    final buffer = StringBuffer();
+    buffer.write('입력 언어: ');
+    for (int i = 0; i < _inputLangCandidates.length; i++) {
+      final r = _inputLangCandidates[i];
+      final name = LanguageService.getUiLanguageFromCode(r.code);
+      if (i > 0) buffer.write(', ');
+      buffer.write(r.code);
+      buffer.write(' (');
+      buffer.write(name);
+      buffer.write(') ');
+      buffer.write(_formatProb(r.probability));
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          color: colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+          border: Border.all(color: colors.textLight.withValues(alpha: 0.12)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.language, size: 16, color: colors.textLight),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                buffer.toString(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, color: colors.text, height: 1.3),
+              ),
+            ),
+            const SizedBox(width: 4),
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                setState(() {
+                  _inputLangCandidates = [];
+                });
+              },
+              child: Icon(Icons.close, size: 16, color: colors.textLight),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // 입력 컨테이너는 하단 검색바로 대체됨
   Widget _buildBottomSearchBar(CustomColors colors) {
     // 키보드가 올라오면 하단 패딩을 늘려 바가 키보드 위에 위치하게 합니다.
@@ -1367,43 +1437,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     ),
                   ],
                 ),
-                // 실시간 감지된 다중 입력 언어 후보 표시 (하단바 바로 위)
-                if (_inputLangCandidates.isNotEmpty)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Builder(
-                        builder: (context) {
-                          final buffer = StringBuffer();
-                          buffer.write('입력 언어: ');
-                          for (
-                            int i = 0;
-                            i < _inputLangCandidates.length;
-                            i++
-                          ) {
-                            final r = _inputLangCandidates[i];
-                            final name = LanguageService.getUiLanguageFromCode(
-                              r.code,
-                            );
-                            if (i > 0) buffer.write(', ');
-                            buffer.write(r.code);
-                            buffer.write(' (');
-                            buffer.write(name);
-                            buffer.write(') ');
-                            buffer.write(_formatProb(r.probability));
-                          }
-                          return Text(
-                            buffer.toString(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colors.textLight,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
+                // 실시간 입력 언어 후보는 오버레이로 표시되므로, 하단바에서는 제거
               ],
             ),
           ),
