@@ -626,14 +626,18 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
 
   Widget _buildLanguageSwapButton(CustomColors colors) {
     return Material(
-      color: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      color: colors.background,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: colors.textLight.withValues(alpha: 0.3)),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         customBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         splashColor: colors.text.withValues(alpha: 0.08),
+        highlightColor: colors.text.withValues(alpha: 0.04),
         onTap: () {
           setState(() {
             final temp = selectedFromLanguage;
@@ -643,15 +647,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           // 서비스에도 반영
           LanguageService.swapTranslationLanguages();
         },
-        child: Container(
+        child: SizedBox(
           width: 36,
           height: 28,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: colors.background,
-            shape: BoxShape.rectangle,
-            border: Border.all(color: colors.textLight.withValues(alpha: 0.3)),
-          ),
           child: Center(
             child: Icon(Icons.arrow_forward_ios, color: colors.text, size: 16),
           ),
