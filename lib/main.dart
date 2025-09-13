@@ -454,6 +454,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             backgroundColor: colors.background,
             iconTheme: IconThemeData(color: colors.text),
             elevation: 0,
+            scrolledUnderElevation: 0.1,
+            shadowColor: colors.text.withValues(alpha: 0.3),
           ),
           drawer: _buildAppDrawer(context),
           onDrawerChanged: (isOpened) {
