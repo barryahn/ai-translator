@@ -821,55 +821,60 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               itemBuilder: (context, index) {
                 final name = languages[index];
                 final bool selected = name == current;
-                return InkWell(
-                  onTap: () {
-                    setState(() {
-                      if (isSelectingFromLanguage) {
-                        if (name == selectedToLanguage) {
-                          final tmp = selectedFromLanguage;
-                          selectedFromLanguage = selectedToLanguage;
-                          selectedToLanguage = tmp;
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    splashColor: colors.text.withValues(alpha: 0.08),
+                    highlightColor: colors.text.withValues(alpha: 0.04),
+                    onTap: () {
+                      setState(() {
+                        if (isSelectingFromLanguage) {
+                          if (name == selectedToLanguage) {
+                            final tmp = selectedFromLanguage;
+                            selectedFromLanguage = selectedToLanguage;
+                            selectedToLanguage = tmp;
+                          } else {
+                            selectedFromLanguage = name;
+                          }
                         } else {
-                          selectedFromLanguage = name;
+                          if (name == selectedFromLanguage) {
+                            final tmp = selectedToLanguage;
+                            selectedToLanguage = selectedFromLanguage;
+                            selectedFromLanguage = tmp;
+                          } else {
+                            selectedToLanguage = name;
+                          }
                         }
-                      } else {
-                        if (name == selectedFromLanguage) {
-                          final tmp = selectedToLanguage;
-                          selectedToLanguage = selectedFromLanguage;
-                          selectedFromLanguage = tmp;
-                        } else {
-                          selectedToLanguage = name;
-                        }
-                      }
-                      isLanguageListOpen = false;
-                    });
-                    // 서비스에도 반영
-                    LanguageService.setTranslationLanguages(
-                      fromLanguage: selectedFromLanguage,
-                      toLanguage: selectedToLanguage,
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _localizedNameFor(name),
-                            style: TextStyle(
-                              fontSize: _getDropdownFontSize(
-                                _localizedNameFor(name),
+                        isLanguageListOpen = false;
+                      });
+                      // 서비스에도 반영
+                      LanguageService.setTranslationLanguages(
+                        fromLanguage: selectedFromLanguage,
+                        toLanguage: selectedToLanguage,
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _localizedNameFor(name),
+                              style: TextStyle(
+                                fontSize: _getDropdownFontSize(
+                                  _localizedNameFor(name),
+                                ),
+                                color: colors.text,
                               ),
-                              color: colors.text,
                             ),
                           ),
-                        ),
-                        if (selected)
-                          Icon(Icons.check, size: 18, color: colors.primary),
-                      ],
+                          if (selected)
+                            Icon(Icons.check, size: 18, color: colors.primary),
+                        ],
+                      ),
                     ),
                   ),
                 );
