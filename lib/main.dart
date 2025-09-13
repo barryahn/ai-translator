@@ -174,6 +174,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _resultSectionKey = GlobalKey();
   String _lastInputText = '';
+  double _resultSectionHeight = 0.0;
 
   void _hideKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -412,6 +413,19 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           if ((_bottomBarHeight - newHeight).abs() > 0.5) {
             setState(() {
               _bottomBarHeight = newHeight;
+            });
+          }
+        }
+      }
+      // 번역 결과 섹션 실제 높이 측정
+      final rCtx = _resultSectionKey.currentContext;
+      if (rCtx != null) {
+        final r = rCtx.findRenderObject();
+        if (r is RenderBox) {
+          final h = r.size.height;
+          if ((_resultSectionHeight - h).abs() > 0.5) {
+            setState(() {
+              _resultSectionHeight = h;
             });
           }
         }
@@ -991,11 +1005,24 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   }
 
   Widget _buildTranslationArea(CustomColors colors) {
+    final mediaQuery = MediaQuery.of(context);
+    final double contentViewportHeight =
+        mediaQuery.size.height -
+        mediaQuery.padding.top -
+        kToolbarHeight -
+        _bottomBarHeight -
+        10 -
+        (mediaQuery.viewInsets.bottom * 0.92);
+    final bool showingResultState =
+        _isTranslating || _translatedText.isNotEmpty;
     return Column(
       children: [
         _buildInputSummaryField(colors),
-        const SizedBox(height: 8),
         _buildResultField(colors),
+        if (showingResultState)
+          SizedBox(
+            height: math.max(0, contentViewportHeight - _resultSectionHeight),
+          ),
       ],
     );
   }
@@ -1039,6 +1066,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   Widget _buildInputSummaryField(CustomColors colors) {
     if (_lastInputText.isEmpty) return const SizedBox.shrink();
     return Container(
+      padding: const EdgeInsets.only(bottom: 8),
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1615,29 +1643,21 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   }
 
   Widget _buildResultField(CustomColors colors) {
-    final mediaQuery = MediaQuery.of(context);
-    final bool showingResultState =
-        _isTranslating || _translatedText.isNotEmpty;
-    final double minHeight = showingResultState
-        ? math.max(
-            0,
-            mediaQuery.size.height -
-                kToolbarHeight -
-                mediaQuery.padding.top -
-                32,
-          )
-        : 0;
     return Stack(
       children: [
         Container(
           key: _resultSectionKey,
-          constraints: BoxConstraints(minHeight: minHeight),
           width: double.infinity,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
+                padding: EdgeInsets.only(
+                  left: 4,
+                  right: 4,
+                  top: _translatedText.isNotEmpty || _isTranslating ? 20 : 0,
+                  bottom: 8,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
