@@ -471,11 +471,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           ),
         ),
         if (_inputLangCandidates.isNotEmpty)
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: bottomSpacer + 8,
-            child: _buildInputLangOverlay(colors),
+          Padding(
+            padding: EdgeInsets.only(bottom: bottomSpacer + 8),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: _buildInputLangOverlay(colors),
+            ),
           ),
       ],
     );
@@ -1041,6 +1042,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               });
             },
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
@@ -1056,21 +1058,19 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     color: colors.textLight,
                   ),
                 ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 10,
-                    ),
-                    child: Text(
-                      '출발 언어를 ${suggestedFromUi}로 변경',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colors.text,
-                        height: 1.3,
-                      ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 10,
+                  ),
+                  child: Text(
+                    '출발 언어를 ${suggestedFromUi}로 변경',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colors.text,
+                      height: 1.3,
                     ),
                   ),
                 ),
@@ -1092,7 +1092,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     child: Icon(Icons.close, size: 16, color: colors.textLight),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 4),
               ],
             ),
           ),
