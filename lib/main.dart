@@ -244,7 +244,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       Fluttertoast.showToast(msg: '번역할 텍스트를 입력하세요');
       return;
     }
-    // 입력 언어 감지 및 콘솔 출력 (서비스 사용)
+    /* // 입력 언어 감지 및 콘솔 출력 (서비스 사용)
     LanguageDetectService.instance.detectRealtime(
       text: text,
       debounce: const Duration(milliseconds: 0),
@@ -255,7 +255,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       onError: (e) {
         print('입력 언어 감지 실패: ' + e.toString());
       },
-    );
+    ); */
+
     setState(() {
       _isTranslating = true;
       _isFetching = true;
@@ -1201,36 +1202,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                                           _inputLangCandidates =
                                                               list;
                                                         });
-                                                        final buffer =
-                                                            StringBuffer();
-                                                        buffer.write(
-                                                          '실시간 입력 언어 후보: ',
-                                                        );
-                                                        for (
-                                                          int i = 0;
-                                                          i < list.length;
-                                                          i++
-                                                        ) {
-                                                          final r = list[i];
-                                                          final name =
-                                                              LanguageService.getUiLanguageFromCode(
-                                                                r.code,
-                                                              );
-                                                          if (i > 0)
-                                                            buffer.write(', ');
-                                                          buffer.write(r.code);
-                                                          buffer.write(' (');
-                                                          buffer.write(name);
-                                                          buffer.write(') ');
-                                                          buffer.write(
-                                                            _formatProb(
-                                                              r.probability,
-                                                            ),
-                                                          );
-                                                        }
+                                                        // ### HEAD 콘솔 출력 위한 부분 ###
                                                         print(
-                                                          buffer.toString(),
+                                                          '실시간 입력 언어 후보2: ${list.toList().map((r) => '${r.code} (${LanguageService.getUiLanguageFromCode(r.code)}) ${r.probability}').join(', ')}',
                                                         );
+                                                        // ### END 콘솔 출력 위한 부분 ###
                                                       },
                                                       onError: (e) {},
                                                     );

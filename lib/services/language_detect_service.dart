@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_langdetect/flutter_langdetect.dart' as langdetect;
 import 'package:google_mlkit_language_id/google_mlkit_language_id.dart';
+import 'package:flutter_open_chinese_convert/flutter_open_chinese_convert.dart';
 
 class LanguageDetectResult {
   final String code;
@@ -79,7 +80,19 @@ class LanguageDetectService {
     void Function(Object error)? onError,
   }) async {
     if (_isHanjaDominant(text)) {
-      onDetected(const LanguageDetectResult(code: 'zh', probability: 1.0));
+      try {
+        final String converted = await ChineseConverter.convert(
+          text,
+          TW2S(),
+          inBackground: true,
+        );
+        print('converted: $converted');
+        final String code = (converted == text) ? 'zh' : 'zh-tw';
+        onDetected(LanguageDetectResult(code: code, probability: 1.0));
+      } catch (_) {
+        print('한자 변환 실패');
+        onDetected(const LanguageDetectResult(code: 'zh', probability: 1.0));
+      }
       return;
     }
     try {
@@ -129,8 +142,26 @@ class LanguageDetectService {
     void Function(Object error)? onError,
   }) async {
     if (_isHanjaDominant(text)) {
-      print('한자 우선 (여러 후보)');
-      onDetected(const [LanguageDetectResult(code: 'zh', probability: 1.0)]);
+      try {
+        final String converted = await ChineseConverter.convert(
+          text,
+          TW2S(),
+          inBackground: true,
+        );
+        print('converted: $converted');
+        if (converted == text) {
+          final List<LanguageDetectResult> results = [
+            LanguageDetectResult(code: 'zh', probability: 0.6),
+            LanguageDetectResult(code: 'zh-tw', probability: 0.4),
+          ];
+          onDetected(results);
+        } else {
+          onDetected([LanguageDetectResult(code: 'zh-tw', probability: 1.0)]);
+        }
+      } catch (e) {
+        print('한자 변환 실패 (여러 후보): $e');
+        onDetected(const [LanguageDetectResult(code: 'zh', probability: 1.0)]);
+      }
       return;
     }
     try {
