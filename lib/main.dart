@@ -14,6 +14,7 @@ import 'dart:math' as math;
 import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
 import 'services/language_detect_service.dart';
+import 'services/tts_service.dart';
 
 // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
 final int maxInputLengthInFreeVersion = 500;
@@ -159,6 +160,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   late final AnimationController _loadingController; // 프리스트림 로딩 애니메이션
 
   bool _isFetching = false; // 현재 API 호출이 진행 중인지 여부
+  // TTS는 TtsService에서 관리됩니다.
+  StreamSubscription<bool>? _ttsSub;
+  bool _isSpeaking = false;
 
   final List<String> languages =
       LanguageService.getUiLanguagesOrderedBySystem();
@@ -211,6 +215,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     // LanguageService의 저장값을 화면 상태에 반영
     selectedFromLanguage = LanguageService.fromLanguage;
     selectedToLanguage = LanguageService.toLanguage;
+
+    // TTS 초기화는 TtsService에서 처리됩니다.
+    _ttsSub = TtsService.instance.speakingStream.listen((speaking) {
+      if (!mounted) return;
+      setState(() {
+        _isSpeaking = speaking;
+      });
+    });
   }
 
   List<String> get toneLabels => [
@@ -238,6 +250,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       default:
         return '자연스럽게 번역해주세요.';
     }
+  }
+
+  Future<void> _speakText(String text, {required String uiLanguage}) async {
+    await TtsService.instance.speak(text, uiLanguage: uiLanguage);
   }
 
   // 언어 매핑은 LanguageService에서 관리
@@ -531,6 +547,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     _loadingController.dispose();
     _bottomInputFocusNode.dispose();
     _scrollController.dispose();
+    TtsService.instance.stop();
+    _ttsSub?.cancel();
     super.dispose();
   }
 
@@ -1088,20 +1106,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: colors.textLight,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    Fluttertoast.showToast(
-                      msg: AppLocalizations.of(context).feature_coming_soon,
-                    );
-                  },
-                  child: Icon(
-                    Icons.play_arrow,
-                    size: 18,
                     color: colors.textLight,
                   ),
                 ),
@@ -1727,20 +1731,27 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                         color: colors.textLight,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () {
-                        Fluttertoast.showToast(
-                          msg: AppLocalizations.of(context).feature_coming_soon,
-                        );
-                      },
-                      child: Icon(
-                        Icons.play_arrow,
-                        size: 18,
-                        color: colors.textLight,
+                    if (_translatedText.isNotEmpty && !_isTranslating) ...[
+                      const SizedBox(width: 8),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () async {
+                          if (_isSpeaking) {
+                            await TtsService.instance.stop();
+                          } else {
+                            await _speakText(
+                              _translatedText,
+                              uiLanguage: selectedToLanguage,
+                            );
+                          }
+                        },
+                        child: Icon(
+                          _isSpeaking ? Icons.stop : Icons.play_arrow,
+                          size: 18,
+                          color: colors.textLight,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
