@@ -1081,13 +1081,27 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           Container(
             padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   '입력한 내용',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
+                    color: colors.textLight,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context).feature_coming_soon,
+                    );
+                  },
+                  child: Icon(
+                    Icons.play_arrow,
+                    size: 18,
                     color: colors.textLight,
                   ),
                 ),
@@ -1703,13 +1717,27 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                   bottom: 8,
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
                       AppLocalizations.of(context).translation_result,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
+                        color: colors.textLight,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context).feature_coming_soon,
+                        );
+                      },
+                      child: Icon(
+                        Icons.play_arrow,
+                        size: 18,
                         color: colors.textLight,
                       ),
                     ),
