@@ -1105,22 +1105,53 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             Container(
               width: double.infinity,
               alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () async {
-                  await Clipboard.setData(ClipboardData(text: _lastInputText));
-                  Fluttertoast.showToast(
-                    msg: AppLocalizations.of(context).input_text_copied,
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(shape: BoxShape.circle),
-                  child: Icon(
-                    Icons.copy,
-                    size: 18,
-                    color: colors.text.withValues(alpha: 0.5),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _inputController.text = _lastInputText;
+                        _inputController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: _inputController.text.length),
+                        );
+                        isLanguageListOpen = false;
+                        isTonePanelVisible = false;
+                      });
+                      FocusScope.of(
+                        context,
+                      ).requestFocus(_bottomInputFocusNode);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                      child: Icon(
+                        Icons.edit,
+                        size: 18,
+                        color: colors.text.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ),
-                ),
+                  GestureDetector(
+                    onTap: () async {
+                      await Clipboard.setData(
+                        ClipboardData(text: _lastInputText),
+                      );
+                      Fluttertoast.showToast(
+                        msg: AppLocalizations.of(context).input_text_copied,
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                      child: Icon(
+                        Icons.copy,
+                        size: 18,
+                        color: colors.text.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
         ],
@@ -1711,26 +1742,58 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 Container(
                   width: double.infinity,
                   alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () async {
-                      await Clipboard.setData(
-                        ClipboardData(text: _translatedText),
-                      );
-                      Fluttertoast.showToast(
-                        msg: AppLocalizations.of(
-                          context,
-                        ).translation_result_copied,
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(shape: BoxShape.circle),
-                      child: Icon(
-                        Icons.copy,
-                        size: 18,
-                        color: colors.text.withValues(alpha: 0.5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _inputController.text = _translatedText;
+                            _inputController.selection =
+                                TextSelection.fromPosition(
+                                  TextPosition(
+                                    offset: _inputController.text.length,
+                                  ),
+                                );
+                            isLanguageListOpen = false;
+                            isTonePanelVisible = false;
+                          });
+                          FocusScope.of(
+                            context,
+                          ).requestFocus(_bottomInputFocusNode);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(shape: BoxShape.circle),
+                          child: Icon(
+                            Icons.edit,
+                            size: 18,
+                            color: colors.text.withValues(alpha: 0.5),
+                          ),
+                        ),
                       ),
-                    ),
+                      GestureDetector(
+                        onTap: () async {
+                          await Clipboard.setData(
+                            ClipboardData(text: _translatedText),
+                          );
+                          Fluttertoast.showToast(
+                            msg: AppLocalizations.of(
+                              context,
+                            ).translation_result_copied,
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(shape: BoxShape.circle),
+                          child: Icon(
+                            Icons.copy,
+                            size: 18,
+                            color: colors.text.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             ],
