@@ -15,6 +15,7 @@ import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
 import 'services/language_detect_service.dart';
 import 'services/tts_service.dart';
+import 'package:lpinyin/lpinyin.dart';
 
 // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
 final int maxInputLengthInFreeVersion = 500;
@@ -250,6 +251,36 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       default:
         return '자연스럽게 번역해주세요.';
     }
+  }
+
+  bool _isChineseUiLanguage(String uiName) {
+    return uiName == LanguageService.uiChinese ||
+        uiName == LanguageService.uiChineseTaiwan;
+  }
+
+  Widget _buildPinyinWidgetIfNeeded(
+    String text, {
+    required bool isForInput,
+    required CustomColors colors,
+  }) {
+    final String uiLang = isForInput
+        ? (_fromLanguageAtLastTranslate ?? selectedFromLanguage)
+        : (_toLanguageAtLastTranslate ?? selectedToLanguage);
+    if (text.trim().isEmpty || !_isChineseUiLanguage(uiLang)) {
+      return const SizedBox.shrink();
+    }
+    final String pinyin = PinyinHelper.getPinyin(
+      text,
+      separator: ' ',
+      format: PinyinFormat.WITH_TONE_MARK,
+    );
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: SelectableText(
+        pinyin,
+        style: TextStyle(color: colors.textLight, fontSize: 13, height: 1.4),
+      ),
+    );
   }
 
   Future<void> _speakText(String text, {required String uiLanguage}) async {
@@ -1156,6 +1187,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               style: TextStyle(color: colors.text, fontSize: 15, height: 1.4),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+            child: _buildPinyinWidgetIfNeeded(
+              _lastInputText,
+              isForInput: true,
+              colors: colors,
+            ),
+          ),
           if (_lastInputText.isNotEmpty)
             Container(
               width: double.infinity,
@@ -1849,6 +1888,15 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                         ),
                       ),
               ),
+              if (_translatedText.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+                  child: _buildPinyinWidgetIfNeeded(
+                    _translatedText,
+                    isForInput: false,
+                    colors: colors,
+                  ),
+                ),
               if (_translatedText.isNotEmpty)
                 Container(
                   width: double.infinity,
