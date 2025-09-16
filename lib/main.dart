@@ -180,6 +180,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   final GlobalKey _resultSectionKey = GlobalKey();
   String _lastInputText = '';
   double _resultSectionHeight = 0.0;
+  String? _fromLanguageAtLastTranslate;
+  String? _toLanguageAtLastTranslate;
 
   void _hideKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -283,6 +285,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       _isFetching = true;
       _hasReceivedFirstDelta = false;
       _translatedText = '';
+      _fromLanguageAtLastTranslate = selectedFromLanguage;
+      _toLanguageAtLastTranslate = selectedToLanguage;
     });
 
     // 스크롤: 먼저 맨 위로, 이후 번역 결과 섹션이 보이도록 이동
@@ -1126,7 +1130,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
 
                         await _speakText(
                           _lastInputText,
-                          uiLanguage: selectedFromLanguage,
+                          uiLanguage:
+                              _fromLanguageAtLastTranslate ??
+                              selectedFromLanguage,
                         );
                         setState(() {
                           _isInputTextSpeaking = false;
@@ -1780,7 +1786,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                             });
                             await _speakText(
                               _translatedText,
-                              uiLanguage: selectedToLanguage,
+                              uiLanguage:
+                                  _toLanguageAtLastTranslate ??
+                                  selectedToLanguage,
                             );
                             setState(() {
                               _isResultTextSpeaking = false;
