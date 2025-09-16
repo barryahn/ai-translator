@@ -162,7 +162,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   bool _isFetching = false; // 현재 API 호출이 진행 중인지 여부
   // TTS는 TtsService에서 관리됩니다.
   StreamSubscription<bool>? _ttsSub;
-  bool _isSpeaking = false;
+  bool _isInputTextSpeaking = false;
+  bool _isResultTextSpeaking = false;
 
   final List<String> languages =
       LanguageService.getUiLanguagesOrderedBySystem();
@@ -219,9 +220,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     // TTS 초기화는 TtsService에서 처리됩니다.
     _ttsSub = TtsService.instance.speakingStream.listen((speaking) {
       if (!mounted) return;
-      setState(() {
-        _isSpeaking = speaking;
-      });
     });
   }
 
@@ -1109,6 +1107,39 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     color: colors.textLight,
                   ),
                 ),
+                const SizedBox(width: 8),
+                if (_lastInputText.isNotEmpty && !_isTranslating) ...[
+                  InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () async {
+                      if (_isInputTextSpeaking) {
+                        await TtsService.instance.stop();
+                        setState(() {
+                          _isInputTextSpeaking = false;
+                          _isResultTextSpeaking = false;
+                        });
+                      } else {
+                        setState(() {
+                          _isInputTextSpeaking = true;
+                          _isResultTextSpeaking = false;
+                        });
+
+                        await _speakText(
+                          _lastInputText,
+                          uiLanguage: selectedFromLanguage,
+                        );
+                        setState(() {
+                          _isInputTextSpeaking = false;
+                        });
+                      }
+                    },
+                    child: Icon(
+                      _isInputTextSpeaking ? Icons.stop : Icons.play_arrow,
+                      size: 18,
+                      color: colors.textLight,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -1736,17 +1767,28 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                       InkWell(
                         borderRadius: BorderRadius.circular(16),
                         onTap: () async {
-                          if (_isSpeaking) {
+                          if (_isResultTextSpeaking) {
                             await TtsService.instance.stop();
+                            setState(() {
+                              _isResultTextSpeaking = false;
+                              _isInputTextSpeaking = false;
+                            });
                           } else {
+                            setState(() {
+                              _isResultTextSpeaking = true;
+                              _isInputTextSpeaking = false;
+                            });
                             await _speakText(
                               _translatedText,
                               uiLanguage: selectedToLanguage,
                             );
+                            setState(() {
+                              _isResultTextSpeaking = false;
+                            });
                           }
                         },
                         child: Icon(
-                          _isSpeaking ? Icons.stop : Icons.play_arrow,
+                          _isResultTextSpeaking ? Icons.stop : Icons.play_arrow,
                           size: 18,
                           color: colors.textLight,
                         ),
