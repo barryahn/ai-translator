@@ -165,6 +165,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   StreamSubscription<bool>? _ttsSub;
   bool _isInputTextSpeaking = false;
   bool _isResultTextSpeaking = false;
+  int? _inputSpeakStart;
+  int? _inputSpeakEnd;
+  int? _resultSpeakStart;
+  int? _resultSpeakEnd;
+  StreamSubscription<TtsProgress>? _ttsProgressSub;
 
   final List<String> languages =
       LanguageService.getUiLanguagesOrderedBySystem();
@@ -224,6 +229,18 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     _ttsSub = TtsService.instance.speakingStream.listen((speaking) {
       if (!mounted) return;
     });
+    _ttsProgressSub = TtsService.instance.progressStream.listen((progress) {
+      if (!mounted) return;
+      setState(() {
+        if (_isInputTextSpeaking) {
+          _inputSpeakStart = progress.start;
+          _inputSpeakEnd = progress.end;
+        } else if (_isResultTextSpeaking) {
+          _resultSpeakStart = progress.start;
+          _resultSpeakEnd = progress.end;
+        }
+      });
+    });
   }
 
   List<String> get toneLabels => [
@@ -279,6 +296,72 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       child: SelectableText(
         pinyin,
         style: TextStyle(color: colors.textLight, fontSize: 13, height: 1.4),
+      ),
+    );
+  }
+
+  Widget _buildHighlightedSelectableText(
+    String text, {
+    required bool isForInput,
+    required CustomColors colors,
+    required TextStyle baseStyle,
+  }) {
+    final bool isSpeaking = isForInput
+        ? _isInputTextSpeaking
+        : _isResultTextSpeaking;
+    final int? start = isForInput ? _inputSpeakStart : _resultSpeakStart;
+    final int? end = isForInput ? _inputSpeakEnd : _resultSpeakEnd;
+    if (!isSpeaking) {
+      return SelectableText.rich(
+        TextSpan(
+          text: text,
+          style: baseStyle.copyWith(color: colors.text),
+        ),
+      );
+    }
+    if (text.isEmpty) {
+      return SelectableText.rich(
+        TextSpan(
+          text: text,
+          style: baseStyle.copyWith(color: colors.text),
+        ),
+      );
+    }
+    // 발화 중인데 아직 진행 인덱스가 없다면 전체를 연하게 표시
+    if (start == null || end == null || start < 0 || end <= start) {
+      return SelectableText.rich(
+        TextSpan(
+          text: text,
+          style: baseStyle.copyWith(color: colors.text.withValues(alpha: 0.45)),
+        ),
+      );
+    }
+    final int clampedEnd = end.clamp(0, text.length);
+    final int clampedStart = start.clamp(0, clampedEnd);
+    final String before = text.substring(0, clampedStart);
+    final String current = text.substring(clampedStart, clampedEnd);
+    final String after = text.substring(clampedEnd);
+    final Color faded = colors.text.withValues(alpha: 0.45);
+    return SelectableText.rich(
+      TextSpan(
+        style: baseStyle,
+        children: [
+          if (before.isNotEmpty)
+            TextSpan(
+              text: before,
+              style: TextStyle(color: faded),
+            ),
+          if (current.isNotEmpty)
+            TextSpan(
+              text: current,
+              style: TextStyle(color: colors.text),
+            ),
+          if (after.isNotEmpty)
+            TextSpan(
+              text: after,
+              style: TextStyle(color: faded),
+            ),
+        ],
       ),
     );
   }
@@ -582,6 +665,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     _scrollController.dispose();
     TtsService.instance.stop();
     _ttsSub?.cancel();
+    _ttsProgressSub?.cancel();
     super.dispose();
   }
 
@@ -1152,11 +1236,15 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                         setState(() {
                           _isInputTextSpeaking = false;
                           _isResultTextSpeaking = false;
+                          _inputSpeakStart = null;
+                          _inputSpeakEnd = null;
                         });
                       } else {
                         setState(() {
                           _isInputTextSpeaking = true;
                           _isResultTextSpeaking = false;
+                          _inputSpeakStart = null;
+                          _inputSpeakEnd = null;
                         });
 
                         await _speakText(
@@ -1167,6 +1255,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                         );
                         setState(() {
                           _isInputTextSpeaking = false;
+                          _inputSpeakStart = null;
+                          _inputSpeakEnd = null;
                         });
                       }
                     },
@@ -1182,9 +1272,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
-            child: SelectableText(
+            child: _buildHighlightedSelectableText(
               _lastInputText,
-              style: TextStyle(color: colors.text, fontSize: 15, height: 1.4),
+              isForInput: true,
+              colors: colors,
+              baseStyle: TextStyle(fontSize: 15, height: 1.45),
             ),
           ),
           Padding(
@@ -1839,11 +1931,15 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                             setState(() {
                               _isResultTextSpeaking = false;
                               _isInputTextSpeaking = false;
+                              _resultSpeakStart = null;
+                              _resultSpeakEnd = null;
                             });
                           } else {
                             setState(() {
                               _isResultTextSpeaking = true;
                               _isInputTextSpeaking = false;
+                              _resultSpeakStart = null;
+                              _resultSpeakEnd = null;
                             });
                             await _speakText(
                               _translatedText,
@@ -1853,6 +1949,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                             );
                             setState(() {
                               _isResultTextSpeaking = false;
+                              _resultSpeakStart = null;
+                              _resultSpeakEnd = null;
                             });
                           }
                         },
@@ -1872,21 +1970,30 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 child:
                     (_isTranslating && _isFetching && !_hasReceivedFirstDelta)
                     ? _buildPrestreamLoading(colors)
-                    : SelectableText(
-                        _translatedText.isEmpty
-                            ? AppLocalizations.of(
+                    : (_translatedText.isEmpty
+                          ? SelectableText(
+                              AppLocalizations.of(
                                 context,
-                              ).translation_result_hint
-                            //? 'My English teacher wanted to flunk me in junior high (Shh) Thanks a lot, next semester I\'ll be 35 I smacked him in his face with an eraser, chased him with a stapler And stapled his nuts to a stack of paper (Ow) Walked in the strip club, had my jacket zipped up Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me, "Let\'s just be friends" 99 percent of my life, I was lied to I just found out my mom does more dope than I do (Damn) I told her I\'d grow up to be a famous rapper Make a record about doin\' drugs and name it after her (Oh, thank you) You know you blew up when the women rush your stands And try to touch your hands like some screamin\' Usher fans (Ahh, ahh, ahh) This guy at White Castle asked for my autograph (Dude, can I get your autograph?) So I signed it, Dear Dave, thanks for the support, asshole My English teacher wanted to flunk me in junior high (Shh) Thanks a lot, next semester I\'ll be 35 I smacked him in his face with an eraser, chased him with a stapler And stapled his nuts to a stack of paper (Ow) Walked in the strip club, had my jacket zipped up Flashed the bartender, then stuck my dick in the tip cup Extraterrestrial, running over pedestrians in a spaceship While they\'re screaming at me.'
-                            : _translatedText,
-                        style: TextStyle(
-                          color: _translatedText.isEmpty
-                              ? colors.textLight
-                              : colors.text,
-                          fontSize: _getAdaptiveResultFontSize(_translatedText),
-                          height: 1.4,
-                        ),
-                      ),
+                              ).translation_result_hint,
+                              style: TextStyle(
+                                color: colors.textLight,
+                                fontSize: _getAdaptiveResultFontSize(
+                                  _translatedText,
+                                ),
+                                height: 1.4,
+                              ),
+                            )
+                          : _buildHighlightedSelectableText(
+                              _translatedText,
+                              isForInput: false,
+                              colors: colors,
+                              baseStyle: TextStyle(
+                                fontSize: _getAdaptiveResultFontSize(
+                                  _translatedText,
+                                ),
+                                height: 1.45,
+                              ),
+                            )),
               ),
               if (_translatedText.isNotEmpty)
                 Padding(

@@ -12,9 +12,12 @@ class TtsService {
   bool _isSpeaking = false;
   final StreamController<bool> _speakingController =
       StreamController<bool>.broadcast();
+  final StreamController<TtsProgress> _progressController =
+      StreamController<TtsProgress>.broadcast();
 
   Stream<bool> get speakingStream => _speakingController.stream;
   bool get isSpeaking => _isSpeaking;
+  Stream<TtsProgress> get progressStream => _progressController.stream;
 
   Future<void> _ensureInit() async {
     if (_initialized) return;
@@ -37,6 +40,13 @@ class TtsService {
       _tts.setCancelHandler(() {
         _isSpeaking = false;
         _speakingController.add(false);
+      });
+    } catch (_) {}
+    try {
+      _tts.setProgressHandler((String text, int start, int end, String word) {
+        _progressController.add(
+          TtsProgress(text: text, start: start, end: end, word: word),
+        );
       });
     } catch (_) {}
     _initialized = true;
@@ -120,4 +130,18 @@ class TtsService {
     _isSpeaking = false;
     _speakingController.add(false);
   }
+}
+
+class TtsProgress {
+  final String text;
+  final int start;
+  final int end;
+  final String? word;
+
+  TtsProgress({
+    required this.text,
+    required this.start,
+    required this.end,
+    this.word,
+  });
 }
