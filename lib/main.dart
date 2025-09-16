@@ -1181,6 +1181,23 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                       FocusScope.of(
                         context,
                       ).requestFocus(_bottomInputFocusNode);
+                      // 편집 버튼으로 텍스트를 넣은 경우:
+                      // 1) 기존 제안 숨김 → 2) 즉시 언어 감지 → 3) 결과 수신 시 오버레이 표시
+                      setState(() {
+                        _inputLangCandidates = [];
+                      });
+                      // 언어 감지 즉시 실행 (디바운스 0ms)
+                      LanguageDetectService.instance.detectRealtimeAll(
+                        text: _inputController.text,
+                        debounce: const Duration(milliseconds: 0),
+                        onDetected: (list) {
+                          if (!mounted) return;
+                          setState(() {
+                            _inputLangCandidates = list;
+                          });
+                        },
+                        onError: (e) {},
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.all(10),
@@ -1861,6 +1878,23 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                           FocusScope.of(
                             context,
                           ).requestFocus(_bottomInputFocusNode);
+                          // 편집 버튼으로 텍스트를 넣은 경우:
+                          // 1) 기존 제안 숨김 → 2) 즉시 언어 감지 → 3) 결과 수신 시 오버레이 표시
+                          setState(() {
+                            _inputLangCandidates = [];
+                          });
+                          // 언어 감지 즉시 실행 (디바운스 0ms)
+                          LanguageDetectService.instance.detectRealtimeAll(
+                            text: _inputController.text,
+                            debounce: const Duration(milliseconds: 0),
+                            onDetected: (list) {
+                              if (!mounted) return;
+                              setState(() {
+                                _inputLangCandidates = list;
+                              });
+                            },
+                            onError: (e) {},
+                          );
                         },
                         child: Container(
                           padding: const EdgeInsets.all(10),
