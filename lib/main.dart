@@ -1172,6 +1172,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                         );
                         isLanguageListOpen = false;
                         isTonePanelVisible = false;
+                        selectedFromLanguage =
+                            _fromLanguageAtLastTranslate ??
+                            selectedFromLanguage;
+                        selectedToLanguage =
+                            _toLanguageAtLastTranslate ?? selectedToLanguage;
                       });
                       FocusScope.of(
                         context,
@@ -1846,6 +1851,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                 );
                             isLanguageListOpen = false;
                             isTonePanelVisible = false;
+                            selectedFromLanguage =
+                                _toLanguageAtLastTranslate ??
+                                selectedFromLanguage;
+                            selectedToLanguage =
+                                _fromLanguageAtLastTranslate ??
+                                selectedToLanguage;
                           });
                           FocusScope.of(
                             context,
