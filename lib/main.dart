@@ -1,21 +1,26 @@
-import 'package:flutter/material.dart';
+// 메인
 import 'dart:async';
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ai_translator/l10n/app_localizations.dart';
-import 'services/theme_service.dart';
-import 'theme/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:lpinyin/lpinyin.dart';
+// 서비스
 import 'services/openai_service.dart';
 import 'services/language_service.dart';
-import 'dart:math' as math;
-import 'setting_screen.dart';
-import 'terms_of_service_screen.dart';
+import 'services/theme_service.dart';
 import 'services/language_detect_service.dart';
 import 'services/tts_service.dart';
-import 'package:lpinyin/lpinyin.dart';
+// 화면
+import 'setting_screen.dart';
+import 'terms_of_service_screen.dart';
+import 'search_history_screen.dart';
+// 테마
+import 'theme/app_theme.dart';
 
 // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
 final int maxInputLengthInFreeVersion = 500;
@@ -2260,18 +2265,6 @@ class _InputFullScreenEditorState extends State<_InputFullScreenEditor> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class SearchHistoryScreen extends StatelessWidget {
-  const SearchHistoryScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).search_history)),
-      body: const SizedBox.shrink(),
     );
   }
 }
