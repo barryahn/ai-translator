@@ -15,6 +15,7 @@ import 'services/language_service.dart';
 import 'services/theme_service.dart';
 import 'services/language_detect_service.dart';
 import 'services/tts_service.dart';
+import 'services/translation_history_service.dart';
 // 화면
 import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
@@ -31,6 +32,7 @@ void main() async {
   await OpenAIService.initialize();
   await ThemeService.initialize();
   await LanguageService.initialize();
+  await TranslationHistoryService.initialize();
   runApp(const MyApp());
 }
 
@@ -461,6 +463,18 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             _isFetching = false;
             _isTranslating = false;
           });
+          // 번역 기록 저장 (비동기)
+          if (buffer.trim().isNotEmpty) {
+            unawaited(
+              TranslationHistoryService.instance.addHistory(
+                fromUiLanguage:
+                    _fromLanguageAtLastTranslate ?? selectedFromLanguage,
+                toUiLanguage: _toLanguageAtLastTranslate ?? selectedToLanguage,
+                inputText: _lastInputText,
+                resultText: buffer,
+              ),
+            );
+          }
         },
         (error) {
           if (!_isFetching) return;
