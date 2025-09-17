@@ -18,7 +18,7 @@ import 'services/tts_service.dart';
 // 화면
 import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
-import 'search_history_screen.dart';
+import 'translation_history_screen.dart';
 // 테마
 import 'theme/app_theme.dart';
 
@@ -717,7 +717,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const SearchHistoryScreen(),
+                    builder: (_) => const TranslationHistoryScreen(),
                   ),
                 );
               },

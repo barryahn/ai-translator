@@ -5,8 +5,8 @@ import 'services/theme_service.dart';
 import 'services/language_service.dart';
 import 'theme/app_theme.dart';
 
-class SearchHistoryScreen extends StatelessWidget {
-  const SearchHistoryScreen({super.key});
+class TranslationHistoryScreen extends StatelessWidget {
+  const TranslationHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
