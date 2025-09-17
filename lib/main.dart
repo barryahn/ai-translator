@@ -713,7 +713,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 height: 24,
                 child: Icon(Icons.history, color: colors.text),
               ),
-              title: Text(AppLocalizations.of(context).search_history),
+              title: Text(AppLocalizations.of(context).translation_history),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(

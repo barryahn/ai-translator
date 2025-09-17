@@ -60,7 +60,7 @@ class AppLocalizations {
       'word': '단어',
 
       // 검색 기록
-      'search_history': '검색 기록',
+      'translation_history': '번역 기록',
       'no_history': '검색 기록이 없습니다',
       'history_description': '단어를 검색하면 여기에 기록됩니다',
       'searched_words': '검색한 단어',
@@ -331,7 +331,7 @@ class AppLocalizations {
       'word': 'Word',
 
       // Search History
-      'search_history': 'Search History',
+      'translation_history': 'Translation History',
       'no_history': 'No search history',
       'history_description': 'Search history will appear here',
       'searched_words': 'Searched words',
@@ -626,7 +626,7 @@ class AppLocalizations {
       'word': '单词',
 
       // 搜索历史
-      'search_history': '搜索历史',
+      'translation_history': '翻译历史',
       'no_history': '无搜索历史',
       'history_description': '搜索历史将显示在这里',
       'searched_words': '搜索的单词',
@@ -894,7 +894,7 @@ class AppLocalizations {
       'word': '單字',
 
       // 搜尋歷史
-      'search_history': '搜尋歷史',
+      'translation_history': '翻譯歷史',
       'no_history': '無搜尋歷史',
       'history_description': '搜尋歷史將顯示在這裡',
       'searched_words': '搜尋的單字',
@@ -1162,7 +1162,7 @@ class AppLocalizations {
       'word': 'Mot',
 
       // Historique de recherche
-      'search_history': 'Historique de recherche',
+      'translation_history': 'Historique des traductions',
       'no_history': 'Aucun historique de recherche',
       'history_description': 'L\'historique de recherche apparaîtra ici',
       'searched_words': 'Mots recherchés',
@@ -1464,7 +1464,7 @@ class AppLocalizations {
       'word': 'Palabra',
 
       // Historial de búsqueda
-      'search_history': 'Historial de búsqueda',
+      'translation_history': 'Historial de traducción',
       'no_history': 'Sin historial de búsqueda',
       'history_description': 'El historial de búsqueda aparecerá aquí',
       'searched_words': 'Palabras buscadas',
@@ -1786,7 +1786,7 @@ class AppLocalizations {
   String get word => get('word');
 
   // 검색 기록
-  String get search_history => get('search_history');
+  String get translation_history => get('translation_history');
   String get no_history => get('no_history');
   String get history_description => get('history_description');
   String get searched_words => get('searched_words');

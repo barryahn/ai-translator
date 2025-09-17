@@ -15,7 +15,9 @@ class TranslationHistoryScreen extends StatelessWidget {
     final colors = themeService.colors;
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).search_history)),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context).translation_history),
+      ),
       body: const SizedBox.shrink(),
     );
   }
