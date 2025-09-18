@@ -664,6 +664,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 });
               }
             },
+            onHorizontalDragUpdate: (details) {
+              // 왼쪽에서 오른쪽으로 스와이프할 때 drawer 열기
+              if (details.delta.dx > 0) {
+                Scaffold.of(context).openDrawer();
+              }
+            },
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Padding(
