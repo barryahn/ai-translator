@@ -1,4 +1,4 @@
-package com.example.ai_translator
+package com.baxbase.dive
 
 import io.flutter.embedding.android.FlutterActivity
 
