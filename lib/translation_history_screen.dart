@@ -46,30 +46,78 @@ class TranslationHistoryScreen extends StatelessWidget {
               final item = items[index];
               return Dismissible(
                 key: ValueKey('history_${item.id}'),
-                background: Container(color: Colors.redAccent.withOpacity(0.9)),
+                background: Container(
+                  color: Colors.redAccent.withValues(alpha: 0.9),
+                ),
                 onDismissed: (_) {
                   TranslationHistoryService.instance.deleteById(item.id);
                 },
                 child: ListTile(
-                  title: Text(
-                    '${_localized(context, item.fromUiLanguage)} → ${_localized(context, item.toUiLanguage)}',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: colors.text.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 2,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                _localized(context, item.fromUiLanguage),
+                                style: TextStyle(
+                                  color: colors.text.withValues(alpha: 0.6),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              Icon(
+                                Icons.arrow_right_alt,
+                                size: 18,
+                                color: colors.text.withValues(alpha: 0.6),
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                _localized(context, item.toUiLanguage),
+                                style: TextStyle(
+                                  color: colors.text.withValues(alpha: 0.6),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(
                         item.inputText,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: colors.textLight),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         item.resultText,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: colors.textLight),
                       ),
                     ],
                   ),
