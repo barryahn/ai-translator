@@ -594,6 +594,20 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           // 하단바를 본문 위에 겹치게 렌더링하여 뒤 컨텐츠가 비치도록 합니다.
           extendBody: true,
           appBar: AppBar(
+            leading: Builder(
+              builder: (context) => IconButton(
+                icon: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(width: 18, height: 2, color: colors.text),
+                    SizedBox(height: 4),
+                    Container(width: 14, height: 2, color: colors.text),
+                  ],
+                ),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
+            ),
             title: Text(
               AppLocalizations.of(context).app_title,
               style: TextStyle(
@@ -602,6 +616,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 fontSize: 20,
               ),
             ),
+            titleSpacing: 2,
             backgroundColor: colors.background,
             iconTheme: IconThemeData(color: colors.text),
             elevation: 0,
