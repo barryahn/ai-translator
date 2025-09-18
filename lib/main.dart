@@ -622,6 +622,24 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             elevation: 0,
             scrolledUnderElevation: 0.1,
             shadowColor: colors.text.withValues(alpha: 0.3),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: IconButton(
+                  icon: Icon(Icons.image_search, color: colors.text),
+                  onPressed: () {
+                    if (_isFetching) {
+                      return;
+                    }
+                    Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context).feature_coming_soon,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
           drawer: _buildAppDrawer(context),
           onDrawerChanged: (isOpened) {
@@ -1578,97 +1596,63 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     // 이미지 스캔 버튼
                     Column(
                       children: [
-                        if (_inputController.text.isEmpty)
-                          Material(
-                            color: Colors.transparent,
-                            shape: const CircleBorder(),
-                            clipBehavior: Clip.antiAlias,
-                            child: InkWell(
-                              customBorder: const CircleBorder(),
-                              splashColor: colors.text.withValues(alpha: 0.08),
-                              onTap: () {
-                                if (_isFetching) {
-                                  return;
-                                }
-                                Fluttertoast.showToast(
-                                  msg: AppLocalizations.of(
-                                    context,
-                                  ).feature_coming_soon,
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.BOTTOM,
-                                );
-                              },
-                              child: Container(
-                                width: 42,
-                                height: 42,
-                                alignment: Alignment.center,
-                                child: Icon(
-                                  Icons.document_scanner,
-                                  color: _isFetching
-                                      ? colors.text.withValues(alpha: 0.5)
-                                      : colors.text,
-                                ),
-                              ),
-                            ),
-                          )
-                        else
-                          Material(
-                            color: Colors.transparent,
-                            shape: const CircleBorder(),
-                            clipBehavior: Clip.antiAlias,
-                            child: InkWell(
-                              customBorder: const CircleBorder(),
-                              splashColor: colors.text.withValues(alpha: 0.08),
-                              onTap: () {
-                                setState(() {
-                                  // 언어 선택 패널은 닫고 톤 패널 토글
+                        Material(
+                          color: Colors.transparent,
+                          shape: const CircleBorder(),
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            splashColor: colors.text.withValues(alpha: 0.08),
+                            onTap: () {
+                              setState(() {
+                                // 언어 선택 패널은 닫고 톤 패널 토글
+                                isLanguageListOpen = false;
+                                isTonePanelVisible = !isTonePanelVisible;
+                                // 처음 열 때 즉시 슬라이더 보이도록 확장 상태로
+                                if (isTonePanelVisible) {
+                                  // 톤 패널 열리면 언어 패널 닫힘 유지
                                   isLanguageListOpen = false;
-                                  isTonePanelVisible = !isTonePanelVisible;
-                                  // 처음 열 때 즉시 슬라이더 보이도록 확장 상태로
-                                  if (isTonePanelVisible) {
-                                    // 톤 패널 열리면 언어 패널 닫힘 유지
-                                    isLanguageListOpen = false;
-                                    isTonePickerExpanded = true;
-                                  }
-                                });
-                              },
-                              child: Container(
-                                width: 42,
-                                height: 42,
-                                alignment: Alignment(0, 0.5),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.tune,
-                                      color: colors.text,
-                                      size: 20,
-                                    ),
-                                    Container(
-                                      height: 14,
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        toneLabels[selectedToneLevel.round()],
-                                        style: TextStyle(
-                                          fontSize:
-                                              toneLabels[selectedToneLevel
-                                                          .round()]
-                                                      .length >
-                                                  6
-                                              ? 8
-                                              : 11,
-                                          fontWeight: FontWeight.w500,
-                                          color: colors.text.withValues(
-                                            alpha: 0.8,
-                                          ),
+                                  isTonePickerExpanded = true;
+                                }
+                              });
+                            },
+                            child: Container(
+                              width: 42,
+                              height: 42,
+                              alignment: Alignment(0, 0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.tune,
+                                    color: colors.text,
+                                    size: 20,
+                                  ),
+                                  Container(
+                                    height: 14,
+                                    alignment: Alignment.bottomCenter,
+                                    child: Text(
+                                      toneLabels[selectedToneLevel.round()],
+                                      style: TextStyle(
+                                        fontSize:
+                                            toneLabels[selectedToneLevel
+                                                        .round()]
+                                                    .length >
+                                                6
+                                            ? 8
+                                            : 11,
+                                        fontWeight: FontWeight.w800,
+                                        color: colors.text.withValues(
+                                          alpha: 0.8,
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
+                        ),
                         const SizedBox(height: 3),
                       ],
                     ),
