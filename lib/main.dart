@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ai_translator/l10n/app_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:vibration/vibration.dart';
 // 서비스
 import 'services/openai_service.dart';
 import 'services/language_service.dart';
@@ -451,6 +452,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           setState(() {
             if (!_hasReceivedFirstDelta && buffer.isNotEmpty) {
               _hasReceivedFirstDelta = true; // 프리스트림 로딩 → 스트리밍 중 전환
+              // 스트리밍 시작 시 작은 진동
+              Vibration.vibrate(duration: 50);
             }
             _translatedText = buffer; // 스트리밍 도중 실시간 업데이트
           });
