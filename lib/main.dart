@@ -76,7 +76,7 @@ class _MyAppState extends State<MyApp> {
       child: Consumer<ThemeService>(
         builder: (context, themeService, _) {
           return MaterialApp(
-            title: 'AI Translator',
+            title: 'Dive Translate',
             debugShowCheckedModeBanner: false,
             theme: themeService.themeData,
             locale: _appLocale,
@@ -595,7 +595,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           extendBody: true,
           appBar: AppBar(
             title: Text(
-              AppLocalizations.of(context).translation,
+              AppLocalizations.of(context).app_title,
               style: TextStyle(
                 color: colors.text,
                 fontWeight: FontWeight.bold,

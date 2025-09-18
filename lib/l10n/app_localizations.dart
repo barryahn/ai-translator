@@ -11,13 +11,13 @@ class AppLocalizations {
   }
 
   // 앱 이름 상수
-  static const String appName = 'AI_Translator';
-  static const String appVersion = '1.0.0';
+  static const String appName = 'Dive';
+  static const String appVersion = '1.0.1';
 
   static const Map<String, Map<String, String>> _localizedValues = {
     'ko': {
       // 앱 제목
-      'app_title': appName,
+      'app_title': 'Dive 번역',
 
       // 네비게이션
       'home': '홈',
@@ -288,7 +288,7 @@ class AppLocalizations {
     },
     'en': {
       // App Title
-      'app_title': appName,
+      'app_title': 'Dive Translate',
 
       // Navigation
       'home': 'Home',
@@ -583,7 +583,7 @@ class AppLocalizations {
     },
     'zh': {
       // 应用标题
-      'app_title': appName,
+      'app_title': 'Dive翻译',
 
       // 导航
       'home': '首页',
@@ -851,7 +851,7 @@ class AppLocalizations {
     },
     'zh-TW': {
       // 應用標題
-      'app_title': appName,
+      'app_title': 'Dive翻譯',
 
       // 導航
       'home': '首頁',
@@ -1119,7 +1119,7 @@ class AppLocalizations {
     },
     'fr': {
       // Titre de l'application
-      'app_title': appName,
+      'app_title': 'Dive Traduction',
 
       // Navigation
       'home': 'Accueil',
@@ -1420,7 +1420,7 @@ class AppLocalizations {
     },
     'es': {
       // Título de la aplicación
-      'app_title': appName,
+      'app_title': 'Dive Traductor',
 
       // Navegación
       'home': 'Inicio',
@@ -1743,6 +1743,9 @@ class AppLocalizations {
     });
     return value;
   }
+
+  // 앱 제목
+  String get app_title => get('app_title');
 
   // 검색 관련
   String get search_hint => get('search_hint');
