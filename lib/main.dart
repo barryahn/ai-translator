@@ -718,6 +718,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     );
   }
 
+  // dispose
   @override
   void dispose() {
     LanguageDetectService.instance.dispose();
@@ -1082,6 +1083,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     );
   }
 
+  // 톤 선택 패널
   Widget _buildTonePicker(CustomColors colors) {
     return Container(
       decoration: BoxDecoration(
