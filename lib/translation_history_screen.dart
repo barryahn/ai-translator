@@ -122,7 +122,7 @@ class TranslationHistoryScreen extends StatelessWidget {
                     ],
                   ),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(context, item);
                   },
                 ),
               );

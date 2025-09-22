@@ -771,12 +771,36 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 child: Icon(Icons.history, color: colors.text),
               ),
               title: Text(AppLocalizations.of(context).translation_history),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const TranslationHistoryScreen(),
-                  ),
-                );
+              onTap: () async {
+                final selected = await Navigator.of(context)
+                    .push<TranslationHistoryItem>(
+                      MaterialPageRoute(
+                        builder: (_) => const TranslationHistoryScreen(),
+                      ),
+                    );
+                if (selected != null && mounted) {
+                  setState(() {
+                    _inputController.text = selected.inputText;
+                    _inputController.selection = TextSelection.fromPosition(
+                      TextPosition(offset: _inputController.text.length),
+                    );
+                    _lastInputText = selected.inputText;
+                    _translatedText = selected.resultText;
+                    _isTranslating = false;
+                    _isFetching = false;
+                    _hasReceivedFirstDelta = false;
+                    _fromLanguageAtLastTranslate = selected.fromUiLanguage;
+                    _toLanguageAtLastTranslate = selected.toUiLanguage;
+                    selectedFromLanguage = selected.fromUiLanguage;
+                    selectedToLanguage = selected.toUiLanguage;
+                    isLanguageListOpen = false;
+                    isTonePanelVisible = false;
+                  });
+                  LanguageService.setTranslationLanguages(
+                    fromLanguage: selectedFromLanguage,
+                    toLanguage: selectedToLanguage,
+                  );
+                }
               },
             ),
             ListTile(
