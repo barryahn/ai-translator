@@ -779,6 +779,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                       ),
                     );
                 if (selected != null && mounted) {
+                  // 드로어 닫기
+                  Navigator.of(context).pop();
+
                   setState(() {
                     _inputController.text = selected.inputText;
                     _inputController.selection = TextSelection.fromPosition(
