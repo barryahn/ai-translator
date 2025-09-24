@@ -1598,7 +1598,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             decoration: BoxDecoration(
               // 하단바 배경 추가 그라데이션: 아래쪽은 불투명, 위로 갈수록 투명해집니다.
               gradient: LinearGradient(
-                begin: Alignment(0.0, -0.68),
+                begin: isTonePanelVisible
+                    ? Alignment(0.0, -0.8)
+                    : Alignment(0.0, -0.68),
                 end: Alignment.topCenter,
                 colors: [
                   colors.background,
