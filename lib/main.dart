@@ -1363,7 +1363,13 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           Padding(
             padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
             child: _buildHighlightedSelectableText(
-              _lastInputText,
+              _fromLanguageAtLastTranslate ==
+                      '한국어' // 한국어일 때만 단어 단위 줄바꿈 로직 추가
+                  ? _lastInputText.replaceAllMapped(
+                      RegExp(r'(\S)(?=\S)'),
+                      (m) => '${m[1]}\u200D',
+                    )
+                  : _lastInputText,
               isForInput: true,
               colors: colors,
               baseStyle: TextStyle(fontSize: 15, height: 1.45),
@@ -2042,7 +2048,13 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                               ),
                             )
                           : _buildHighlightedSelectableText(
-                              _translatedText,
+                              _toLanguageAtLastTranslate ==
+                                      '한국어' // 한국어일 때만 단어 단위 줄바꿈 로직 추가
+                                  ? _translatedText.replaceAllMapped(
+                                      RegExp(r'(\S)(?=\S)'),
+                                      (m) => '${m[1]}\u200D',
+                                    )
+                                  : _translatedText,
                               isForInput: false,
                               colors: colors,
                               baseStyle: TextStyle(
