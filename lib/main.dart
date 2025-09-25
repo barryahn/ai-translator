@@ -744,95 +744,148 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
         ),
       ),
       child: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: [
-            Container(
-              height: 56,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              alignment: Alignment.centerLeft,
-              color: colors.background,
-              child: Text(
-                AppLocalizations.of(context).get('menu'),
-                style: TextStyle(
-                  color: colors.text,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  Container(
+                    height: 56,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    alignment: Alignment.centerLeft,
+                    color: colors.background,
+                    child: Text(
+                      AppLocalizations.of(context).get('menu'),
+                      style: TextStyle(
+                        color: colors.text,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Divider(
+                    height: 1,
+                    color: colors.textLight.withValues(alpha: 0.1),
+                  ),
+                  const SizedBox(height: 10),
+                  ListTile(
+                    leading: Container(
+                      width: 24,
+                      height: 24,
+                      child: Icon(Icons.history, color: colors.text),
+                    ),
+                    title: Text(
+                      AppLocalizations.of(context).translation_history,
+                    ),
+                    onTap: () async {
+                      final selected = await Navigator.of(context)
+                          .push<TranslationHistoryItem>(
+                            MaterialPageRoute(
+                              builder: (_) => const TranslationHistoryScreen(),
+                            ),
+                          );
+                      if (selected != null && mounted) {
+                        // 드로어 닫기
+                        Navigator.of(context).pop();
+
+                        setState(() {
+                          _inputController.text = selected.inputText;
+                          _inputController
+                              .selection = TextSelection.fromPosition(
+                            TextPosition(offset: _inputController.text.length),
+                          );
+                          _lastInputText = selected.inputText;
+                          _translatedText = selected.resultText;
+                          _isTranslating = false;
+                          _isFetching = false;
+                          _hasReceivedFirstDelta = false;
+                          _fromLanguageAtLastTranslate =
+                              selected.fromUiLanguage;
+                          _toLanguageAtLastTranslate = selected.toUiLanguage;
+                          selectedFromLanguage = selected.fromUiLanguage;
+                          selectedToLanguage = selected.toUiLanguage;
+                          isLanguageListOpen = false;
+                          isTonePanelVisible = false;
+                        });
+                        LanguageService.setTranslationLanguages(
+                          fromLanguage: selectedFromLanguage,
+                          toLanguage: selectedToLanguage,
+                        );
+                      }
+                    },
+                  ),
+                  ListTile(
+                    leading: Container(
+                      width: 24,
+                      height: 24,
+                      child: Icon(Icons.article, color: colors.text),
+                    ),
+                    title: Text(
+                      AppLocalizations.of(context).get('terms_of_service'),
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const TermsOfServiceScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Container(
+                      width: 24,
+                      height: 24,
+                      child: Icon(Icons.settings, color: colors.text),
+                    ),
+                    title: Text(AppLocalizations.of(context).get('settings')),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                splashColor: colors.text.withValues(alpha: 0.08),
+                highlightColor: colors.text.withValues(alpha: 0.04),
+                onTap: () {
+                  // 프로필 탭 처리 (추후 구현)
+                },
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: colors.textLight.withValues(
+                          alpha: 0.2,
+                        ),
+                        child: Icon(Icons.person, color: colors.text, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '사용자 이름',
+                          style: TextStyle(
+                            color: colors.text,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Divider(height: 1, color: colors.textLight.withValues(alpha: 0.1)),
-            const SizedBox(height: 10),
-            ListTile(
-              leading: Container(
-                width: 24,
-                height: 24,
-                child: Icon(Icons.history, color: colors.text),
-              ),
-              title: Text(AppLocalizations.of(context).translation_history),
-              onTap: () async {
-                final selected = await Navigator.of(context)
-                    .push<TranslationHistoryItem>(
-                      MaterialPageRoute(
-                        builder: (_) => const TranslationHistoryScreen(),
-                      ),
-                    );
-                if (selected != null && mounted) {
-                  // 드로어 닫기
-                  Navigator.of(context).pop();
-
-                  setState(() {
-                    _inputController.text = selected.inputText;
-                    _inputController.selection = TextSelection.fromPosition(
-                      TextPosition(offset: _inputController.text.length),
-                    );
-                    _lastInputText = selected.inputText;
-                    _translatedText = selected.resultText;
-                    _isTranslating = false;
-                    _isFetching = false;
-                    _hasReceivedFirstDelta = false;
-                    _fromLanguageAtLastTranslate = selected.fromUiLanguage;
-                    _toLanguageAtLastTranslate = selected.toUiLanguage;
-                    selectedFromLanguage = selected.fromUiLanguage;
-                    selectedToLanguage = selected.toUiLanguage;
-                    isLanguageListOpen = false;
-                    isTonePanelVisible = false;
-                  });
-                  LanguageService.setTranslationLanguages(
-                    fromLanguage: selectedFromLanguage,
-                    toLanguage: selectedToLanguage,
-                  );
-                }
-              },
-            ),
-            ListTile(
-              leading: Container(
-                width: 24,
-                height: 24,
-                child: Icon(Icons.article, color: colors.text),
-              ),
-              title: Text(AppLocalizations.of(context).get('terms_of_service')),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const TermsOfServiceScreen(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: Container(
-                width: 24,
-                height: 24,
-                child: Icon(Icons.settings, color: colors.text),
-              ),
-              title: Text(AppLocalizations.of(context).get('settings')),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                );
-              },
             ),
           ],
         ),
