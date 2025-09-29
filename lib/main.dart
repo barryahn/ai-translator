@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ import 'services/translation_history_service.dart';
 import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
 import 'translation_history_screen.dart';
+import 'login_screen.dart';
 // 테마
 import 'theme/app_theme.dart';
 
@@ -30,6 +32,7 @@ final int maxInputLengthInFreeVersion = 500;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  await Firebase.initializeApp();
   await OpenAIService.initialize();
   await ThemeService.initialize();
   await LanguageService.initialize();
@@ -857,7 +860,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 splashColor: colors.text.withValues(alpha: 0.08),
                 highlightColor: colors.text.withValues(alpha: 0.04),
                 onTap: () {
-                  // 프로필 탭 처리 (추후 구현)
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
                 },
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
