@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -857,41 +858,59 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             ),
             Material(
               color: Colors.transparent,
-              child: InkWell(
-                splashColor: colors.text.withValues(alpha: 0.08),
-                highlightColor: colors.text.withValues(alpha: 0.04),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+              child: StreamBuilder<User?>(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                builder: (context, snapshot) {
+                  final user = snapshot.data;
+                  final String display =
+                      user?.displayName?.trim().isNotEmpty == true
+                      ? user!.displayName!
+                      : (user?.email ?? '로그인');
+                  return InkWell(
+                    splashColor: colors.text.withValues(alpha: 0.08),
+                    highlightColor: colors.text.withValues(alpha: 0.04),
+                    onTap: () {
+                      if (user == null) {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                        );
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: colors.textLight.withValues(
+                              alpha: 0.2,
+                            ),
+                            child: Icon(
+                              Icons.person,
+                              color: colors.text,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              display,
+                              style: TextStyle(
+                                color: colors.text,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 },
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: colors.textLight.withValues(
-                          alpha: 0.2,
-                        ),
-                        child: Icon(Icons.person, color: colors.text, size: 20),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          '사용자 이름',
-                          style: TextStyle(
-                            color: colors.text,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
           ],
