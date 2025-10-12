@@ -38,6 +38,7 @@ void main() async {
   await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await OpenAIService.initialize();
+  await AuthService.initialize();
   await ThemeService.initialize();
   await LanguageService.initialize();
   await TranslationHistoryService.initialize();

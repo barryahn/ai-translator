@@ -10,6 +10,10 @@ class AuthService {
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  static Future<void> initialize() async {
+    await instance._googleSignIn.initialize();
+  }
+
   Future<User?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount googleSignInAccount = await _googleSignIn
