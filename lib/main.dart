@@ -25,6 +25,8 @@ import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
 import 'translation_history_screen.dart';
 import 'login_screen.dart';
+import 'setting_logged_in_screen.dart';
+import 'services/auth_service.dart';
 // 테마
 import 'theme/app_theme.dart';
 
@@ -838,18 +840,49 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                       );
                     },
                   ),
-                  ListTile(
-                    leading: Container(
-                      width: 24,
-                      height: 24,
-                      child: Icon(Icons.settings, color: colors.text),
-                    ),
-                    title: Text(AppLocalizations.of(context).get('settings')),
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const SettingsScreen(),
+                  StreamBuilder<User?>(
+                    stream: AuthService.instance.authStateChanges,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting ||
+                          snapshot.hasError) {
+                        return ListTile(
+                          leading: Container(
+                            width: 24,
+                            height: 24,
+                            child: Icon(Icons.settings, color: colors.text),
+                          ),
+                          title: Text(
+                            AppLocalizations.of(context).get('settings'),
+                          ),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const SettingsScreen(),
+                              ),
+                            );
+                          },
+                        );
+                      }
+                      final user = snapshot.data;
+                      if (user != null) {
+                        return const SizedBox.shrink();
+                      }
+                      return ListTile(
+                        leading: Container(
+                          width: 24,
+                          height: 24,
+                          child: Icon(Icons.settings, color: colors.text),
                         ),
+                        title: Text(
+                          AppLocalizations.of(context).get('settings'),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const SettingsScreen(),
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -859,9 +892,13 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             Material(
               color: Colors.transparent,
               child: StreamBuilder<User?>(
-                stream: FirebaseAuth.instance.authStateChanges(),
+                stream: AuthService.instance.authStateChanges,
                 builder: (context, snapshot) {
-                  final user = snapshot.data;
+                  final bool isLoading =
+                      snapshot.connectionState == ConnectionState.waiting;
+                  final user = (!isLoading && !snapshot.hasError)
+                      ? snapshot.data
+                      : null;
                   final String display =
                       user?.displayName?.trim().isNotEmpty == true
                       ? user!.displayName!
@@ -875,6 +912,13 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => const LoginScreen(),
+                          ),
+                        );
+                      } else {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const SettingsLoggedInScreen(),
                           ),
                         );
                       }
