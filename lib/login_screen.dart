@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'services/auth_service.dart';
 import 'package:flutter/foundation.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,8 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
     try {
-      final googleProvider = GoogleAuthProvider();
-      await FirebaseAuth.instance.signInWithProvider(googleProvider);
+      await AuthService.instance.signInWithGoogle();
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       setState(() {
@@ -41,8 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
     try {
-      final appleProvider = AppleAuthProvider();
-      await FirebaseAuth.instance.signInWithProvider(appleProvider);
+      await AuthService.instance.signInWithApple();
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       setState(() {
