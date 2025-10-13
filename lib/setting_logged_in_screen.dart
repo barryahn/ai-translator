@@ -151,42 +151,35 @@ class SettingsLoggedInScreen extends StatelessWidget {
           final String? subtitle = user?.email;
           return Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+            padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
             color: colors.background,
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 28,
+                  radius: 32,
                   backgroundColor: colors.textLight.withValues(alpha: 0.2),
-                  child: Icon(Icons.person, color: colors.text, size: 28),
+                  child: Icon(Icons.person, color: colors.text, size: 32),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          color: colors.text,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (subtitle != null) const SizedBox(height: 4),
-                      if (subtitle != null)
-                        Text(
-                          subtitle,
-                          style: TextStyle(
-                            color: colors.textLight,
-                            fontSize: 13,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                    ],
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
                   ),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                if (subtitle != null) const SizedBox(height: 4),
+                if (subtitle != null)
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: colors.textLight, fontSize: 13),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
               ],
             ),
           );
