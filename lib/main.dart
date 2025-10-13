@@ -186,6 +186,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   int? _resultSpeakStart;
   int? _resultSpeakEnd;
   StreamSubscription<TtsProgress>? _ttsProgressSub;
+  StreamSubscription<User?>? _authSub;
 
   final List<String> languages =
       LanguageService.getUiLanguagesOrderedBySystem();
@@ -256,6 +257,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           _resultSpeakEnd = progress.end;
         }
       });
+    });
+
+    // 인증 상태 변경을 즉시 드로어에 반영하기 위해 화면을 재빌드합니다.
+    _authSub = AuthService.instance.authStateChanges.listen((_) {
+      if (!mounted) return;
+      setState(() {});
     });
   }
 
@@ -736,6 +743,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     TtsService.instance.stop();
     _ttsSub?.cancel();
     _ttsProgressSub?.cancel();
+    _authSub?.cancel();
     super.dispose();
   }
 
