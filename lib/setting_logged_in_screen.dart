@@ -5,6 +5,7 @@ import 'services/theme_service.dart';
 import 'services/language_service.dart';
 import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SettingsLoggedInScreen extends StatelessWidget {
   const SettingsLoggedInScreen({super.key});
@@ -20,6 +21,13 @@ class SettingsLoggedInScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // 사용자 정보 헤더
+            _buildUserHeader(context, colors),
+            Divider(
+              height: 1,
+              thickness: 1,
+              color: colors.textLight.withValues(alpha: 0.08),
+            ),
             // 설정 메뉴
             _buildSettingsMenu(context, loc, colors),
           ],
@@ -126,6 +134,64 @@ class SettingsLoggedInScreen extends StatelessWidget {
           : null,
       trailing: Icon(Icons.chevron_right, color: colors.textLight),
       onTap: onTap,
+    );
+  }
+
+  Widget _buildUserHeader(BuildContext context, CustomColors colors) {
+    return Material(
+      color: colors.background,
+      child: StreamBuilder<User?>(
+        stream: AuthService.instance.authStateChanges,
+        initialData: FirebaseAuth.instance.currentUser,
+        builder: (context, snapshot) {
+          final user = snapshot.data;
+          final String title = (user?.displayName?.trim().isNotEmpty == true)
+              ? user!.displayName!
+              : (user?.email ?? AppLocalizations.of(context).get('guest_user'));
+          final String? subtitle = user?.email;
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+            color: colors.background,
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: colors.textLight.withValues(alpha: 0.2),
+                  child: Icon(Icons.person, color: colors.text, size: 28),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: colors.text,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (subtitle != null) const SizedBox(height: 4),
+                      if (subtitle != null)
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            color: colors.textLight,
+                            fontSize: 13,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
