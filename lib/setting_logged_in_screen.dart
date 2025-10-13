@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'services/theme_service.dart';
 import 'services/language_service.dart';
+import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SettingsLoggedInScreen extends StatelessWidget {
   const SettingsLoggedInScreen({super.key});
@@ -56,6 +58,16 @@ class SettingsLoggedInScreen extends StatelessWidget {
             title: loc.get('app_info'),
             subtitle: loc.get('app_version'),
             onTap: () {},
+            colors: colors,
+          ),
+
+          // 로그아웃
+          _buildMenuHeader(title: loc.get('system'), colors: colors),
+          _buildMenuItem(
+            icon: Icons.logout,
+            title: loc.get('logout'),
+            subtitle: loc.get('logout_description'),
+            onTap: () => _confirmLogout(context, loc, colors),
             colors: colors,
           ),
         ],
@@ -203,6 +215,56 @@ class SettingsLoggedInScreen extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(loc.cancel),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _confirmLogout(
+    BuildContext context,
+    AppLocalizations loc,
+    CustomColors colors,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+          actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+          title: Text(
+            loc.get('logout'),
+            style: TextStyle(
+              color: colors.text,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            loc.get('logout_confirm'),
+            style: TextStyle(color: colors.text, fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(loc.cancel),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                await AuthService.instance.signOut();
+                Fluttertoast.showToast(msg: loc.get('logout_success'));
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text(loc.get('confirm')),
             ),
           ],
         );

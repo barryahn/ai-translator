@@ -843,27 +843,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                   ),
                   StreamBuilder<User?>(
                     stream: AuthService.instance.authStateChanges,
+                    initialData: FirebaseAuth.instance.currentUser,
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting ||
-                          snapshot.hasError) {
-                        return ListTile(
-                          leading: Container(
-                            width: 24,
-                            height: 24,
-                            child: Icon(Icons.settings, color: colors.text),
-                          ),
-                          title: Text(
-                            AppLocalizations.of(context).get('settings'),
-                          ),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const SettingsScreen(),
-                              ),
-                            );
-                          },
-                        );
-                      }
                       final user = snapshot.data;
                       if (user != null) {
                         return const SizedBox.shrink();
@@ -894,12 +875,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               color: Colors.transparent,
               child: StreamBuilder<User?>(
                 stream: AuthService.instance.authStateChanges,
+                initialData: FirebaseAuth.instance.currentUser,
                 builder: (context, snapshot) {
-                  final bool isLoading =
-                      snapshot.connectionState == ConnectionState.waiting;
-                  final user = (!isLoading && !snapshot.hasError)
-                      ? snapshot.data
-                      : null;
+                  final user = snapshot.data;
                   final String display =
                       user?.displayName?.trim().isNotEmpty == true
                       ? user!.displayName!
