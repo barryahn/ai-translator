@@ -878,29 +878,47 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 initialData: FirebaseAuth.instance.currentUser,
                 builder: (context, snapshot) {
                   final user = snapshot.data;
+                  if (user == null) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const LoginScreen(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context).get('login'),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
                   final String display =
-                      user?.displayName?.trim().isNotEmpty == true
-                      ? user!.displayName!
-                      : (user?.email ?? '로그인');
+                      user.displayName?.trim().isNotEmpty == true
+                      ? user.displayName!
+                      : (user.email ?? '로그인');
                   return InkWell(
                     splashColor: colors.text.withValues(alpha: 0.08),
                     highlightColor: colors.text.withValues(alpha: 0.04),
                     onTap: () {
-                      if (user == null) {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const LoginScreen(),
-                          ),
-                        );
-                      } else {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const SettingsLoggedInScreen(),
-                          ),
-                        );
-                      }
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsLoggedInScreen(),
+                        ),
+                      );
                     },
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
