@@ -185,6 +185,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   int? _inputSpeakEnd;
   int? _resultSpeakStart;
   int? _resultSpeakEnd;
+  int? _toneLevelAtLastTranslate;
   StreamSubscription<TtsProgress>? _ttsProgressSub;
   StreamSubscription<User?>? _authSub;
 
@@ -424,6 +425,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
       _translatedText = '';
       _fromLanguageAtLastTranslate = selectedFromLanguage;
       _toLanguageAtLastTranslate = selectedToLanguage;
+      _toneLevelAtLastTranslate = selectedToneLevel.round();
     });
 
     // 스크롤: 먼저 맨 위로, 이후 번역 결과 섹션이 보이도록 이동
@@ -490,6 +492,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 toUiLanguage: _toLanguageAtLastTranslate ?? selectedToLanguage,
                 inputText: _lastInputText,
                 resultText: buffer,
+                toneLevel:
+                    _toneLevelAtLastTranslate ?? selectedToneLevel.round(),
               ),
             );
           }

@@ -101,6 +101,41 @@ class TranslationHistoryScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+                      const SizedBox(width: 6),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: colors.text.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.tune,
+                                size: 14,
+                                color: colors.text.withValues(alpha: 0.6),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _toneLabel(context, item.toneLevel),
+                                style: TextStyle(
+                                  color: colors.text.withValues(alpha: 0.6),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   subtitle: Column(
@@ -143,4 +178,19 @@ String _localized(BuildContext context, String uiCode) {
     orElse: () => {'name': uiCode},
   );
   return match['name'] ?? uiCode;
+}
+
+String _toneLabel(BuildContext context, int level) {
+  final l = AppLocalizations.of(context);
+  switch (level) {
+    case 0:
+      return l.friendly;
+    case 2:
+      return l.polite;
+    case 3:
+      return l.formal;
+    case 1:
+    default:
+      return l.basic;
+  }
 }

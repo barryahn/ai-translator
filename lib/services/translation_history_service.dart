@@ -9,6 +9,7 @@ class TranslationHistoryItem {
   final String toUiLanguage;
   final String inputText;
   final String resultText;
+  final int toneLevel;
   final int createdAtMillis;
 
   TranslationHistoryItem({
@@ -17,6 +18,7 @@ class TranslationHistoryItem {
     required this.toUiLanguage,
     required this.inputText,
     required this.resultText,
+    required this.toneLevel,
     required this.createdAtMillis,
   });
 
@@ -27,6 +29,7 @@ class TranslationHistoryItem {
       toUiLanguage: (map['to_ui'] as String),
       inputText: (map['input_text'] as String),
       resultText: (map['result_text'] as String),
+      toneLevel: (map['tone_level'] as int?) ?? 1,
       createdAtMillis: (map['created_at'] as int),
     );
   }
@@ -38,6 +41,7 @@ class TranslationHistoryItem {
       'to_ui': toUiLanguage,
       'input_text': inputText,
       'result_text': resultText,
+      'tone_level': toneLevel,
       'created_at': createdAtMillis,
     };
   }
@@ -56,7 +60,7 @@ class TranslationHistoryService {
   }
 
   static const String _dbName = 'ai_translator.db';
-  static const int _dbVersion = 1;
+  static const int _dbVersion = 2;
   static const String _table = 'translation_history';
 
   static bool _initialized = false;
@@ -84,9 +88,17 @@ class TranslationHistoryService {
             to_ui TEXT NOT NULL,
             input_text TEXT NOT NULL,
             result_text TEXT NOT NULL,
+            tone_level INTEGER NOT NULL DEFAULT 1,
             created_at INTEGER NOT NULL
           )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('''
+            ALTER TABLE $_table ADD COLUMN tone_level INTEGER NOT NULL DEFAULT 1
+          ''');
+        }
       },
     );
     await _emitAll();
@@ -111,6 +123,7 @@ class TranslationHistoryService {
     required String toUiLanguage,
     required String inputText,
     required String resultText,
+    required int toneLevel,
   }) async {
     final db = _db;
     if (db == null) return null;
@@ -120,6 +133,7 @@ class TranslationHistoryService {
       'to_ui': toUiLanguage,
       'input_text': inputText,
       'result_text': resultText,
+      'tone_level': toneLevel,
       'created_at': now,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
     await _emitAll();
