@@ -112,7 +112,7 @@ class TranslationHistoryScreen extends StatelessWidget {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: 10,
                             vertical: 2,
                           ),
                           child: Row(
@@ -120,7 +120,7 @@ class TranslationHistoryScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.tune,
-                                size: 14,
+                                size: 13,
                                 color: colors.text.withValues(alpha: 0.6),
                               ),
                               const SizedBox(width: 4),
@@ -128,7 +128,7 @@ class TranslationHistoryScreen extends StatelessWidget {
                                 _toneLabel(context, item.toneLevel),
                                 style: TextStyle(
                                   color: colors.text.withValues(alpha: 0.6),
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
