@@ -906,8 +906,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size.fromHeight(44),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).textTheme.bodyLarge?.color,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).scaffoldBackgroundColor,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                           ),
                           child: Text(
