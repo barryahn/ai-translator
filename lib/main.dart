@@ -24,7 +24,7 @@ import 'services/translation_history_service.dart';
 import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
 import 'translation_history_screen.dart';
-import 'login_screen.dart';
+import 'login_modal.dart';
 import 'setting_logged_in_screen.dart';
 import 'services/auth_service.dart';
 // 테마
@@ -902,22 +902,37 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                 context: context,
                                 useRootNavigator: true,
                                 isScrollControlled: true,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(24),
-                                  ),
-                                ),
+                                backgroundColor: Colors.transparent,
+                                barrierColor: Colors.black54,
                                 builder: (sheetContext) {
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      bottom: MediaQuery.of(
-                                        sheetContext,
-                                      ).viewInsets.bottom,
-                                    ),
-                                    child: const FractionallySizedBox(
-                                      heightFactor: 0.40,
-                                      child: LoginScreen(),
-                                    ),
+                                  return DraggableScrollableSheet(
+                                    initialChildSize: 0.40,
+                                    minChildSize: 0.30,
+                                    maxChildSize: 0.90,
+                                    expand: false,
+                                    builder: (context, controller) {
+                                      return Container(
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(24),
+                                          ),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              const BorderRadius.vertical(
+                                                top: Radius.circular(24),
+                                              ),
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: SingleChildScrollView(
+                                              controller: controller,
+                                              child: const LoginModal(),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   );
                                 },
                               );
