@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthService {
   AuthService._internal();
@@ -56,14 +57,40 @@ class AuthService {
   }
 
   Future<User?> signInWithApple() async {
-    try {
+    /* try {
       final appleProvider = AppleAuthProvider();
       final UserCredential userCredential = await _auth.signInWithProvider(
         appleProvider,
       );
       return userCredential.user;
     } catch (e) {
+      print(e);
       throw Exception(e);
+    } */
+
+    try {
+      final AuthorizationCredentialAppleID credential =
+          await SignInWithApple.getAppleIDCredential(
+            scopes: [
+              AppleIDAuthorizationScopes.email,
+              AppleIDAuthorizationScopes.fullName,
+            ],
+          );
+
+      print(credential.userIdentifier);
+
+      // [Optional] Firebase Authentication 연동 시 절차
+      final OAuthCredential authCredential = OAuthProvider("apple.com")
+          .credential(
+            idToken: credential.identityToken,
+            accessToken: credential.authorizationCode,
+          );
+      final UserCredential user = await FirebaseAuth.instance
+          .signInWithCredential(authCredential);
+    } on SignInWithAppleAuthorizationException catch (e) {
+      // Handling errors on failure
+    } catch (_) {
+      // Handling other errors
     }
   }
 
