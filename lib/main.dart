@@ -897,12 +897,31 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).pop();
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const LoginScreen(),
-                              ),
-                            );
+                            Future.microtask(() {
+                              showModalBottomSheet(
+                                context: context,
+                                useRootNavigator: true,
+                                isScrollControlled: true,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(24),
+                                  ),
+                                ),
+                                builder: (sheetContext) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(
+                                        sheetContext,
+                                      ).viewInsets.bottom,
+                                    ),
+                                    child: const FractionallySizedBox(
+                                      heightFactor: 0.40,
+                                      child: LoginScreen(),
+                                    ),
+                                  );
+                                },
+                              );
+                            });
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size.fromHeight(44),
