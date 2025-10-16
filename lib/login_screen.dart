@@ -98,8 +98,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     label: const Text('Google로 계속'),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
+                      backgroundColor: theme.textTheme.bodyLarge?.color,
+                      foregroundColor: theme.scaffoldBackgroundColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
                   ),
@@ -111,8 +113,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: const Text('Apple로 계속'),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
+                        backgroundColor: theme.textTheme.bodyLarge?.color,
+                        foregroundColor: theme.scaffoldBackgroundColor,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                     ),
