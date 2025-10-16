@@ -163,7 +163,7 @@ class SettingsLoggedInScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  title,
+                  title.contains('@') ? title.split('@')[0] : title,
                   style: TextStyle(
                     color: colors.text,
                     fontSize: 18,
