@@ -674,7 +674,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     ),
                     foregroundColor: colors.text,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                   ),
                   child: const Text(
@@ -686,7 +686,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: IconButton(
-                  icon: Icon(Icons.image_search, color: colors.text),
+                  icon: Padding(
+                    padding: const EdgeInsets.only(bottom: 2.0),
+                    child: Icon(Icons.image_search, color: colors.text),
+                  ),
                   onPressed: () {
                     if (_isFetching) {
                       return;
