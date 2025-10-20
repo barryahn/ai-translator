@@ -616,27 +616,34 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           // 하단바를 본문 위에 겹치게 렌더링하여 뒤 컨텐츠가 비치도록 합니다.
           extendBody: true,
           appBar: AppBar(
-            leading: Builder(
-              builder: (context) => IconButton(
-                icon: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(width: 18, height: 2, color: colors.text),
-                    SizedBox(height: 4),
-                    Container(width: 14, height: 2, color: colors.text),
-                  ],
+            automaticallyImplyLeading: false,
+            centerTitle: false,
+            title: Row(
+              children: [
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(width: 18, height: 2, color: colors.text),
+                        SizedBox(height: 4),
+                        Container(width: 14, height: 2, color: colors.text),
+                      ],
+                    ),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
                 ),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
-            ),
-            title: Text(
-              AppLocalizations.of(context).app_title,
-              style: TextStyle(
-                color: colors.text,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+                const SizedBox(width: 6),
+                Text(
+                  AppLocalizations.of(context).app_title,
+                  style: TextStyle(
+                    color: colors.text,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
             ),
             titleSpacing: 2,
             backgroundColor: colors.background,
@@ -645,6 +652,37 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             scrolledUnderElevation: 0.1,
             shadowColor: colors.text.withValues(alpha: 0.3),
             actions: [
+              // PRO 버튼 (이미지 검색 아이콘 왼쪽)
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: OutlinedButton(
+                  onPressed: () {
+                    if (_isFetching) {
+                      return;
+                    }
+                    Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context).feature_coming_soon,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(44, 26),
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                    side: BorderSide(
+                      color: colors.textLight.withValues(alpha: 0.3),
+                    ),
+                    foregroundColor: colors.text,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'PRO',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: IconButton(
