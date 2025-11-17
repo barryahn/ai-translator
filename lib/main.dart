@@ -615,6 +615,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           backgroundColor: colors.background,
           // 하단바를 본문 위에 겹치게 렌더링하여 뒤 컨텐츠가 비치도록 합니다.
           extendBody: true,
+          // 화면 어디서든 스와이프로 드로어를 열 수 있도록 드래그 활성 영역을 전체로 확장
+          drawerEdgeDragWidth: MediaQuery.of(context).size.width,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             centerTitle: false,
@@ -745,9 +747,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                 });
               }
             },
-            onHorizontalDragUpdate: (details) {
-              // 왼쪽에서 오른쪽으로 스와이프할 때 drawer 열기
-              if (details.delta.dx > 0) {
+            // 좌/우 어느 방향으로든 스와이프가 끝나면 드로어 열기
+            onHorizontalDragEnd: (details) {
+              final v = details.primaryVelocity ?? 0.0;
+              // 충분한 속도의 좌/우 스와이프를 모두 허용
+              if (v.abs() > 150) {
                 Scaffold.of(context).openDrawer();
               }
             },
