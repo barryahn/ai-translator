@@ -198,6 +198,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   bool _isTranslating = false;
   bool _shouldRestoreBottomInputFocus = false;
   List<LanguageDetectResult> _inputLangCandidates = [];
+  bool _isVoiceUiVisible = false;
   double _swapButtonTurns = 0.0; // 스왑 버튼 회전(1.0 = 360도)
   double _swapIconTurns = 0.0; // 아이콘 자체 360도 회전(1.0 = 360도)
   final ScrollController _scrollController = ScrollController();
@@ -744,6 +745,11 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               if (isTonePanelVisible) {
                 setState(() {
                   isTonePanelVisible = false;
+                });
+              }
+              if (_isVoiceUiVisible) {
+                setState(() {
+                  _isVoiceUiVisible = false;
                 });
               }
             },
@@ -1797,6 +1803,88 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     );
   }
 
+  // (removed legacy overlay renderer; inline voice UI is now inside bottom bar)
+
+  Widget _buildVoiceInputInline(CustomColors colors) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colors.textLight.withValues(alpha: 0.12)),
+        boxShadow: [
+          BoxShadow(
+            color: colors.text.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 20, 12, 48),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () => setState(() => _isVoiceUiVisible = false),
+                child: Icon(Icons.close, size: 18, color: colors.textLight),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 84,
+            child: Center(
+              child: AnimatedBuilder(
+                animation: _loadingController,
+                builder: (context, _) {
+                  final double t = _loadingController.value;
+                  final double scale = 1.0 + 0.12 * math.sin(t * 2 * math.pi);
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Transform.scale(
+                        scale: scale,
+                        child: Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 54,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          color: colors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.mic, color: colors.white, size: 24),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '듣고 있어요...',
+            style: TextStyle(
+              color: colors.text,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 입력 컨테이너는 하단 검색바로 대체됨
   Widget _buildBottomSearchBar(CustomColors colors) {
     // 키보드가 올라오면 하단 패딩을 늘려 바가 키보드 위에 위치하게 합니다.
@@ -2032,14 +2120,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                                   });
                                                   return;
                                                 }
-                                                Fluttertoast.showToast(
-                                                  msg: AppLocalizations.of(
-                                                    context,
-                                                  ).feature_coming_soon,
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.BOTTOM,
-                                                );
+                                                setState(() {
+                                                  isLanguageListOpen = false;
+                                                  isTonePanelVisible = false;
+                                                });
+                                                _hideKeyboard();
+                                                setState(() {
+                                                  _isVoiceUiVisible = true;
+                                                });
                                               },
                                               child: SizedBox(
                                                 width: 32,
@@ -2166,6 +2254,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     ),
                   ],
                 ),
+                if (_isVoiceUiVisible) ...[
+                  const SizedBox(height: 8),
+                  _buildVoiceInputInline(colors),
+                ],
                 // 실시간 입력 언어 후보는 오버레이로 표시되므로, 하단바에서는 제거
               ],
             ),
