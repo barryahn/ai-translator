@@ -213,6 +213,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     SystemChannels.textInput.invokeMethod('TextInput.hide');
   }
 
+  void _stopVoiceInputIfAny() {
+    if (_isVoiceUiVisible) {
+      setState(() {
+        _isVoiceUiVisible = false;
+      });
+    }
+  }
+
   void _showLanguagePicker({required bool selectingFrom}) {
     setState(() {
       if (isLanguageListOpen && isSelectingFromLanguage == selectingFrom) {
@@ -2014,6 +2022,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                           highlightColor: Colors.transparent,
                           focusColor: Colors.transparent,
                           onTap: () {
+                            _stopVoiceInputIfAny();
                             FocusScope.of(
                               context,
                             ).requestFocus(_bottomInputFocusNode);
@@ -2067,6 +2076,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                                 ).search_or_sentence_hint,
                                                 contentPadding: EdgeInsets.zero,
                                               ),
+                                              onTap: _stopVoiceInputIfAny,
                                               keyboardType:
                                                   TextInputType.multiline,
                                               textInputAction:
