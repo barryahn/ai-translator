@@ -32,6 +32,7 @@ class AppLocalizations {
       'search_button': '검색',
       'additional_search': '추가 검색하기',
       'searching': '검색 중...',
+      'listening': '듣고 있어요...',
       'stop_search': '중단',
       'search_failed': '검색 결과를 가져오는데 실패했습니다.',
       'search_stopped': '검색이 중단되었습니다.',
@@ -303,6 +304,7 @@ class AppLocalizations {
       'search_button': 'Search',
       'additional_search': 'Search more',
       'searching': 'Searching...',
+      'listening': 'Listening...',
       'stop_search': 'Stop',
       'search_failed': 'Failed to get search results.',
       'search_stopped': 'Search was stopped.',
@@ -598,6 +600,7 @@ class AppLocalizations {
       'search_button': '搜索',
       'additional_search': '继续搜索',
       'searching': '搜索中...',
+      'listening': '正在聆听...',
       'stop_search': '停止',
       'search_failed': '获取搜索结果失败。',
       'search_stopped': '搜索已停止。',
@@ -866,6 +869,7 @@ class AppLocalizations {
       'search_button': '搜尋',
       'additional_search': '繼續搜尋',
       'searching': '搜尋中...',
+      'listening': '正在聆聽...',
       'stop_search': '停止',
       'search_failed': '獲取搜尋結果失敗。',
       'search_stopped': '搜尋已停止。',
@@ -1134,6 +1138,7 @@ class AppLocalizations {
       'search_button': 'Rechercher',
       'additional_search': 'Rechercher plus',
       'searching': 'Recherche...',
+      'listening': 'À l\'écoute...',
       'stop_search': 'Arrêter',
       'search_failed': 'Échec de l\'obtention des résultats de recherche.',
       'search_stopped': 'La recherche a été arrêtée.',
@@ -1435,6 +1440,7 @@ class AppLocalizations {
       'search_button': 'Buscar',
       'additional_search': 'Buscar más',
       'searching': 'Buscando...',
+      'listening': 'Escuchando...',
       'stop_search': 'Detener',
       'search_failed': 'Error al obtener resultados de búsqueda.',
       'search_stopped': 'La búsqueda se detuvo.',
@@ -1752,6 +1758,7 @@ class AppLocalizations {
   String get search_button => get('search_button');
   String get additional_search => get('additional_search');
   String get searching => get('searching');
+  String get listening => get('listening');
   String get stop_search => get('stop_search');
   String get search_failed => get('search_failed');
   String get search_stopped => get('search_stopped');

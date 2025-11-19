@@ -2004,7 +2004,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                                 isDense: true,
                                                 border: InputBorder.none,
                                                 hintText: _isListening
-                                                    ? '듣고 있어요...'
+                                                    ? AppLocalizations.of(
+                                                        context,
+                                                      ).listening
                                                     : AppLocalizations.of(
                                                         context,
                                                       ).search_or_sentence_hint,
