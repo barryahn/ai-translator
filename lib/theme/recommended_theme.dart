@@ -8,7 +8,7 @@ class RecommendedTheme extends AppTheme {
   @override
   CustomColors get customColors => const CustomColors(
     // 기본 베이지 색상들
-    primary: Color(0xFF29b56a), // 메인 베이지
+    primary: Color.fromARGB(255, 181, 41, 169), // 메인 베이지
     // Secondary
     secondary: Color(0xFFAAC133), // 메인 베이지
     complementary: Color(0xFFB52974), // 보색
