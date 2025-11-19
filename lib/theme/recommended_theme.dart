@@ -21,6 +21,7 @@ class RecommendedTheme extends AppTheme {
     // 텍스트 색상들
     text: Color(0xFF323030), // 주요 텍스트 색상
     textLight: Color(0xFF74706F), // 보조 텍스트 색상
+    textExtraLight: Color(0xFFEBECE9), // 매우 밝은 회색
     // 배경 색상들
     background: Color(0xFFF8FAF7), // 메인 배경색
     surface: Colors.white, // 카드/표면 배경색

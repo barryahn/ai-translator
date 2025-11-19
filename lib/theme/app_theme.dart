@@ -20,6 +20,7 @@ class CustomColors {
   final Color light;
   final Color dark;
   final Color textLight;
+  final Color textExtraLight;
   final Color surface;
   final Color divider;
   final Color highlight;
@@ -45,6 +46,7 @@ class CustomColors {
     required this.light,
     required this.dark,
     required this.textLight,
+    required this.textExtraLight,
     required this.surface,
     required this.divider,
     required this.highlight,
@@ -83,6 +85,7 @@ class CustomColors {
     'accent': accent,
     'text': text,
     'textLight': textLight,
+    'textExtraLight': textExtraLight,
     'background': background,
     'surface': surface,
     'divider': divider,

@@ -20,6 +20,7 @@ class LightTheme extends AppTheme {
     // 텍스트 색상들
     text: Color(0xFF1F2937), // 주요 텍스트 색상
     textLight: Color(0xFF6B7280), // 보조 텍스트 색상
+    textExtraLight: Color(0xFFEBECE9), // 매우 밝은 회색
     // 배경 색상들
     background: Color(0xFFf5f5f5), // 순백 배경색
     surface: Color(0xFFF9FAFB), // 카드/표면 배경색

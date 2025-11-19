@@ -177,6 +177,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   late final AnimationController _loadingController; // 프리스트림 로딩 애니메이션
 
   bool _isFetching = false; // 현재 API 호출이 진행 중인지 여부
+  bool _isListening = false; // 마이크 듣기 상태(순수 UI)
   // TTS는 TtsService에서 관리됩니다.
   StreamSubscription<bool>? _ttsSub;
   bool _isInputTextSpeaking = false;
@@ -198,7 +199,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   bool _isTranslating = false;
   bool _shouldRestoreBottomInputFocus = false;
   List<LanguageDetectResult> _inputLangCandidates = [];
-  bool _isVoiceUiVisible = false;
   double _swapButtonTurns = 0.0; // 스왑 버튼 회전(1.0 = 360도)
   double _swapIconTurns = 0.0; // 아이콘 자체 360도 회전(1.0 = 360도)
   final ScrollController _scrollController = ScrollController();
@@ -211,14 +211,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   void _hideKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
     SystemChannels.textInput.invokeMethod('TextInput.hide');
-  }
-
-  void _stopVoiceInputIfAny() {
-    if (_isVoiceUiVisible) {
-      setState(() {
-        _isVoiceUiVisible = false;
-      });
-    }
   }
 
   void _showLanguagePicker({required bool selectingFrom}) {
@@ -753,11 +745,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               if (isTonePanelVisible) {
                 setState(() {
                   isTonePanelVisible = false;
-                });
-              }
-              if (_isVoiceUiVisible) {
-                setState(() {
-                  _isVoiceUiVisible = false;
                 });
               }
             },
@@ -1811,88 +1798,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     );
   }
 
-  // (removed legacy overlay renderer; inline voice UI is now inside bottom bar)
-
-  Widget _buildVoiceInputInline(CustomColors colors) {
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colors.textLight.withValues(alpha: 0.12)),
-        boxShadow: [
-          BoxShadow(
-            color: colors.text.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.fromLTRB(12, 20, 12, 48),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              InkWell(
-                borderRadius: BorderRadius.circular(14),
-                onTap: () => setState(() => _isVoiceUiVisible = false),
-                child: Icon(Icons.close, size: 18, color: colors.textLight),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 84,
-            child: Center(
-              child: AnimatedBuilder(
-                animation: _loadingController,
-                builder: (context, _) {
-                  final double t = _loadingController.value;
-                  final double scale = 1.0 + 0.12 * math.sin(t * 2 * math.pi);
-                  return Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Transform.scale(
-                        scale: scale,
-                        child: Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            color: colors.primary.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 54,
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: colors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.mic, color: colors.white, size: 24),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '듣고 있어요...',
-            style: TextStyle(
-              color: colors.text,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // 입력 컨테이너는 하단 검색바로 대체됨
   Widget _buildBottomSearchBar(CustomColors colors) {
     // 키보드가 올라오면 하단 패딩을 늘려 바가 키보드 위에 위치하게 합니다.
@@ -2015,23 +1920,50 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                       child: Material(
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
-                        clipBehavior: Clip.antiAlias,
+                        clipBehavior: Clip.none,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(20),
                           splashColor: colors.text.withValues(alpha: 0.06),
                           highlightColor: Colors.transparent,
                           focusColor: Colors.transparent,
                           onTap: () {
-                            _stopVoiceInputIfAny();
                             FocusScope.of(
                               context,
                             ).requestFocus(_bottomInputFocusNode);
                           },
-                          child: Container(
+                          child: AnimatedContainer(
                             constraints: const BoxConstraints(minHeight: 44),
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
                             decoration: BoxDecoration(
-                              color: colors.textLight.withValues(alpha: 0.1),
+                              color: colors.textExtraLight,
                               borderRadius: BorderRadius.circular(20),
+                              border: _isListening
+                                  ? Border.all(
+                                      color: colors.primary.withValues(
+                                        alpha: 0.4,
+                                      ),
+                                      width: 1.5,
+                                    )
+                                  : null,
+                              boxShadow: _isListening
+                                  ? [
+                                      BoxShadow(
+                                        color: colors.primary.withValues(
+                                          alpha: 0.35,
+                                        ),
+                                        blurRadius: 22,
+                                        spreadRadius: 2,
+                                      ),
+                                      BoxShadow(
+                                        color: colors.text.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
                             ),
                             padding: const EdgeInsets.only(
                               left: 16,
@@ -2076,7 +2008,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                                 ).search_or_sentence_hint,
                                                 contentPadding: EdgeInsets.zero,
                                               ),
-                                              onTap: _stopVoiceInputIfAny,
                                               keyboardType:
                                                   TextInputType.multiline,
                                               textInputAction:
@@ -2131,12 +2062,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                                   return;
                                                 }
                                                 setState(() {
-                                                  isLanguageListOpen = false;
-                                                  isTonePanelVisible = false;
-                                                });
-                                                _hideKeyboard();
-                                                setState(() {
-                                                  _isVoiceUiVisible = true;
+                                                  _isListening = !_isListening;
                                                 });
                                               },
                                               child: SizedBox(
@@ -2145,8 +2071,13 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                                 child: Icon(
                                                   _isFetching
                                                       ? Icons.stop
-                                                      : Icons.mic_none_outlined,
-                                                  color: _isFetching
+                                                      : (_isListening
+                                                            ? Icons.mic
+                                                            : Icons
+                                                                  .mic_none_outlined),
+                                                  color:
+                                                      (_isFetching ||
+                                                          _isListening)
                                                       ? colors.text
                                                       : colors.text.withValues(
                                                           alpha: 0.5,
@@ -2264,10 +2195,6 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     ),
                   ],
                 ),
-                if (_isVoiceUiVisible) ...[
-                  const SizedBox(height: 8),
-                  _buildVoiceInputInline(colors),
-                ],
                 // 실시간 입력 언어 후보는 오버레이로 표시되므로, 하단바에서는 제거
               ],
             ),
