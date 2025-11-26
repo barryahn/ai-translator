@@ -1100,6 +1100,20 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     ),
                     height: 1.2,
                     color: colors.text,
+                    shadows: _isListening
+                        ? [
+                            Shadow(
+                              color: colors.primary.withValues(alpha: 0.4),
+                              blurRadius: 12,
+                              offset: const Offset(0, 0),
+                            ),
+                            Shadow(
+                              color: colors.primary.withValues(alpha: 0.3),
+                              blurRadius: 24,
+                              offset: const Offset(0, 0),
+                            ),
+                          ]
+                        : null,
                   ),
                 ),
               ),
