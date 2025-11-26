@@ -48,6 +48,24 @@ class TranslationHistoryScreen extends StatelessWidget {
                 key: ValueKey('history_${item.id}'),
                 background: Container(
                   color: Colors.redAccent.withValues(alpha: 0.9),
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 12),
+                      const Icon(Icons.delete, color: Colors.white, size: 28),
+                    ],
+                  ),
+                ),
+                secondaryBackground: Container(
+                  color: Colors.redAccent.withValues(alpha: 0.9),
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Icon(Icons.delete, color: Colors.white, size: 28),
+                      const SizedBox(width: 12),
+                    ],
+                  ),
                 ),
                 onDismissed: (_) {
                   TranslationHistoryService.instance.deleteById(item.id);
