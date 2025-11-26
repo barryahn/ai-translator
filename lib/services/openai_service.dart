@@ -10,6 +10,8 @@ typedef ChatErrorCallback = void Function(Object error);
 class OpenAIService {
   static bool _isInitialized = false;
   static StreamSubscription? _subscription;
+  static Timer? _noResponseTimer;
+  static const Duration _noResponseTimeout = Duration(seconds: 10);
   static final String _proModel = "gpt-4.1-mini";
   static final String _freeModel = "gpt-4o-mini";
   static String get proModel => _proModel;
@@ -19,12 +21,15 @@ class OpenAIService {
 
   static void dispose() {
     _subscription?.cancel();
+    _noResponseTimer?.cancel();
   }
 
   /// 진행 중인 스트리밍을 취소합니다. 이후에는 더 이상 델타가 전달되지 않습니다.
   static void cancelStreaming() {
     _subscription?.cancel();
     _subscription = null;
+    _noResponseTimer?.cancel();
+    _noResponseTimer = null;
   }
 
   static Future<void> initialize() async {
@@ -99,13 +104,40 @@ $toneInstruction
         ),
       );
 
+      bool hasReceivedDelta = false;
+
+      // 최초 응답(델타)이 일정 시간 내 오지 않으면 타임아웃 처리
+      _noResponseTimer?.cancel();
+      _noResponseTimer = Timer(_noResponseTimeout, () {
+        if (!hasReceivedDelta) {
+          _subscription?.cancel();
+          _subscription = null;
+          onError(TimeoutException('No response within ${_noResponseTimeout.inSeconds}s'));
+        }
+      });
+
       _subscription = stream.listen(
         (event) {
           final deltaText = event.choices!.first.delta?.content ?? '';
-          if (deltaText != '') onDelta(deltaText.toString());
+          if (deltaText != '') {
+            if (!hasReceivedDelta) {
+              hasReceivedDelta = true;
+              _noResponseTimer?.cancel();
+              _noResponseTimer = null;
+            }
+            onDelta(deltaText.toString());
+          }
         },
-        onDone: onComplete,
-        onError: onError,
+        onDone: () {
+          _noResponseTimer?.cancel();
+          _noResponseTimer = null;
+          onComplete();
+        },
+        onError: (error) {
+          _noResponseTimer?.cancel();
+          _noResponseTimer = null;
+          onError(error);
+        },
       );
     } catch (e) {
       print('OpenAI API 호출 오류: $e');
