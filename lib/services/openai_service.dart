@@ -112,7 +112,11 @@ $toneInstruction
         if (!hasReceivedDelta) {
           _subscription?.cancel();
           _subscription = null;
-          onError(TimeoutException('No response within ${_noResponseTimeout.inSeconds}s'));
+          onError(
+            TimeoutException(
+              'No response within ${_noResponseTimeout.inSeconds}s',
+            ),
+          );
         }
       });
 
