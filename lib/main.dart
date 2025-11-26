@@ -24,6 +24,7 @@ import 'services/translation_history_service.dart';
 import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
 import 'translation_history_screen.dart';
+import 'pro_subscription_screen.dart';
 import 'login_modal.dart';
 import 'setting_logged_in_screen.dart';
 import 'services/auth_service.dart';
@@ -663,10 +664,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                     if (_isFetching) {
                       return;
                     }
-                    Fluttertoast.showToast(
-                      msg: AppLocalizations.of(context).feature_coming_soon,
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ProSubscriptionScreen(),
+                      ),
                     );
                   },
                   style: OutlinedButton.styleFrom(
