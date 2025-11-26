@@ -4,6 +4,7 @@ import 'l10n/app_localizations.dart';
 import 'services/theme_service.dart';
 import 'services/language_service.dart';
 import 'theme/app_theme.dart';
+import 'pro_subscription_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -50,6 +51,18 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _buildMenuHeader(title: loc.get('information'), colors: colors),
+
+          _buildMenuItem(
+            icon: Icons.workspace_premium,
+            title: loc.get('pro_upgrade'),
+            subtitle: loc.get('pro_upgrade_description'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProSubscriptionScreen()),
+              );
+            },
+            colors: colors,
+          ),
 
           _buildMenuItem(
             icon: Icons.info,

@@ -6,6 +6,7 @@ import 'services/language_service.dart';
 import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'pro_subscription_screen.dart';
 
 class SettingsLoggedInScreen extends StatelessWidget {
   const SettingsLoggedInScreen({super.key});
@@ -59,6 +60,18 @@ class SettingsLoggedInScreen extends StatelessWidget {
           ),
 
           _buildMenuHeader(title: loc.get('information'), colors: colors),
+
+          _buildMenuItem(
+            icon: Icons.workspace_premium,
+            title: loc.get('pro_upgrade'),
+            subtitle: loc.get('pro_upgrade_description'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProSubscriptionScreen()),
+              );
+            },
+            colors: colors,
+          ),
 
           _buildMenuItem(
             icon: Icons.info,
