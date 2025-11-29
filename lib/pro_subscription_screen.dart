@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'services/theme_service.dart';
 import 'services/pro_service.dart';
+import 'services/subscription_service.dart';
 import 'theme/app_theme.dart';
 
 class ProSubscriptionScreen extends StatefulWidget {
@@ -103,7 +104,9 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isPro ? loc.get('pro_thank_you') : loc.get('pro_headline'),
+                      isPro
+                          ? loc.get('pro_thank_you')
+                          : loc.get('pro_headline'),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -112,11 +115,10 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      isPro ? loc.get('pro_subtitle_thanks') : loc.get('pro_subtitle'),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: colors.textLight,
-                      ),
+                      isPro
+                          ? loc.get('pro_subtitle_thanks')
+                          : loc.get('pro_subtitle'),
+                      style: TextStyle(fontSize: 13, color: colors.textLight),
                     ),
                   ],
                 ),
@@ -235,10 +237,7 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
                 const SizedBox(height: 4),
                 Text(
                   desc,
-                  style: TextStyle(
-                    color: colors.textLight,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: colors.textLight, fontSize: 13),
                 ),
               ],
             ),
@@ -249,6 +248,15 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
   }
 
   Widget _buildPlans(CustomColors colors, AppLocalizations loc, bool isPro) {
+    final prices = SubscriptionService.getPricesForCurrentUser();
+    final String monthlyPriceText = loc.getWithParams('pro_monthly_price', {
+      'currency': prices.monthly.currencySymbol,
+      'price': prices.monthly.priceText,
+    });
+    final String yearlyPriceText = loc.getWithParams('pro_yearly_price', {
+      'currency': prices.yearly.currencySymbol,
+      'price': prices.yearly.priceText,
+    });
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -257,7 +265,7 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
             colors,
             title: loc.get('pro_monthly'),
             highlighted: true,
-            footer: loc.get('pro_payment_coming_soon'),
+            footer: monthlyPriceText,
           ),
         ),
         Expanded(
@@ -265,7 +273,7 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
             colors,
             title: loc.get('pro_yearly'),
             highlighted: false,
-            footer: loc.get('pro_payment_coming_soon'),
+            footer: yearlyPriceText,
           ),
         ),
       ],
@@ -285,7 +293,9 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
         color: colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: highlighted ? colors.primary.withValues(alpha: 0.25) : colors.textLight.withValues(alpha: 0.15),
+          color: highlighted
+              ? colors.primary.withValues(alpha: 0.25)
+              : colors.textLight.withValues(alpha: 0.15),
           width: highlighted ? 1.5 : 1,
         ),
         boxShadow: [
@@ -296,7 +306,7 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
           ),
         ],
       ),
-    child: Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -350,7 +360,9 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: colors.white,
             disabledBackgroundColor: colors.background,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             elevation: 0,
           ),
           child: ShaderMask(
@@ -362,7 +374,9 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
               ).createShader(bounds);
             },
             child: Text(
-              isPro ? AppLocalizations.of(context).get('pro_thank_you') : AppLocalizations.of(context).get('pro_upgrade_cta'),
+              isPro
+                  ? AppLocalizations.of(context).get('pro_thank_you')
+                  : AppLocalizations.of(context).get('pro_upgrade_cta'),
               style: const TextStyle(
                 color: Colors.white, // gradient를 보이게 하기 위한 placeholder 색
                 fontSize: 16,
@@ -375,5 +389,3 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
     );
   }
 }
-
-
