@@ -87,8 +87,8 @@ class SubscriptionService {
     try {
       final ui.Locale? locale =
           ui.PlatformDispatcher.instance.locales.isNotEmpty
-              ? ui.PlatformDispatcher.instance.locales.first
-              : ui.PlatformDispatcher.instance.locale;
+          ? ui.PlatformDispatcher.instance.locales.first
+          : ui.PlatformDispatcher.instance.locale;
       final String? code = locale?.countryCode;
       if (code != null && code.trim().isNotEmpty) {
         return code.toUpperCase();
@@ -127,5 +127,3 @@ class SubscriptionService {
     return getPricesForCountry(code);
   }
 }
-
-
