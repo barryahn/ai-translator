@@ -14,6 +14,7 @@ class ProSubscriptionScreen extends StatefulWidget {
 }
 
 class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
+  String _selectedPlan = 'monthly'; // 'monthly' or 'yearly'
   @override
   void initState() {
     super.initState();
@@ -261,19 +262,55 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: _planCard(
-            colors,
-            title: loc.get('pro_monthly'),
-            highlighted: true,
-            footer: monthlyPriceText,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16, right: 8),
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _selectedPlan = 'monthly';
+                  });
+                },
+                borderRadius: BorderRadius.circular(16),
+                splashColor: colors.primary.withValues(alpha: 0.10),
+                highlightColor: colors.primary.withValues(alpha: 0.06),
+                child: _planCard(
+                  colors,
+                  title: loc.get('pro_monthly'),
+                  highlighted: _selectedPlan == 'monthly',
+                  footer: monthlyPriceText,
+                ),
+              ),
+            ),
           ),
         ),
         Expanded(
-          child: _planCard(
-            colors,
-            title: loc.get('pro_yearly'),
-            highlighted: false,
-            footer: yearlyPriceText,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8, right: 16),
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _selectedPlan = 'yearly';
+                  });
+                },
+                borderRadius: BorderRadius.circular(16),
+                splashColor: colors.primary.withValues(alpha: 0.10),
+                highlightColor: colors.primary.withValues(alpha: 0.06),
+                child: _planCard(
+                  colors,
+                  title: loc.get('pro_yearly'),
+                  highlighted: _selectedPlan == 'yearly',
+                  footer: yearlyPriceText,
+                ),
+              ),
+            ),
           ),
         ),
       ],
@@ -287,7 +324,6 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
     required String footer,
   }) {
     return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16, top: 12),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       decoration: BoxDecoration(
         color: colors.white,
