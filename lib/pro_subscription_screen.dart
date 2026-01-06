@@ -4,6 +4,7 @@ import 'l10n/app_localizations.dart';
 import 'services/theme_service.dart';
 import 'services/pro_service.dart';
 import 'services/subscription_service.dart';
+import 'services/in_app_purchase_service.dart';
 import 'theme/app_theme.dart';
 
 class ProSubscriptionScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
     super.initState();
     // ProService 초기화 (로컬 저장소 및 Firestore 동기화)
     ProService().initialize();
+    InAppPurchaseService().ensureInitialized();
   }
 
   @override
@@ -31,10 +33,15 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
     final loc = AppLocalizations.of(context);
 
     // ProService를 이 화면 범위에서 제공 (싱글톤 인스턴스)
-    return ChangeNotifierProvider<ProService>.value(
-      value: ProService(),
-      child: Consumer<ProService>(
-        builder: (context, proService, _) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ProService>.value(value: ProService()),
+        ChangeNotifierProvider<InAppPurchaseService>.value(
+          value: InAppPurchaseService(),
+        ),
+      ],
+      child: Consumer2<ProService, InAppPurchaseService>(
+        builder: (context, proService, iapService, _) {
           final bool isPro = proService.isPro;
           return Scaffold(
             backgroundColor: colors.background,
@@ -51,9 +58,9 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
                   const SizedBox(height: 12),
                   _buildBenefitsCard(colors, loc),
                   const SizedBox(height: 12),
-                  _buildPlans(colors, loc, isPro),
+                  _buildPlans(colors, loc, iapService),
                   const SizedBox(height: 16),
-                  _buildCTA(colors, loc, isPro),
+                  _buildCTA(colors, loc, isPro, iapService),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -250,16 +257,24 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
     );
   }
 
-  Widget _buildPlans(CustomColors colors, AppLocalizations loc, bool isPro) {
+  Widget _buildPlans(
+    CustomColors colors,
+    AppLocalizations loc,
+    InAppPurchaseService iapService,
+  ) {
     final prices = SubscriptionService.getPricesForCurrentUser();
-    final String monthlyPriceText = loc.getWithParams('pro_monthly_price', {
-      'currency': prices.monthly.currencySymbol,
-      'price': prices.monthly.priceText,
-    });
-    final String yearlyPriceText = loc.getWithParams('pro_yearly_price', {
-      'currency': prices.yearly.currencySymbol,
-      'price': prices.yearly.priceText,
-    });
+    final String monthlyPriceText =
+        iapService.priceLabelForPlan('monthly') ??
+        loc.getWithParams('pro_monthly_price', {
+          'currency': prices.monthly.currencySymbol,
+          'price': prices.monthly.priceText,
+        });
+    final String yearlyPriceText =
+        iapService.priceLabelForPlan('yearly') ??
+        loc.getWithParams('pro_yearly_price', {
+          'currency': prices.yearly.currencySymbol,
+          'price': prices.yearly.priceText,
+        });
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -404,57 +419,90 @@ class _ProSubscriptionScreenState extends State<ProSubscriptionScreen> {
     );
   }
 
-  Widget _buildCTA(CustomColors colors, AppLocalizations loc, bool isPro) {
+  Widget _buildCTA(
+    CustomColors colors,
+    AppLocalizations loc,
+    bool isPro,
+    InAppPurchaseService iapService,
+  ) {
+    final bool isBusy = iapService.isProcessingPurchase;
+    final bool disabled = isPro || isBusy;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SizedBox(
-        height: 52,
-        child: ElevatedButton(
-          onPressed: isPro
-              ? null
-              : () {
-                  showDialog<void>(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: Text(loc.get('pro_upgrade')),
-                      content: Text(loc.get('pro_payment_coming_soon')),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(ctx).pop(),
-                          child: Text(loc.get('close')),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              onPressed: disabled
+                  ? null
+                  : () async {
+                      final success = await iapService.purchasePlan(
+                        _selectedPlan,
+                      );
+                      if (!success && mounted) {
+                        final message =
+                            iapService.lastMessage ??
+                            '결제를 시작할 수 없습니다. 잠시 후 다시 시도해주세요.';
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(message)));
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colors.white,
+                disabledBackgroundColor: colors.background,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
+              child: isBusy
+                  ? SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          colors.primary,
                         ),
-                      ],
+                      ),
+                    )
+                  : ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [colors.primary, colors.secondary],
+                        ).createShader(bounds);
+                      },
+                      child: Text(
+                        isPro
+                            ? AppLocalizations.of(context).get('pro_thank_you')
+                            : AppLocalizations.of(
+                                context,
+                              ).get('pro_upgrade_cta'),
+                        style: const TextStyle(
+                          color:
+                              Colors.white, // gradient를 보이게 하기 위한 placeholder 색
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                     ),
-                  );
-                },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colors.white,
-            disabledBackgroundColor: colors.background,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
             ),
-            elevation: 0,
           ),
-          child: ShaderMask(
-            shaderCallback: (Rect bounds) {
-              return LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [colors.primary, colors.secondary],
-              ).createShader(bounds);
-            },
-            child: Text(
-              isPro
-                  ? AppLocalizations.of(context).get('pro_thank_you')
-                  : AppLocalizations.of(context).get('pro_upgrade_cta'),
-              style: const TextStyle(
-                color: Colors.white, // gradient를 보이게 하기 위한 placeholder 색
-                fontSize: 16,
-                fontWeight: FontWeight.w900,
+          if (iapService.lastMessage != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                iapService.lastMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: colors.textLight, fontSize: 12),
               ),
             ),
-          ),
-        ),
+        ],
       ),
     );
   }

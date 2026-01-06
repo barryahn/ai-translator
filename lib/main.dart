@@ -656,6 +656,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             scrolledUnderElevation: 0.1,
             shadowColor: colors.text.withValues(alpha: 0.3),
             actions: [
+              /*
               // PRO 버튼 (이미지 검색 아이콘 왼쪽)
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
@@ -687,6 +688,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                   ),
                 ),
               ),
+              */
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: IconButton(

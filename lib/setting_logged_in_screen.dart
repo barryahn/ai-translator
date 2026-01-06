@@ -61,6 +61,8 @@ class SettingsLoggedInScreen extends StatelessWidget {
 
           _buildMenuHeader(title: loc.get('information'), colors: colors),
 
+          /*
+          // PRO 업그레이드 숨기기
           _buildMenuItem(
             icon: Icons.workspace_premium,
             title: loc.get('pro_upgrade'),
@@ -72,7 +74,7 @@ class SettingsLoggedInScreen extends StatelessWidget {
             },
             colors: colors,
           ),
-
+          */
           _buildMenuItem(
             icon: Icons.info,
             title: loc.get('app_info'),
