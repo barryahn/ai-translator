@@ -1553,7 +1553,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  '입력한 내용',
+                  AppLocalizations.of(context).input_text,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
