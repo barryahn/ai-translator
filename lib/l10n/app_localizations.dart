@@ -583,6 +583,306 @@ class AppLocalizations {
           'Recommend us to others by rating us on Play Store',
       'review_rate_now': 'RATE US',
     },
+    'de': {
+      // App Title
+      'app_title': 'Dive Übersetzer',
+
+      // Navigation
+      'home': 'Start',
+      'history': 'Verlauf',
+      'explore': 'Entdecken',
+      'profile': 'Profil',
+      'menu': 'Menü',
+      'settings': 'Einstellungen',
+
+      // Search Related
+      'search_hint': 'Frag nach jedem Wort',
+      'search_button': 'Suchen',
+      'additional_search': 'Weiter suchen',
+      'searching': 'Suche...',
+      'listening': 'Zuhören...',
+      'stop_search': 'Stopp',
+      'search_failed': 'Suchergebnisse konnten nicht abgerufen werden.',
+      'search_stopped': 'Die Suche wurde angehalten.',
+      'no_search_result': 'Keine passenden Suchergebnisse gefunden.',
+      'main_search_hint': 'Gib ein Wort zum Suchen ein',
+
+      // Language Selection
+      'from_language': 'Von',
+      'to_language': 'Nach',
+      'language': 'Sprache',
+      'english': 'Englisch',
+      'korean': 'Koreanisch',
+      'chinese': 'Chinesisch',
+      'taiwanMandarin': 'Taiwanesisches Mandarin',
+      'spanish': 'Spanisch',
+      'french': 'Französisch',
+      'japanese': 'Japanisch',
+      'german': 'Deutsch',
+
+      // Search Results
+      'dictionary_meaning': 'Bedeutung',
+      'nuance': 'Nuance',
+      'conversation_examples': 'Dialogbeispiele',
+      'similar_expressions': 'Ähnliche Ausdrücke',
+      'conversation': 'Dialog',
+      'word': 'Wort',
+
+      // Search History
+      'translation_history': 'Übersetzungsverlauf',
+      'no_history': 'Kein Suchverlauf',
+      'history_description': 'Der Suchverlauf erscheint hier',
+      'searched_words': 'Gesuchte Wörter',
+      'delete_history': 'Suchverlauf gelöscht',
+      'delete_failed': 'Löschen fehlgeschlagen',
+      'clear_all_history': 'Gesamten Verlauf löschen',
+      'clear_all_confirm':
+          'Gesamten Suchverlauf löschen?\nDiese Aktion kann nicht rückgängig gemacht werden.',
+      'cancel': 'Abbrechen',
+      'delete': 'Löschen',
+      'close': 'Schließen',
+      'all_history_deleted': 'Gesamter Suchverlauf gelöscht',
+
+      // Profile
+      'profile_title': 'Profil',
+      'ai_dictionary_user': '$appName-Nutzer',
+      'edit_profile': 'Profil bearbeiten',
+      'app_language_setting': 'App-Sprache',
+      'notification_setting': 'Benachrichtigungen',
+      'notification_description': 'Lernhinweise erhalten',
+      'dark_mode': 'Dunkelmodus',
+      'dark_mode_description': 'Systemeinstellungen übernehmen',
+      'storage': 'Speicher',
+      'data': 'Daten',
+      'data_description': 'Datenverwaltung',
+      'theme': 'Theme',
+      'recommended_theme': 'Empfohlen',
+      'light_theme': 'Hell',
+      'dark_theme': 'Dunkel',
+      'pause_search_history': 'Suchverlauf pausieren',
+      'pause_search_history_description':
+          'Bei Aktivierung wird der Suchverlauf nicht gespeichert.',
+      'search_history_paused':
+          'Das Speichern des Suchverlaufs ist derzeit pausiert.',
+      'delete_all_history': 'Gesamten Suchverlauf löschen',
+      'delete_account': 'Konto löschen',
+      'delete_account_description': 'Konto dauerhaft löschen',
+      'delete_account_confirm':
+          'Möchtest du dein Konto wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden und alle Daten werden dauerhaft gelöscht.',
+      'delete_account_success': 'Konto wurde erfolgreich gelöscht.',
+      'delete_account_failed': 'Konto konnte nicht gelöscht werden.',
+      'password_required_for_delete':
+          'Bitte gib dein Passwort ein, um dein Konto zu löschen.',
+      'password_hint_for_delete': 'Gib dein aktuelles Passwort ein',
+      'help': 'Hilfe',
+      'help_description': 'Anleitung und FAQ',
+      'terms_of_service': 'Nutzungsbedingungen',
+      'terms_of_service_description': 'Bedingungen für die Nutzung des Dienstes',
+      'app_info': 'App-Info',
+      'app_version': 'Version $appVersion',
+      'logout': 'Abmelden',
+      'logout_description': 'Vom Konto abmelden',
+      'logout_confirm': 'Möchtest du dich wirklich abmelden?',
+      'logout_success': 'Erfolgreich abgemeldet.',
+      'system': 'System',
+      'information': 'Informationen',
+      // Pro
+      'pro_upgrade': 'Upgrade auf Pro',
+      'pro_upgrade_description': 'Pro-Vorteile und Abrechnung',
+      // Pro upgrade screen
+      'pro_headline': 'Upgrade auf Pro.',
+      'pro_thank_you': 'Vielen Dank für den Kauf von Pro.',
+      'pro_subtitle': 'Schneller, genauer und komfortabler.',
+      'pro_subtitle_thanks': 'Hab einen wunderbaren Tag!',
+      'pro_benefits_title': 'Pro-Vorteile',
+      'pro_benefit_unlimited_title': 'Unbegrenzte Suchen',
+      'pro_benefit_unlimited_desc':
+          'Suche so viel du willst ohne Limits.',
+      'pro_benefit_better_model_title': 'Höherwertiges KI-Modell',
+      'pro_benefit_better_model_desc':
+          'Über 3x genauere und natürlichere Ergebnisse.',
+      'pro_benefit_longer_text_title': 'Längere Textübersetzung',
+      'pro_benefit_longer_text_desc':
+          'Bis zu 3.000 Zeichen statt 500.',
+      'pro_benefit_quality_title': 'Erweiterte Übersetzungsqualität',
+      'pro_benefit_quality_desc': 'Berücksichtigt Kontext und Nuancen besser.',
+      'pro_benefit_no_ads_title': 'Keine Werbung',
+      'pro_benefit_no_ads_desc': 'Saubere, fokussierte Oberfläche.',
+      'pro_benefit_extras_title': 'Zusatzfunktionen',
+      'pro_benefit_extras_desc':
+          'Teste kommende Funktionen und Sprachen zuerst.',
+      'pro_monthly': 'Monatlich',
+      'pro_yearly': 'Jährlich',
+      'pro_upgrade_cta': 'Upgrade auf Pro',
+      'pro_payment_coming_soon': 'Bezahlung folgt in Kürze.',
+      'pro_monthly_price': '{currency}{price} pro Monat',
+      'pro_yearly_price': '{currency}{price} pro Jahr',
+      'pro_model_quota_tooltip':
+          'Verbleibende Pro-Suchen heute\nZurücksetzen morgen um 00:00',
+      'pro_upgrade_overlay_message':
+          'Abonniere Pro, um weitere Suchen fortzusetzen.',
+
+      // Guest User
+      'guest_user': 'Gast',
+      'guest_description': 'Melde dich an, um mehr Funktionen zu nutzen',
+
+      // Login/Register
+      'login': 'Anmelden',
+      'register': 'Registrieren',
+      'login_subtitle': 'Melde dich bei $appName an',
+      'register_subtitle': 'Erstelle ein neues Konto',
+      'email': 'E-Mail',
+      'email_hint': 'Gib deine E-Mail ein',
+      'email_required': 'Bitte E-Mail eingeben',
+      'email_invalid': 'Bitte eine gültige E-Mail eingeben',
+      'password': 'Passwort',
+      'password_hint': 'Gib dein Passwort ein',
+      'password_required': 'Bitte Passwort eingeben',
+      'password_too_short': 'Passwort muss mindestens 6 Zeichen haben',
+      'forgot_password': 'Passwort vergessen',
+      'forgot_password_description':
+          'Wir senden dir einen Link zum Zurücksetzen per E-Mail',
+      'forgot_password_description_check_spam_folder':
+          'Falls du keine E-Mail erhältst, prüfe bitte den Spam-Ordner.',
+      'reset_password_email_sent':
+          'E-Mail zum Zurücksetzen wurde gesendet.',
+      'reset_password_email_failed':
+          'E-Mail zum Zurücksetzen konnte nicht gesendet werden.',
+      'no_account_register': 'Noch kein Konto? Registrieren',
+      'have_account_login': 'Schon ein Konto? Anmelden',
+      'login_failed': 'Anmeldung fehlgeschlagen',
+      'register_failed': 'Registrierung fehlgeschlagen',
+      'error_occurred': 'Es ist ein Fehler aufgetreten',
+      'google_login': 'Mit Google anmelden',
+      'google_login_failed': 'Google-Anmeldung fehlgeschlagen',
+      'or': 'oder',
+
+      // Dialogs
+      'confirm': 'Bestätigen',
+      'language_changed': 'Appsprache wurde zu {language} geändert.',
+      'feature_coming_soon': 'Funktion folgt bald.',
+      'app_name': appName,
+      'version': 'Version',
+      'developer': 'Entwickler',
+      'ai_dictionary_team': '$appName Team',
+
+      // Explore Page
+      'explore_title': 'Entdecken',
+      'word_of_day': 'Wort des Tages',
+      'view_details': 'Details anzeigen',
+      'popular_searches': 'Beliebte Suchanfragen',
+      'word_categories': 'Wortkategorien',
+      'daily_life': 'Alltag',
+      'business': 'Business',
+      'travel': 'Reisen',
+      'emotions': 'Gefühle',
+      'learning': 'Lernen',
+      'hobby': 'Hobby',
+      'language_tips': 'Sprachlerntipps',
+      'daily_learning': 'Täglich 10 Minuten lernen',
+      'daily_learning_desc':
+          'Konstantes Lernen ist wichtig, auch wenn es kurz ist',
+      'use_in_conversation': 'In echten Gesprächen nutzen',
+      'use_in_conversation_desc':
+          'Versuche gelernte Wörter in echten Situationen zu verwenden',
+      'remember_in_sentence': 'In Sätzen merken',
+      'remember_in_sentence_desc':
+          'Wörter im Kontext merken hilft beim Behalten',
+      'practice_pronunciation': 'Aussprache üben',
+      'practice_pronunciation_desc': 'Übe laut zu sprechen',
+      'trending_words': 'Trendwörter',
+      'learning_stats': 'Lernstatistik',
+      'today_learning': 'Heute',
+      'this_week': 'Diese Woche',
+      'total_learning': 'Insgesamt',
+      'words': 'Wörter',
+
+      // Time Related
+      'just_now': 'Gerade eben',
+      'minutes_ago': 'Vor {minutes} Min.',
+      'hours_ago': 'Vor {hours} Std.',
+      'days_ago': 'Vor {days} Tagen',
+
+      // Search History Related
+      'and_others': 'und',
+      'items': ' weitere',
+      'free_version_history_limit_tooltip':
+          'In der Gratisversion werden bis zu 20 Einträge gespeichert.',
+
+      // Translation Related
+      'translation': 'Übersetzung',
+      'translation_tone': 'Übersetzungsstil',
+      'select_from_language': 'Ausgangssprache wählen',
+      'select_to_language': 'Zielsprache wählen',
+      'input_text': 'Eingabetext',
+      'translation_result': 'Übersetzungsergebnis',
+      'translate_button': 'Übersetzen',
+      'input_text_hint': 'Text zum Übersetzen eingeben.',
+      'search_or_sentence_hint': 'Suchbegriff oder Satz eingeben',
+      'translation_result_hint': 'Das Ergebnis erscheint hier.',
+      'input_text_copied': 'Eingabetext kopiert.',
+      'translation_result_copied': 'Übersetzung kopiert.',
+      'translation_error': 'Beim Übersetzen ist ein Fehler aufgetreten.',
+      'language_change': 'Sprachänderung',
+      'selected_input_language': 'Gewählte Eingabesprache: ',
+      'is_this_language_correct': 'Ist diese Sprache korrekt?',
+      'yes': 'Ja',
+      'no': 'Nein',
+      'friendly': 'Locker',
+      'basic': 'Neutral',
+      'polite': 'Höflich',
+      'formal': 'Formell',
+
+      // Help / Tutorial
+      'welcome_tutorial': 'App-Tutorial',
+      'tutorial_welcome': 'Willkommen bei $appName!',
+      'tutorial_welcome_desc':
+          'Wir führen dich kurz durch die Hauptfunktionen der App.',
+      'tutorial_search_title': 'Wörter suchen',
+      'tutorial_search_desc':
+          'Wenn du unsicher bei Bedeutung oder Nuance bist,\nprobier die Suche!',
+      'tutorial_search_desc_detail':
+          'Die KI zeigt dir, wie Muttersprachler das Wort nutzen.',
+      'tutorial_search_desc_detail_2': 'Auch hier kannst du die Sprache ändern.',
+      'tutorial_language_title': 'Sprachen wählen',
+      'tutorial_language_desc':
+          'Wähle vor der Suche Ausgangs- und Zielsprache!',
+      'tutorial_language_desc_detail':
+          'Wenn du Spanisch wählst,\nkannst du es als spanisches Wörterbuch nutzen.',
+      'tutorial_history_title': 'Suchverlauf',
+      'tutorial_history_desc': 'Gesuchte Wörter werden hier gespeichert.',
+      'tutorial_history_desc_detail':
+          'Wenn du dich anmeldest, bleibt der Verlauf auch nach Neuinstallation.',
+      'tutorial_translate_title': 'KI-Übersetzung',
+      'tutorial_translate_desc':
+          'Wähle einen Übersetzungsstil und probiere einen Satz!',
+      'tutorial_translate_language_selector_title': 'Übersetzungssprachen wählen',
+      'tutorial_translate_language_selector_desc':
+          'Wähle, aus welcher und in welche Sprache übersetzt wird!',
+      'tutorial_translate_desc_detail':
+          'Wähle den passenden Stil für die Situation\nfür natürlichere Ergebnisse.',
+      'tutorial_translate_tone_picker_title': 'Übersetzungsstil',
+      'tutorial_translate_tone_picker_desc':
+          'Wähle einen passenden Stil!',
+      'tutorial_next': 'Weiter',
+      'tutorial_skip': 'Überspringen',
+      'tutorial_skip_all': 'Alle überspringen',
+      'tutorial_finish': 'Starten',
+      'tutorial_dont_show_again': 'Nicht mehr zeigen',
+      'tutorial_show_again': 'Erneut anzeigen',
+      'tutorial_show_again_desc':
+          'Du kannst dieses Tutorial jederzeit in den Einstellungen erneut ansehen.',
+      // Home screen phrase
+      'which_language_question': 'Welche Sprache interessiert dich?',
+      'which_language_part1': 'Welche Sprache ',
+      'which_language_part2': 'interessiert dich?',
+      // Review prompt
+      'review_thanks_first_search': 'Danke für deine erste Suche!',
+      'review_like_app_question': 'Gefällt dir die WordVibe-App?',
+      'review_recommend_play_store':
+          'Empfiehl uns, indem du uns im Play Store bewertest',
+      'review_rate_now': 'Jetzt bewerten',
+    },
     'zh': {
       // 应用标题
       'app_title': 'Dive翻译',
@@ -1899,7 +2199,8 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
       return true;
     }
 
-    return ['ko', 'en', 'zh', 'fr', 'es'].contains(locale.languageCode);
+    return ['ko', 'en', 'de', 'zh', 'fr', 'es']
+        .contains(locale.languageCode);
   }
 
   @override

@@ -237,6 +237,7 @@ class LanguageService {
   static List<Locale> getSupportedAppLocales() => const [
     Locale('ko'),
     Locale('en'),
+    Locale('de'),
     Locale('zh'),
     Locale('fr'),
     Locale('es'),
@@ -246,6 +247,7 @@ class LanguageService {
   static List<String> getSupportedAppLanguageCodes() => const [
     codeKorean,
     codeEnglish,
+    codeGerman,
     'zh',
     codeFrench,
     codeSpanish,
@@ -259,6 +261,7 @@ class LanguageService {
     return [
       {'code': codeKorean, 'name': loc.korean},
       {'code': codeEnglish, 'name': loc.english},
+      {'code': codeGerman, 'name': loc.german},
       {'code': 'zh', 'name': loc.chinese},
       {'code': codeChineseTaiwan, 'name': loc.taiwanMandarin},
       {'code': codeFrench, 'name': loc.french},
@@ -274,6 +277,8 @@ class LanguageService {
         return loc.korean;
       case 'en':
         return loc.english;
+      case 'de':
+        return loc.german;
       case 'zh-tw':
         return loc.taiwanMandarin;
       case 'zh':
