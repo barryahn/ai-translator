@@ -51,6 +51,9 @@ class AppLocalizations {
       'french': '프랑스어',
       'japanese': '일본어',
       'german': '독일어',
+      'language_order': '언어 표시 순서 조정',
+      'language_order_description': '드래그해서 표시 순서를 바꿔보세요',
+      'language_order_saved': '언어 순서가 저장되었습니다',
 
       // 검색 결과
       'dictionary_meaning': '뜻',
@@ -323,6 +326,9 @@ class AppLocalizations {
       'french': 'French',
       'japanese': 'Japanese',
       'german': 'German',
+      'language_order': 'Reorder languages',
+      'language_order_description': 'Drag to change display order',
+      'language_order_saved': 'Language order saved',
 
       // Search Results
       'dictionary_meaning': 'Meaning',
@@ -619,6 +625,10 @@ class AppLocalizations {
       'french': 'Französisch',
       'japanese': 'Japanisch',
       'german': 'Deutsch',
+      'language_order': 'Sprachreihenfolge anpassen',
+      'language_order_description':
+          'Ziehe, um die Anzeige-Reihenfolge zu ändern',
+      'language_order_saved': 'Sprachreihenfolge gespeichert',
 
       // Search Results
       'dictionary_meaning': 'Bedeutung',
@@ -677,7 +687,8 @@ class AppLocalizations {
       'help': 'Hilfe',
       'help_description': 'Anleitung und FAQ',
       'terms_of_service': 'Nutzungsbedingungen',
-      'terms_of_service_description': 'Bedingungen für die Nutzung des Dienstes',
+      'terms_of_service_description':
+          'Bedingungen für die Nutzung des Dienstes',
       'app_info': 'App-Info',
       'app_version': 'Version $appVersion',
       'logout': 'Abmelden',
@@ -696,14 +707,12 @@ class AppLocalizations {
       'pro_subtitle_thanks': 'Hab einen wunderbaren Tag!',
       'pro_benefits_title': 'Pro-Vorteile',
       'pro_benefit_unlimited_title': 'Unbegrenzte Suchen',
-      'pro_benefit_unlimited_desc':
-          'Suche so viel du willst ohne Limits.',
+      'pro_benefit_unlimited_desc': 'Suche so viel du willst ohne Limits.',
       'pro_benefit_better_model_title': 'Höherwertiges KI-Modell',
       'pro_benefit_better_model_desc':
           'Über 3x genauere und natürlichere Ergebnisse.',
       'pro_benefit_longer_text_title': 'Längere Textübersetzung',
-      'pro_benefit_longer_text_desc':
-          'Bis zu 3.000 Zeichen statt 500.',
+      'pro_benefit_longer_text_desc': 'Bis zu 3.000 Zeichen statt 500.',
       'pro_benefit_quality_title': 'Erweiterte Übersetzungsqualität',
       'pro_benefit_quality_desc': 'Berücksichtigt Kontext und Nuancen besser.',
       'pro_benefit_no_ads_title': 'Keine Werbung',
@@ -744,8 +753,7 @@ class AppLocalizations {
           'Wir senden dir einen Link zum Zurücksetzen per E-Mail',
       'forgot_password_description_check_spam_folder':
           'Falls du keine E-Mail erhältst, prüfe bitte den Spam-Ordner.',
-      'reset_password_email_sent':
-          'E-Mail zum Zurücksetzen wurde gesendet.',
+      'reset_password_email_sent': 'E-Mail zum Zurücksetzen wurde gesendet.',
       'reset_password_email_failed':
           'E-Mail zum Zurücksetzen konnte nicht gesendet werden.',
       'no_account_register': 'Noch kein Konto? Registrieren',
@@ -843,7 +851,8 @@ class AppLocalizations {
           'Wenn du unsicher bei Bedeutung oder Nuance bist,\nprobier die Suche!',
       'tutorial_search_desc_detail':
           'Die KI zeigt dir, wie Muttersprachler das Wort nutzen.',
-      'tutorial_search_desc_detail_2': 'Auch hier kannst du die Sprache ändern.',
+      'tutorial_search_desc_detail_2':
+          'Auch hier kannst du die Sprache ändern.',
       'tutorial_language_title': 'Sprachen wählen',
       'tutorial_language_desc':
           'Wähle vor der Suche Ausgangs- und Zielsprache!',
@@ -856,14 +865,14 @@ class AppLocalizations {
       'tutorial_translate_title': 'KI-Übersetzung',
       'tutorial_translate_desc':
           'Wähle einen Übersetzungsstil und probiere einen Satz!',
-      'tutorial_translate_language_selector_title': 'Übersetzungssprachen wählen',
+      'tutorial_translate_language_selector_title':
+          'Übersetzungssprachen wählen',
       'tutorial_translate_language_selector_desc':
           'Wähle, aus welcher und in welche Sprache übersetzt wird!',
       'tutorial_translate_desc_detail':
           'Wähle den passenden Stil für die Situation\nfür natürlichere Ergebnisse.',
       'tutorial_translate_tone_picker_title': 'Übersetzungsstil',
-      'tutorial_translate_tone_picker_desc':
-          'Wähle einen passenden Stil!',
+      'tutorial_translate_tone_picker_desc': 'Wähle einen passenden Stil!',
       'tutorial_next': 'Weiter',
       'tutorial_skip': 'Überspringen',
       'tutorial_skip_all': 'Alle überspringen',
@@ -919,6 +928,9 @@ class AppLocalizations {
       'french': '法语',
       'japanese': '日语',
       'german': '德语',
+      'language_order': '调整语言显示顺序',
+      'language_order_description': '拖动即可调整显示顺序',
+      'language_order_saved': '语言顺序已保存',
 
       // 搜索结果
       'dictionary_meaning': '含义',
@@ -1188,6 +1200,9 @@ class AppLocalizations {
       'french': '法語',
       'japanese': '日語',
       'german': '德語',
+      'language_order': '調整語言顯示順序',
+      'language_order_description': '拖曳以調整顯示順序',
+      'language_order_saved': '語言順序已儲存',
 
       // 搜尋結果
       'dictionary_meaning': '含義',
@@ -1457,6 +1472,9 @@ class AppLocalizations {
       'french': 'Français',
       'japanese': 'Japonais',
       'german': 'Allemand',
+      'language_order': 'Réorganiser les langues',
+      'language_order_description': 'Faites glisser pour changer l’ordre',
+      'language_order_saved': 'Ordre des langues enregistré',
 
       // Résultats de recherche
       'dictionary_meaning': 'Signification',
@@ -1760,6 +1778,9 @@ class AppLocalizations {
       'french': 'Francés',
       'japanese': 'Japonés',
       'german': 'Alemán',
+      'language_order': 'Ajustar orden de idiomas',
+      'language_order_description': 'Arrastra para cambiar el orden de muestra',
+      'language_order_saved': 'Orden de idiomas guardado',
 
       // Resultados de búsqueda
       'dictionary_meaning': 'Significado',
@@ -2199,8 +2220,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
       return true;
     }
 
-    return ['ko', 'en', 'de', 'zh', 'fr', 'es']
-        .contains(locale.languageCode);
+    return ['ko', 'en', 'de', 'zh', 'fr', 'es'].contains(locale.languageCode);
   }
 
   @override

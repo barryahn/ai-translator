@@ -24,7 +24,6 @@ import 'services/translation_history_service.dart';
 import 'setting_screen.dart';
 import 'terms_of_service_screen.dart';
 import 'translation_history_screen.dart';
-import 'pro_subscription_screen.dart';
 import 'login_modal.dart';
 import 'setting_logged_in_screen.dart';
 import 'services/auth_service.dart';
@@ -190,9 +189,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   int? _toneLevelAtLastTranslate;
   StreamSubscription<TtsProgress>? _ttsProgressSub;
   StreamSubscription<User?>? _authSub;
+  StreamSubscription<Map<String, String>>? _languageSub;
 
-  final List<String> languages =
-      LanguageService.getUiLanguagesOrderedBySystem();
+  List<String> _languages = LanguageService.getTranslationLanguageOrder();
 
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _bottomInputFocusNode = FocusNode();
@@ -266,6 +265,15 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     _authSub = AuthService.instance.authStateChanges.listen((_) {
       if (!mounted) return;
       setState(() {});
+    });
+
+    _languageSub = LanguageService.languageStream.listen((event) {
+      if (!mounted) return;
+      if (event.containsKey('languageOrder')) {
+        setState(() {
+          _languages = LanguageService.getTranslationLanguageOrder();
+        });
+      }
     });
   }
 
@@ -797,6 +805,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     _ttsSub?.cancel();
     _ttsProgressSub?.cancel();
     _authSub?.cancel();
+    _languageSub?.cancel();
     super.dispose();
   }
 
@@ -1271,14 +1280,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
             constraints: const BoxConstraints(maxHeight: 240),
             child: ListView.separated(
               shrinkWrap: true,
-              itemCount: languages.length,
+              itemCount: _languages.length,
               separatorBuilder: (_, __) => Divider(
                 height: 1,
                 thickness: 0.5,
                 color: colors.textLight.withValues(alpha: 0.08),
               ),
               itemBuilder: (context, index) {
-                final name = languages[index];
+                final name = _languages[index];
                 final bool selected = name == current;
                 return Material(
                   color: Colors.transparent,
@@ -1703,7 +1712,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     for (final r in _inputLangCandidates) {
       if (r.probability < 0.54) continue;
       final String uiName = LanguageService.getUiLanguageFromCode(r.code);
-      if (languages.contains(uiName)) {
+      if (_languages.contains(uiName)) {
         suggestedFromUi = uiName;
         break;
       }

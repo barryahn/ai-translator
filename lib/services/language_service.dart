@@ -9,6 +9,7 @@ class LanguageService {
   static const String _appLanguageKey = 'app_language';
   static const String _tsFromLanguageKey = 'ts_from_language';
   static const String _tsToLanguageKey = 'ts_to_language';
+  static const String _languageOrderKey = 'ts_language_order';
 
   // 언어 코드 상수
   static const String codeKorean = 'ko';
@@ -38,6 +39,7 @@ class LanguageService {
 
   // 앱 언어(로케일) 코드. 별도 UI에서 사용할 수 있음.
   static String _appLanguageCode = codeKorean;
+  static List<String>? _userLanguageOrder;
 
   // 번역 언어 상태 (UI에서 바인딩해 사용)
   static String _fromLanguage = _defaultFrom;
@@ -90,6 +92,12 @@ class LanguageService {
     _fromLanguage = prefs.getString(_tsFromLanguageKey) ?? _defaultFrom;
     _toLanguage = prefs.getString(_tsToLanguageKey) ?? _defaultTo;
 
+    // 사용자 정의 언어 순서 로드
+    final savedOrder = prefs.getStringList(_languageOrderKey);
+    if (savedOrder != null && savedOrder.isNotEmpty) {
+      _userLanguageOrder = _normalizeLanguageOrder(savedOrder);
+    }
+
     _isInitialized = true;
   }
 
@@ -135,6 +143,14 @@ class LanguageService {
     );
   }
 
+  static Future<void> setUserLanguageOrder(List<String> order) async {
+    final normalized = _normalizeLanguageOrder(order);
+    _userLanguageOrder = normalized;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_languageOrderKey, normalized);
+    _languageController.add({'languageOrder': 'updated'});
+  }
+
   // main.dart의 _mapUiLanguageToApi와 동일한 역할을 제공
   static String mapUiLanguageToApi(String uiLanguage) {
     switch (uiLanguage) {
@@ -173,6 +189,10 @@ class LanguageService {
 
   // 시스템 로케일을 반영하여 사용자 언어를 앞으로 정렬한 목록
   static List<String> getUiLanguagesOrderedBySystem() {
+    // 사용자 정의 순서가 있으면 우선 적용
+    if (_userLanguageOrder != null && _userLanguageOrder!.isNotEmpty) {
+      return List<String>.from(_userLanguageOrder!);
+    }
     final system = WidgetsBinding.instance.platformDispatcher.locale;
     final user = _uiNameFromSystemLocale(system);
     if (user == null) return List<String>.from(uiLanguages);
@@ -181,6 +201,10 @@ class LanguageService {
       if (lang != user) list.add(lang);
     }
     return list;
+  }
+
+  static List<String> getTranslationLanguageOrder() {
+    return getUiLanguagesOrderedBySystem();
   }
 
   // UI 라벨 -> ISO 코드
@@ -308,24 +332,18 @@ class LanguageService {
       {'code': uiGerman, 'name': loc.german},
     ];
 
-    // 사용자 언어를 앞으로 정렬
-    try {
-      final user = _uiNameFromSystemLocale(
-        WidgetsBinding.instance.platformDispatcher.locale,
-      );
-      if (user == null) return base;
-      final first = base.firstWhere(
-        (m) => m['code'] == user,
-        orElse: () => base.first,
-      );
-      final sorted = <Map<String, String>>[first];
-      for (final m in base) {
-        if (m['code'] != user) sorted.add(m);
-      }
-      return sorted;
-    } catch (_) {
-      return base;
+    final order = getTranslationLanguageOrder();
+    final map = {for (final m in base) m['code']!: m};
+    final sorted = <Map<String, String>>[];
+    for (final code in order) {
+      final entry = map[code];
+      if (entry != null) sorted.add(entry);
     }
+    // 누락된 언어를 기본 순서대로 뒤에 추가
+    for (final m in base) {
+      if (!sorted.contains(m)) sorted.add(m);
+    }
+    return sorted;
   }
 
   // 유틸리티
@@ -351,6 +369,19 @@ class LanguageService {
     if (lc == 'de') return uiGerman;
     if (lc == 'es') return uiSpanish;
     return null;
+  }
+
+  static List<String> _normalizeLanguageOrder(List<String> order) {
+    final result = <String>[];
+    for (final item in order) {
+      if (uiLanguages.contains(item) && !result.contains(item)) {
+        result.add(item);
+      }
+    }
+    for (final item in uiLanguages) {
+      if (!result.contains(item)) result.add(item);
+    }
+    return result;
   }
 
   static void dispose() {
