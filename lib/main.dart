@@ -34,7 +34,8 @@ import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
 
 // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
-final int maxInputLengthInFreeVersion = 500;
+final int maxInputLengthInFreeVersion = 200;
+final int maxDailyUsageInFreeVersion = 10;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -193,6 +194,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   StreamSubscription<TtsProgress>? _ttsProgressSub;
   StreamSubscription<User?>? _authSub;
   StreamSubscription<Map<String, String>>? _languageSub;
+  bool _isPro = false;
+  int _dailyUsage = 0;
 
   List<String> _languages = LanguageService.getTranslationLanguageOrder();
 
@@ -224,6 +227,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
         'dailyUsage': FieldValue.increment(1),
         'totalUsage': FieldValue.increment(1),
       }, SetOptions(merge: true));
+      if (!mounted) return;
+      setState(() {
+        _dailyUsage += 1;
+      });
     } catch (_) {}
   }
 
@@ -278,6 +285,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     // 인증 상태 변경을 즉시 드로어에 반영하기 위해 화면을 재빌드합니다.
     _authSub = AuthService.instance.authStateChanges.listen((_) {
       if (!mounted) return;
+      unawaited(_refreshUserProfile());
       setState(() {});
     });
 
@@ -289,6 +297,36 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
         });
       }
     });
+    unawaited(_refreshUserProfile());
+  }
+
+  int? _maxInputLengthForCurrentUser() {
+    return _isPro ? null : maxInputLengthInFreeVersion;
+  }
+
+  Future<void> _refreshUserProfile() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      if (!mounted) return;
+      setState(() {
+        _isPro = false;
+        _dailyUsage = 0;
+      });
+      return;
+    }
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final data = doc.data();
+      if (!mounted) return;
+      setState(() {
+        _isPro = data != null && data['isPro'] == true;
+        final usage = data != null ? data['dailyUsage'] : null;
+        _dailyUsage = usage is num ? usage.toInt() : 0;
+      });
+    } catch (_) {}
   }
 
   List<String> get toneLabels => [
@@ -427,6 +465,19 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
     if (text.isEmpty) {
       Fluttertoast.showToast(msg: '번역할 텍스트를 입력하세요');
       return;
+    }
+    await _refreshUserProfile();
+    if (!_isPro) {
+      if (text.length > maxInputLengthInFreeVersion) {
+        Fluttertoast.showToast(
+          msg: '일반 계정은 최대 ${maxInputLengthInFreeVersion}자까지 입력할 수 있어요',
+        );
+        return;
+      }
+      if (_dailyUsage >= maxDailyUsageInFreeVersion) {
+        Fluttertoast.showToast(msg: '일일 사용량을 모두 사용했어요');
+        return;
+      }
     }
     /* // 입력 언어 감지 및 콘솔 출력 (서비스 사용)
     LanguageDetectService.instance.detectRealtime(
@@ -2018,6 +2069,8 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                             alignment: Alignment.centerLeft,
                             child: LayoutBuilder(
                               builder: (context, constraints) {
+                                final int? maxInputLength =
+                                    _maxInputLengthForCurrentUser();
                                 final TextStyle textStyle = TextStyle(
                                   color: colors.text,
                                   fontSize: 15,
@@ -2044,6 +2097,14 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                               controller: _inputController,
                                               focusNode: _bottomInputFocusNode,
                                               style: textStyle,
+                                              inputFormatters:
+                                                  maxInputLength == null
+                                                  ? null
+                                                  : [
+                                                      LengthLimitingTextInputFormatter(
+                                                        maxInputLength,
+                                                      ),
+                                                    ],
                                               decoration: InputDecoration(
                                                 isDense: true,
                                                 border: InputBorder.none,
@@ -2207,7 +2268,10 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                                 ).push<String>(
                                                   MaterialPageRoute(
                                                     builder: (_) =>
-                                                        const _InputFullScreenEditor(),
+                                                        _InputFullScreenEditor(
+                                                          maxInputLength:
+                                                              _maxInputLengthForCurrentUser(),
+                                                        ),
                                                     settings: RouteSettings(
                                                       arguments:
                                                           _inputController.text,
@@ -2458,7 +2522,9 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
 }
 
 class _InputFullScreenEditor extends StatefulWidget {
-  const _InputFullScreenEditor();
+  const _InputFullScreenEditor({this.maxInputLength});
+
+  final int? maxInputLength;
 
   @override
   State<_InputFullScreenEditor> createState() => _InputFullScreenEditorState();
@@ -2502,8 +2568,9 @@ class _InputFullScreenEditorState extends State<_InputFullScreenEditor> {
     // 뒤로가기 시 현재 작성한 텍스트를 호출자에게 반환합니다.
     // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
     final text = _controller.text;
-    final limited = text.length > maxInputLengthInFreeVersion
-        ? text.substring(0, maxInputLengthInFreeVersion)
+    final int? maxInputLength = widget.maxInputLength;
+    final limited = maxInputLength != null && text.length > maxInputLength
+        ? text.substring(0, maxInputLength)
         : text;
     Navigator.of(context).pop<String>(limited);
     return false;
@@ -2543,11 +2610,13 @@ class _InputFullScreenEditorState extends State<_InputFullScreenEditor> {
                   maxLines: null,
 
                   // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(
-                      maxInputLengthInFreeVersion,
-                    ),
-                  ],
+                  inputFormatters: widget.maxInputLength == null
+                      ? null
+                      : [
+                          LengthLimitingTextInputFormatter(
+                            widget.maxInputLength!,
+                          ),
+                        ],
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: AppLocalizations.of(context).input_text_hint,
@@ -2579,11 +2648,14 @@ class _InputFullScreenEditorState extends State<_InputFullScreenEditor> {
                       Padding(
                         padding: const EdgeInsets.only(left: 16),
                         child: Text(
-                          "${_controller.text.length} / $maxInputLengthInFreeVersion",
+                          widget.maxInputLength == null
+                              ? "${_controller.text.length}"
+                              : "${_controller.text.length} / ${widget.maxInputLength}",
                           style: TextStyle(
                             color:
-                                _controller.text.length >=
-                                    maxInputLengthInFreeVersion
+                                widget.maxInputLength != null &&
+                                    _controller.text.length >=
+                                        widget.maxInputLength!
                                 ? colors.error
                                 : colors.text,
                             fontSize: 14,
@@ -2596,9 +2668,11 @@ class _InputFullScreenEditorState extends State<_InputFullScreenEditor> {
                         onPressed: () {
                           // 무료 버전에서는 일정 길이 이상 입력 시 잘라냅니다.
                           final text = _controller.text;
+                          final int? maxInputLength = widget.maxInputLength;
                           final limited =
-                              text.length > maxInputLengthInFreeVersion
-                              ? text.substring(0, maxInputLengthInFreeVersion)
+                              maxInputLength != null &&
+                                  text.length > maxInputLength
+                              ? text.substring(0, maxInputLength)
                               : text;
                           Navigator.of(context).pop<String>(limited);
                         },
