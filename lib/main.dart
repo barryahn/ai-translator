@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -213,6 +214,17 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
   void _hideKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
     SystemChannels.textInput.invokeMethod('TextInput.hide');
+  }
+
+  Future<void> _incrementDailyUsage() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'dailyUsage': FieldValue.increment(1),
+        'totalUsage': FieldValue.increment(1),
+      }, SetOptions(merge: true));
+    } catch (_) {}
   }
 
   void _showLanguagePicker({required bool selectingFrom}) {
@@ -497,6 +509,7 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
           });
           // 번역 기록 저장 (비동기)
           if (buffer.trim().isNotEmpty) {
+            unawaited(_incrementDailyUsage());
             unawaited(
               TranslationHistoryService.instance.addHistory(
                 fromUiLanguage:

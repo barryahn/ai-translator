@@ -49,7 +49,7 @@ class AuthService {
             photoUrlFromGoogle.trim().isNotEmpty) {
           await user.updatePhotoURL(photoUrlFromGoogle);
         }
-        await _ensureUserProFlag(user);
+        await _ensureUserProfile(user);
         await user.reload();
       }
       return user;
@@ -91,7 +91,7 @@ class AuthService {
           .signInWithCredential(authCredential);
       final user = userCredential.user;
       if (user != null) {
-        await _ensureUserProFlag(user);
+        await _ensureUserProfile(user);
         await user.reload();
       }
       return user;
@@ -103,7 +103,7 @@ class AuthService {
     return null;
   }
 
-  Future<void> _ensureUserProFlag(User user) async {
+  Future<void> _ensureUserProfile(User user) async {
     try {
       final docRef = FirebaseFirestore.instance
           .collection('users')
@@ -111,8 +111,24 @@ class AuthService {
       final doc = await docRef.get();
       final data = doc.data();
       final bool hasIsPro = data != null && data.containsKey('isPro');
+      final bool hasDailyUsage = data != null && data.containsKey('dailyUsage');
+      final bool hasTotalUsage = data != null && data.containsKey('totalUsage');
+      final bool hasId = data != null && data.containsKey('id');
+      final Map<String, Object?> updates = {};
       if (!doc.exists || !hasIsPro) {
-        await docRef.set({'isPro': false}, SetOptions(merge: true));
+        updates['isPro'] = false;
+      }
+      if (!doc.exists || !hasDailyUsage) {
+        updates['dailyUsage'] = 0;
+      }
+      if (!doc.exists || !hasTotalUsage) {
+        updates['totalUsage'] = 0;
+      }
+      if (!doc.exists || !hasId) {
+        updates['id'] = user.email ?? '';
+      }
+      if (updates.isNotEmpty) {
+        await docRef.set(updates, SetOptions(merge: true));
       }
     } catch (_) {}
   }
