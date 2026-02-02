@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   AuthService._internal();
@@ -48,6 +49,7 @@ class AuthService {
             photoUrlFromGoogle.trim().isNotEmpty) {
           await user.updatePhotoURL(photoUrlFromGoogle);
         }
+        await _ensureUserProFlag(user);
         await user.reload();
       }
       return user;
@@ -85,13 +87,34 @@ class AuthService {
             idToken: credential.identityToken,
             accessToken: credential.authorizationCode,
           );
-      final UserCredential user = await FirebaseAuth.instance
+      final UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(authCredential);
-    } on SignInWithAppleAuthorizationException catch (e) {
+      final user = userCredential.user;
+      if (user != null) {
+        await _ensureUserProFlag(user);
+        await user.reload();
+      }
+      return user;
+    } on SignInWithAppleAuthorizationException {
       // Handling errors on failure
     } catch (_) {
       // Handling other errors
     }
+    return null;
+  }
+
+  Future<void> _ensureUserProFlag(User user) async {
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid);
+      final doc = await docRef.get();
+      final data = doc.data();
+      final bool hasIsPro = data != null && data.containsKey('isPro');
+      if (!doc.exists || !hasIsPro) {
+        await docRef.set({'isPro': false}, SetOptions(merge: true));
+      }
+    } catch (_) {}
   }
 
   Future<void> signOut() async {
