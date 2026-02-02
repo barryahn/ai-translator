@@ -1,6 +1,8 @@
 // 메인
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -963,9 +965,12 @@ class _TranslationUIOnlyScreenState extends State<TranslationUIOnlyScreen>
                                 backgroundColor: Colors.transparent,
                                 barrierColor: Colors.black54,
                                 builder: (sheetContext) {
+                                  final isIOS =
+                                      defaultTargetPlatform ==
+                                      TargetPlatform.iOS;
                                   return DraggableScrollableSheet(
-                                    initialChildSize: 0.40,
-                                    minChildSize: 0.30,
+                                    initialChildSize: isIOS ? 0.30 : 0.28,
+                                    minChildSize: isIOS ? 0.24 : 0.22,
                                     maxChildSize: 0.90,
                                     expand: false,
                                     builder: (context, controller) {

@@ -12,20 +12,15 @@ class LoginModal extends StatefulWidget {
 
 class _LoginModalState extends State<LoginModal> {
   bool _isLoading = false;
-  String? _errorMessage;
 
   Future<void> _signInWithGoogle() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
     try {
       await AuthService.instance.signInWithGoogle();
       if (mounted) Navigator.of(context).maybePop();
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+    } catch (_) {
     } finally {
       if (mounted) {
         setState(() {
@@ -38,15 +33,11 @@ class _LoginModalState extends State<LoginModal> {
   Future<void> _signInWithApple() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
     try {
       await AuthService.instance.signInWithApple();
       if (mounted) Navigator.of(context).maybePop();
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+    } catch (_) {
     } finally {
       if (mounted) {
         setState(() {
@@ -59,6 +50,34 @@ class _LoginModalState extends State<LoginModal> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    Widget buildLoadingOverlayButton(Widget button) {
+      return AbsorbPointer(
+        absorbing: _isLoading,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            button,
+            if (_isLoading)
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurface.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
     return SafeArea(
       top: false,
       child: Padding(
@@ -92,41 +111,11 @@ class _LoginModalState extends State<LoginModal> {
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
-            if (_errorMessage != null)
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  _errorMessage!,
-                  style: TextStyle(
-                    color: theme.colorScheme.onErrorContainer,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: _isLoading ? null : _signInWithGoogle,
-              icon: const Icon(Icons.g_mobiledata),
-              label: const Text('Google로 계속'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-                backgroundColor: theme.textTheme.bodyLarge?.color,
-                foregroundColor: theme.scaffoldBackgroundColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS)
+            buildLoadingOverlayButton(
               ElevatedButton.icon(
-                onPressed: _isLoading ? null : _signInWithApple,
-                icon: const Icon(Icons.apple),
-                label: const Text('Apple로 계속'),
+                onPressed: _isLoading ? null : _signInWithGoogle,
+                icon: const Icon(Icons.g_mobiledata),
+                label: const Text('Google로 계속'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                   backgroundColor: theme.textTheme.bodyLarge?.color,
@@ -136,12 +125,22 @@ class _LoginModalState extends State<LoginModal> {
                   ),
                 ),
               ),
-            const SizedBox(height: 8),
-            if (_isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: CircularProgressIndicator(),
+            ),
+            const SizedBox(height: 12),
+            if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS)
+              buildLoadingOverlayButton(
+                ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _signInWithApple,
+                  icon: const Icon(Icons.apple),
+                  label: const Text('Apple로 계속'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    backgroundColor: theme.textTheme.bodyLarge?.color,
+                    foregroundColor: theme.scaffoldBackgroundColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
                 ),
               ),
           ],
